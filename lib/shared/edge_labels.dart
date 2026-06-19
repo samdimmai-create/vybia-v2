@@ -9,16 +9,20 @@ import '../core/theme/app_spacing.dart';
 class EdgeLabels extends StatelessWidget {
   const EdgeLabels({
     super.key,
-    required this.left,
-    required this.right,
-    required this.up,
-    required this.down,
+    this.left,
+    this.right,
+    this.up,
+    this.down,
   });
 
-  final String left;
-  final String right;
-  final String up;
-  final String down;
+  /// Null (or empty) labels are simply not drawn — so a 2-choice scene shows
+  /// only its left/right chips.
+  final String? left;
+  final String? right;
+  final String? up;
+  final String? down;
+
+  bool _has(String? s) => s != null && s.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -27,32 +31,38 @@ class EdgeLabels extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Positioned(
-              left: AppSpacing.md,
-              top: 0,
-              bottom: 0,
-              child: Center(child: _Chip(label: left, color: AppColors.edgeLeft)),
-            ),
-            Positioned(
-              right: AppSpacing.md,
-              top: 0,
-              bottom: 0,
-              child:
-                  Center(child: _Chip(label: right, color: AppColors.edgeRight)),
-            ),
-            Positioned(
-              top: AppSpacing.xl,
-              left: 0,
-              right: 0,
-              child: Center(child: _Chip(label: up, color: AppColors.edgeUp)),
-            ),
-            Positioned(
-              bottom: AppSpacing.xl,
-              left: 0,
-              right: 0,
-              child:
-                  Center(child: _Chip(label: down, color: AppColors.edgeDown)),
-            ),
+            if (_has(left))
+              Positioned(
+                left: AppSpacing.md,
+                top: 0,
+                bottom: 0,
+                child: Center(
+                    child: _Chip(label: left!, color: AppColors.edgeLeft)),
+              ),
+            if (_has(right))
+              Positioned(
+                right: AppSpacing.md,
+                top: 0,
+                bottom: 0,
+                child: Center(
+                    child: _Chip(label: right!, color: AppColors.edgeRight)),
+              ),
+            if (_has(up))
+              Positioned(
+                top: AppSpacing.xl,
+                left: 0,
+                right: 0,
+                child:
+                    Center(child: _Chip(label: up!, color: AppColors.edgeUp)),
+              ),
+            if (_has(down))
+              Positioned(
+                bottom: AppSpacing.xl,
+                left: 0,
+                right: 0,
+                child: Center(
+                    child: _Chip(label: down!, color: AppColors.edgeDown)),
+              ),
           ],
         ),
       ),

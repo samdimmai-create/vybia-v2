@@ -7,11 +7,11 @@ import 'orb_painter.dart';
 /// The Vybia brand primitive.
 ///
 /// Wraps [child] in a [Listener] (pointer events — never GestureDetector). An
-/// orb is *born* at the touch point on pointer-down, *follows* the finger, and
-/// either:
+/// orb is *born* at the touch point on pointer-down (a ~150ms fade + scale-in,
+/// never an instant pop), *follows* the finger, and either:
 ///   * commits a direction (left/right/up/down) when dragged past [threshold],
 ///     firing [onDirection]; or
-///   * dissolves in ~150ms on release when below threshold.
+///   * progressively dissolves in ~150ms on release when below threshold.
 ///
 /// State is fully reset on BOTH pointer-up and pointer-cancel, and every timer
 /// is cancelled before a commit — so the orb can never freeze on screen (this
@@ -22,9 +22,10 @@ class VybiaOrb extends StatefulWidget {
     required this.child,
     required this.onDirection,
     this.onPositionChanged,
+    this.onPresence,
     this.showOrb = true,
     this.threshold = 72,
-    this.orbSize = 132,
+    this.orbSize = 88,
   });
 
   final Widget child;
@@ -35,9 +36,16 @@ class VybiaOrb extends StatefulWidget {
   /// track the orb without re-implementing the gesture state machine.
   final ValueChanged<Offset?>? onPositionChanged;
 
+  /// Streams the orb's life force, 0..1: ramps up on birth (~150ms fade + scale
+  /// in on pointer-down) and back down on the dissolve (~150ms on release /
+  /// cancel). An overlay (the refraction bubble) multiplies its own strength by
+  /// this so it is *born on touch and gone on release* in lockstep with the orb
+  /// — quick but smooth, never an instant pop, never frozen.
+  final ValueChanged<double>? onPresence;
+
   /// When false the orb's gesture/state machine still runs (and
-  /// [onPositionChanged] still fires) but the painted orb body is hidden, so a
-  /// custom visual (the refraction bubble) can stand in for the orb.
+  /// [onPositionChanged] / [onPresence] still fire) but the painted orb body is
+  /// hidden, so a custom visual (the refraction bubble) can stand in for it.
   final bool showOrb;
 
   final double threshold;
@@ -49,7 +57,8 @@ class VybiaOrb extends StatefulWidget {
 
 class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
   late final AnimationController _pulse;
-  late final AnimationController _dissolve;
+  late final AnimationController _appear; // 0→1 birth
+  late final AnimationController _dissolve; // 1→0 death
 
   bool _active = false;
   Offset _origin = Offset.zero;
@@ -63,20 +72,35 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(seconds: 4),
     )..repeat();
+    _appear = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+      value: 0.0,
+    )..addListener(_emitPresence);
     _dissolve = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 150),
       value: 1.0,
-    );
+    )..addListener(_emitPresence);
   }
 
   @override
   void dispose() {
     _dissolveTimer?.cancel();
     _pulse.dispose();
+    _appear.dispose();
     _dissolve.dispose();
     super.dispose();
   }
+
+  // ---- Life force --------------------------------------------------------
+  // Birth ramps [_appear] 0→1 while [_dissolve] holds at 1; death reverses
+  // [_dissolve] 1→0 while [_appear] holds at 1. The product is a single smooth
+  // 0→1→0 curve over the orb's whole life.
+  double get _presence =>
+      (_appear.value * _dissolve.value).clamp(0.0, 1.0).toDouble();
+
+  void _emitPresence() => widget.onPresence?.call(_presence);
 
   // ---- Geometry helpers -------------------------------------------------
   Offset get _delta => _current - _origin;
@@ -102,6 +126,7 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
       _origin = e.localPosition;
       _current = e.localPosition;
     });
+    _appear.forward(from: 0.0); // smooth birth, never an instant pop
     widget.onPositionChanged?.call(e.localPosition);
   }
 
@@ -122,7 +147,7 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
       widget.onDirection(dir);
     }
 
-    // Dissolve, then hard-reset all state so nothing can persist.
+    // Progressive dissolve, then hard-reset all state so nothing can persist.
     _dissolve.reverse(from: 1.0);
     _dissolveTimer = Timer(const Duration(milliseconds: 160), _reset);
   }
@@ -135,7 +160,9 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
       _origin = Offset.zero;
       _current = Offset.zero;
     });
+    _appear.value = 0.0;
     _dissolve.value = 1.0;
+    _emitPresence(); // presence == 0 now
     widget.onPositionChanged?.call(null);
   }
 
@@ -152,20 +179,26 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
           Positioned.fill(child: widget.child),
           if (_active && widget.showOrb)
             AnimatedBuilder(
-              animation: Listenable.merge([_pulse, _dissolve]),
+              animation: Listenable.merge([_pulse, _appear, _dissolve]),
               builder: (context, _) {
+                final presence = _presence;
+                // Pop-in: scales from 0.62 → 1.0 with the birth curve.
+                final scale = 0.62 + 0.38 * presence;
                 return Positioned(
                   left: _current.dx - widget.orbSize / 2,
                   top: _current.dy - widget.orbSize / 2,
                   width: widget.orbSize,
                   height: widget.orbSize,
                   child: IgnorePointer(
-                    child: CustomPaint(
-                      painter: OrbPainter(
-                        pulse: _pulse.value,
-                        opacity: _dissolve.value,
-                        reach: _reach,
-                        direction: _direction,
+                    child: Transform.scale(
+                      scale: scale,
+                      child: CustomPaint(
+                        painter: OrbPainter(
+                          pulse: _pulse.value,
+                          opacity: presence,
+                          reach: _reach,
+                          direction: _direction,
+                        ),
                       ),
                     ),
                   ),

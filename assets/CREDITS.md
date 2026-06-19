@@ -5,7 +5,8 @@ All bundled images are free-to-use placeholders sourced from **Lorem Picsum**
 [Unsplash License](https://unsplash.com/license) (free for commercial and
 non-commercial use, no attribution required — recorded here anyway for clarity).
 
-Downloaded 2026-06-19 at fixed photo IDs for reproducibility.
+Downloaded 2026-06-19 at fixed photo IDs for reproducibility. Re-fetched in S2
+at higher resolution (1280×1600) for crisper full-bleed bubble scenes.
 
 ## Demo / recommendation scenes (`assets/images/recos/`)
 | File | Source | Theme |
