@@ -11,6 +11,12 @@ import 'features/plans/state/plan_controller.dart';
 class VybiaApp extends StatefulWidget {
   const VybiaApp({super.key});
 
+  /// App-level navigator key. Lets the immersive flows (and visible tests) push
+  /// routes without threading a context, and keeps a single source of truth for
+  /// navigation above the route stack.
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
+
   @override
   State<VybiaApp> createState() => _VybiaAppState();
 }
@@ -30,6 +36,7 @@ class _VybiaAppState extends State<VybiaApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Vybia',
+      navigatorKey: VybiaApp.navigatorKey,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
       // Honour the browser hash deep-link (`/#/discover`, `/#/bubble`, …) with
