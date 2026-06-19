@@ -266,6 +266,8 @@ class _TopScrim extends StatelessWidget {
                 ],
                 Text(
                   headline,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
                   style: t.displayMedium?.copyWith(
                     color: AppColors.pearl,
                     shadows: const [
@@ -277,6 +279,8 @@ class _TopScrim extends StatelessWidget {
                   const SizedBox(height: AppSpacing.xs),
                   Text(
                     prompt!,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
                     style: t.bodyLarge?.copyWith(
                       color: AppColors.textSecondary,
                       shadows: const [
