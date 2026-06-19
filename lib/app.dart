@@ -31,6 +31,44 @@ class _VybiaAppState extends State<VybiaApp> {
   late final GuestController _guest = GuestController(store: widget.store);
   late final PlanController _plans = PlanController(store: widget.store);
 
+  // Debug-only visual-proof tour: with `--dart-define=VYBIA_AUTODRIVE=true` the
+  // app walks reco → welcome → profil via the navigator (no pointer), so the
+  // universal bubble can be screenshotted on every image in a single run,
+  // crosshair-free. Each hop prints `VYBIA_SCENE <name>` for the capture script.
+  static const bool _kAutoDrive = bool.fromEnvironment('VYBIA_AUTODRIVE');
+
+  @override
+  void initState() {
+    super.initState();
+    if (_kAutoDrive) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _runProofTour());
+    }
+  }
+
+  void _runProofTour() {
+    const scenes = [AppRouter.reco, AppRouter.welcome, AppRouter.profil];
+    var i = 0;
+    void hop() {
+      final nav = VybiaApp.navigatorKey.currentState;
+      if (nav == null || !mounted) return;
+      final route = scenes[i];
+      debugPrint('VYBIA_SCENE ${route.replaceAll('/', '')}');
+      // Reset to the first scene (clears splash), then push each later hop —
+      // robust to whatever the initial route resolved to.
+      if (i == 0) {
+        nav.pushNamedAndRemoveUntil(route, (_) => false);
+      } else {
+        nav.pushNamed(route);
+      }
+      i++;
+      if (i < scenes.length) {
+        Future.delayed(const Duration(seconds: 42), hop);
+      }
+    }
+
+    hop();
+  }
+
   @override
   void dispose() {
     _guest.dispose();
@@ -51,6 +89,10 @@ class _VybiaAppState extends State<VybiaApp> {
       // then clobbers the deep-linked top route → everything wrongly lands on
       // welcome. Generating one route fixes that; a bare `/` still maps to the
       // splash via onGenerateRoute's default case.
+      // Debug-only launch deep-link for visual proofs:
+      // `--dart-define=VYBIA_START=/reco` lands straight on a scene.
+      initialRoute: const String.fromEnvironment('VYBIA_START',
+          defaultValue: AppRouter.splash),
       onGenerateInitialRoutes: (initialRoute) =>
           [AppRouter.onGenerateRoute(RouteSettings(name: initialRoute))],
       onGenerateRoute: AppRouter.onGenerateRoute,

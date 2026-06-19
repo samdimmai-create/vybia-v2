@@ -48,8 +48,11 @@ class EdgeLabels extends StatelessWidget {
                     child: _Chip(label: right!, color: AppColors.edgeRight)),
               ),
             if (_has(up))
+              // Pinned just below the status bar (SafeArea), centred. The top
+              // scrim reserves space below this band so it never overlaps the
+              // badge or headline (see SceneScaffold._TopScrim).
               Positioned(
-                top: AppSpacing.xl,
+                top: AppSpacing.xs,
                 left: 0,
                 right: 0,
                 child:

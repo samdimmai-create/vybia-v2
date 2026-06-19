@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -34,7 +35,7 @@ class SceneScaffold extends StatefulWidget {
     this.rightAction = EdgeAction.neutral,
     this.upAction = EdgeAction.neutral,
     this.downAction = EdgeAction.neutral,
-    this.lensRadius = 84,
+    this.lensRadius = 108,
   });
 
   final String image;
@@ -71,6 +72,55 @@ class _SceneScaffoldState extends State<SceneScaffold>
 
   static const double _ambient = 0.5; // every image always shows the bubble
 
+  // ---- Debug auto-drive --------------------------------------------------
+  // When built with `--dart-define=VYBIA_AUTODRIVE=true`, the orb is driven
+  // PROGRAMMATICALLY (no pointer) through a rest → centre → 4-edge cycle. This
+  // lets the live bubble be screenshotted under a normal `flutter run` WITHOUT
+  // the Flutter live-test pointer crosshair (which only exists under TestGesture
+  // and was masking the real glass droplet in earlier proofs). Compiled out of
+  // release builds (const false → tree-shaken).
+  static const bool _kAutoDrive = bool.fromEnvironment('VYBIA_AUTODRIVE');
+
+  // (dxFrac, dyFrac, dir, reach, presence, name). presence 0 ⇒ lens off (drift).
+  static const List<(double, double, OrbDirection?, double, double, String)>
+      _driveScript = [
+    (0.0, 0.0, null, 0.0, 0.0, 'rest'), // no-orb half of the refraction compare
+    (0.0, 0.0, null, 0.0, 1.0, 'centre'), // pure glass droplet, no edge colour
+    (-0.20, 0.0, OrbDirection.left, 1.0, 1.0, 'left'),
+    (0.20, 0.0, OrbDirection.right, 1.0, 1.0, 'right'),
+    (0.0, 0.18, OrbDirection.down, 1.0, 1.0, 'down'),
+    (0.0, -0.18, OrbDirection.up, 1.0, 1.0, 'up'),
+  ];
+  Timer? _driveTimer;
+  int _driveStep = 0;
+  Size _lastSize = Size.zero;
+  double? _forceActive; // autodrive only: pin the lens strength (0 = lens off)
+
+  void _autoTick() {
+    if (!mounted || _lastSize == Size.zero) return;
+    final s = _driveScript[_driveStep % _driveScript.length];
+    setState(() {
+      // Same framing for every state: the lens sits at the scripted point. The
+      // 'rest' frame forces the lens OFF so the compare is identical-framing,
+      // lens-off vs lens-on (proves geometry, not a brightness change).
+      _orb = Offset(_lastSize.width / 2 + s.$1 * _lastSize.width,
+          _lastSize.height / 2 + s.$2 * _lastSize.height);
+      if (s.$6 == 'rest') {
+        _forceActive = 0.0;
+        _presence = 0;
+        _aimDir = null;
+        _aimReach = 0;
+      } else {
+        _forceActive = null;
+        _presence = s.$5;
+        _aimDir = s.$3;
+        _aimReach = s.$4;
+      }
+    });
+    debugPrint('VYBIA_DRIVE ${s.$6}');
+    _driveStep++;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -78,10 +128,18 @@ class _SceneScaffoldState extends State<SceneScaffold>
       vsync: this,
       duration: const Duration(seconds: 8),
     )..repeat();
+    if (_kAutoDrive) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _autoTick();
+        _driveTimer =
+            Timer.periodic(const Duration(milliseconds: 5000), (_) => _autoTick());
+      });
+    }
   }
 
   @override
   void dispose() {
+    _driveTimer?.cancel();
     _drift.dispose();
     super.dispose();
   }
@@ -120,6 +178,7 @@ class _SceneScaffoldState extends State<SceneScaffold>
       body: LayoutBuilder(
         builder: (context, constraints) {
           final size = Size(constraints.maxWidth, constraints.maxHeight);
+          _lastSize = size;
           return VybiaOrb(
             showOrb: false, // the refraction bubble IS the orb here
             onPositionChanged: (p) => setState(() => _orb = p),
@@ -136,11 +195,12 @@ class _SceneScaffoldState extends State<SceneScaffold>
                 final center = _orb ?? _idle(size);
                 // Continuous floor (every image stays a bubble) lifted to full
                 // strength on contact — no flicker on release.
-                final active = pressing
-                    ? (_ambient + (1 - _ambient) * _presence)
-                        .clamp(0.0, 1.0)
-                        .toDouble()
-                    : _ambient;
+                final active = _forceActive ??
+                    (pressing
+                        ? (_ambient + (1 - _ambient) * _presence)
+                            .clamp(0.0, 1.0)
+                            .toDouble()
+                        : _ambient);
                 return Stack(
                   fit: StackFit.expand,
                   children: [
@@ -148,7 +208,7 @@ class _SceneScaffoldState extends State<SceneScaffold>
                       image: AssetImage(widget.image),
                       orbCenter: center,
                       radius: widget.lensRadius,
-                      magnification: 0.55,
+                      magnification: 0.8,
                       active: active,
                     ),
                     // Decisive-edge colour feedback: filters the image toward the
@@ -229,8 +289,11 @@ class _TopScrim extends StatelessWidget {
         alignment: Alignment.topCenter,
         child: Container(
           width: double.infinity,
+          // Top padding reserves a safe zone for the centred top edge-label
+          // (pinned just under the status bar by EdgeLabels) so the badge and
+          // headline always start clearly below it — never overlapping.
           padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg, AppSpacing.xxl, AppSpacing.lg, AppSpacing.xl),
+              AppSpacing.lg, AppSpacing.huge, AppSpacing.lg, AppSpacing.xl),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,

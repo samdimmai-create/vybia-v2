@@ -1,16 +1,21 @@
 #version 460 core
 #include <flutter/runtime_effect.glsl>
 
-// Vybia universal "liquid-glass bubble" refraction.
+// Vybia universal "liquid-glass bubble" refraction — S6.1 strengthened.
 //
-// Samples the rendered background image (uTex) and, inside a circular lens of
-// radius uRadius centered on uOrb, applies:
-//   * spherical refraction (samples bent inward, strongest mid-lens),
-//   * chromatic fringe that grows toward the rim,
-//   * a specular highlight near the upper-left,
-//   * a sea-glass rim tint + curvature darkening,
-//   * a soft edge so the lens melts into the image.
+// Inside a circular lens of radius uRadius centered on uOrb the backdrop is
+// rendered as a REAL convex glass droplet, not a tint:
+//   * MAGNIFICATION + RADIAL LENSING — the sample radius collapses toward the
+//     centre on a convex (droplet) curve, so content is enlarged AND straight
+//     features visibly bend (the iOS-lockscreen warp).
+//   * GLASS RIM — a bright soft specular ring at the bead edge so it reads as a
+//     3D piece of glass, with curvature darkening just inside it.
+//   * CHROMATIC ABERRATION — per-channel UV split growing toward the rim.
+//   * SPECULAR HIGHLIGHT — upper-left glass kick + a gentle inner luminosity so
+//     the bead glows like liquid glass (the "droplet", never a crosshair ring).
 // Outside the lens the image is untouched. uActive fades the whole effect.
+//
+// All headline magnitudes are named constants below so the warp is tunable.
 
 precision highp float;
 
@@ -22,6 +27,15 @@ uniform float uActive; // overall strength 0..1       (index 6)
 uniform sampler2D uTex;
 
 out vec4 fragColor;
+
+// ---- Tunable look constants ------------------------------------------------
+// Raise LENS_AMP / MAG_AMP if the warp ever reads as a flat tint again.
+const float LENS_AMP   = 1.6;   // radial displacement (geometry bend) amplitude
+const float MAG_AMP    = 1.0;   // extra magnification toward the centre
+const float CHROMA_PX  = 16.0;  // chromatic split at the rim, in px
+const float RIM_BRIGHT = 0.70;  // brightness of the glass rim highlight
+const float SPEC_BRIGHT = 0.50; // upper-left specular kick brightness
+const float INNER_GLOW = 0.045; // gentle inner luminosity (droplet, not ring)
 
 void main() {
   vec2 pos = FlutterFragCoord().xy;
@@ -38,32 +52,49 @@ void main() {
   }
 
   float nd = dist / r;                          // 0 center .. 1 rim
-  float dome = sqrt(max(0.0, 1.0 - nd * nd));   // spherical profile
+  float bulge = 1.0 - nd * nd;                  // convex droplet falloff (1..0)
+  float dome = sqrt(max(0.0, bulge));           // spherical profile
+  vec2 dir = dist > 0.0001 ? d / dist : vec2(0.0);
 
-  // Refraction: bend the sample inward, strongest in the dome's middle.
-  float pull = mix(1.0, 1.0 - uMag, dome);
-  vec2 sPos = uOrb + d * pull;
+  // --- Convex lens: collapse the sample radius toward the centre. ---------
+  // k<1 magnifies; because k varies non-linearly with radius, straight lines
+  // bend like a glass droplet. Combined explicit inward displacement makes the
+  // bend obvious even over uniform texture.
+  float mag = (uMag * MAG_AMP);
+  float k = 1.0 - mag * bulge;                  // central zoom
+  float lens = LENS_AMP * mag * sin(nd * 3.14159265); // peaks mid-lens
+  vec2 sPos = uOrb + d * k - dir * (lens * r * 0.26);
   vec2 sUv = sPos / uSize;
 
-  // Chromatic fringe grows toward the rim.
-  vec2 dir = dist > 0.0001 ? d / dist : vec2(0.0);
-  float fringe = smoothstep(0.55, 1.0, nd) * (6.0 / max(uSize.x, uSize.y));
-  float rC = texture(uTex, sUv + dir * fringe).r;
+  // --- Chromatic aberration: split channels along the radius toward the rim.
+  float ca = (CHROMA_PX * nd * nd) / max(uSize.x, uSize.y);
+  float rC = texture(uTex, sUv + dir * ca).r;
   float gC = texture(uTex, sUv).g;
-  float bC = texture(uTex, sUv - dir * fringe).b;
+  float bC = texture(uTex, sUv - dir * ca).b;
   vec3 col = vec3(rC, gC, bC);
 
-  // Specular highlight near the upper-left of the lens.
-  vec2 hl = uOrb + vec2(-r * 0.32, -r * 0.34);
-  float hd = length(pos - hl) / (r * 0.9);
-  col += vec3(0.90, 0.95, 0.92) * (1.0 - smoothstep(0.0, 1.0, hd)) * 0.30 * dome;
+  // --- Curvature darkening just inside the rim (reads as a dome). ---------
+  float curve = smoothstep(0.55, 1.0, nd);
+  col *= mix(1.0, 0.86, curve);
 
-  // Sea-glass rim tint + curvature darkening.
-  float rim = smoothstep(0.80, 1.0, nd);
+  // --- Gentle inner luminosity so the bead GLOWS (droplet, not a ring). ---
+  col += vec3(0.92, 0.97, 0.94) * INNER_GLOW * dome;
+
+  // --- Sea-glass rim tint (subtle aura, not a flat fill). ----------------
+  float rimTint = smoothstep(0.72, 1.0, nd);
   vec3 seaGlass = vec3(0.37, 0.72, 0.66);
-  col = mix(col, col * 0.78 + seaGlass * 0.35, rim * 0.6);
+  col = mix(col, col * 0.82 + seaGlass * 0.30, rimTint * 0.45);
 
-  // Soft edge: blend the lens back into the untouched image at the boundary.
+  // --- Bright soft GLASS RIM ring at the bead edge. ----------------------
+  float ring = smoothstep(0.84, 0.95, nd) * (1.0 - smoothstep(0.95, 1.0, nd));
+  col += vec3(0.96, 0.99, 0.97) * ring * RIM_BRIGHT;
+
+  // --- Upper-left specular kick — the wet-glass shine. -------------------
+  vec2 hl = uOrb + vec2(-r * 0.34, -r * 0.36);
+  float hd = length(pos - hl) / (r * 0.6);
+  col += vec3(1.0) * (1.0 - smoothstep(0.0, 1.0, hd)) * SPEC_BRIGHT * dome;
+
+  // --- Soft edge: melt the lens back into the untouched image. -----------
   float edge = smoothstep(1.0, 0.90, nd);
   col = mix(base, col, edge * uActive);
 
