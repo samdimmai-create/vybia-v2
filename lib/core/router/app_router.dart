@@ -4,6 +4,7 @@ import '../../features/demo/orb_demo_screen.dart';
 import '../../features/demo/orb_preview_screen.dart';
 import '../../features/demo/refraction_demo_screen.dart';
 import '../../features/dev/dev_menu_screen.dart';
+import '../../features/dev/edge_decisive_demo_screen.dart';
 import '../../features/guest/screens/discover_screen.dart';
 import '../../features/guest/screens/intention_screen.dart';
 import '../../features/guest/screens/profile_ready_screen.dart';
@@ -33,6 +34,7 @@ class AppRouter {
   static const String bubble = '/bubble';
   static const String orbPreview = '/orb';
   static const String orbDemo = '/orb-demo';
+  static const String edgeDemo = '/edge-demo';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     Widget page;
@@ -59,6 +61,8 @@ class AppRouter {
         page = const OrbPreviewScreen();
       case orbDemo:
         page = const OrbDemoScreen();
+      case edgeDemo:
+        page = const EdgeDecisiveDemoScreen();
       case splash:
       default:
         page = const SplashScreen();

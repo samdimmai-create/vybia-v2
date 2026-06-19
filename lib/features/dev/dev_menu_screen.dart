@@ -22,6 +22,7 @@ class DevMenuScreen extends StatelessWidget {
     ('— Bulle (gros plan réfraction)', AppRouter.bubble),
     ('— Orbe (aperçu)', AppRouter.orbPreview),
     ('— Démo orbe (champ)', AppRouter.orbDemo),
+    ('— Couleurs décisives (bords)', AppRouter.edgeDemo),
   ];
 
   @override
