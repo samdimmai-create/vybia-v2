@@ -63,12 +63,12 @@ shoot() {
   [[ -f "$out" ]] && echo "    ✓ $(stat -f%z "$out" 2>/dev/null) bytes" || echo "    ✗ no file"
 }
 
-shoot "/bubble"      "s2_bubble_refined.png"
-shoot "/welcome"     "s2_welcome.png"
-shoot "/discover"    "s2_discover.png"
-shoot "/intention"   "s2_intention.png"
-shoot "/profil-pret" "s2_profile_ready.png"
-shoot "/dev"         "s2_dev.png"
+shoot "/welcome"     "s3_welcome.png"
+shoot "/discover"    "s3_discover.png"
+shoot "/intention"   "s3_intention.png"
+shoot "/reco"        "s3_reco.png"
+shoot "/plan"        "s3_plan.png"
+shoot "/dev"         "s3_dev.png"
 
 echo "Done. Screenshots in $OUTDIR"
-open "$OUTDIR"/s2_*.png 2>/dev/null || true
+open "$OUTDIR"/s3_*.png 2>/dev/null || true

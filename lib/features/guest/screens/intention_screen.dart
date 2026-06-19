@@ -19,12 +19,13 @@ class IntentionScreen extends StatelessWidget {
     void choose(OrbDirection d) {
       if (d == OrbDirection.left) {
         guest.setIntention(Intention.now);
+        // "Maintenant" → straight into the immersive recommendation scenes.
+        Navigator.of(context).pushReplacementNamed(AppRouter.reco);
       } else if (d == OrbDirection.right) {
         guest.setIntention(Intention.plan);
-      } else {
-        return; // only left/right are offered
+        // Plan flow proper is S4; for now show the captured-profile recap.
+        Navigator.of(context).pushReplacementNamed(AppRouter.profileReady);
       }
-      Navigator.of(context).pushReplacementNamed(AppRouter.profileReady);
     }
 
     return SceneScaffold(

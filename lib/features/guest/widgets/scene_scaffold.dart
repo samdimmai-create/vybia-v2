@@ -23,6 +23,7 @@ class SceneScaffold extends StatefulWidget {
     required this.headline,
     required this.onDirection,
     this.prompt,
+    this.badge,
     this.left,
     this.right,
     this.up,
@@ -33,6 +34,9 @@ class SceneScaffold extends StatefulWidget {
   final String image;
   final String headline;
   final String? prompt;
+
+  /// Optional small pill shown above the headline (e.g. "★ Meilleur choix").
+  final String? badge;
   final ValueChanged<OrbDirection> onDirection;
   final String? left;
   final String? right;
@@ -109,7 +113,11 @@ class _SceneScaffoldState extends State<SceneScaffold>
                       magnification: 0.55,
                       active: active,
                     ),
-                    _TopScrim(headline: widget.headline, prompt: widget.prompt),
+                    _TopScrim(
+                      headline: widget.headline,
+                      prompt: widget.prompt,
+                      badge: widget.badge,
+                    ),
                     EdgeLabels(
                       left: widget.left,
                       right: widget.right,
@@ -160,10 +168,11 @@ class _SceneScaffoldState extends State<SceneScaffold>
 
 /// Headline + optional prompt floated on a top legibility scrim.
 class _TopScrim extends StatelessWidget {
-  const _TopScrim({required this.headline, this.prompt});
+  const _TopScrim({required this.headline, this.prompt, this.badge});
 
   final String headline;
   final String? prompt;
+  final String? badge;
 
   @override
   Widget build(BuildContext context) {
@@ -190,6 +199,24 @@ class _TopScrim extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (badge != null) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.85),
+                      borderRadius: BorderRadius.circular(AppRadius.pill),
+                    ),
+                    child: Text(
+                      badge!,
+                      style: t.labelMedium?.copyWith(
+                        color: AppColors.bg,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                ],
                 Text(
                   headline,
                   style: t.displayMedium?.copyWith(

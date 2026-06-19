@@ -9,6 +9,8 @@ import '../../features/guest/screens/intention_screen.dart';
 import '../../features/guest/screens/profile_ready_screen.dart';
 import '../../features/guest/screens/splash_screen.dart';
 import '../../features/guest/screens/welcome_screen.dart';
+import '../../features/reco/screens/plan_stub_screen.dart';
+import '../../features/reco/screens/reco_screen.dart';
 
 /// Central route table. Kept tiny; every screen is reachable directly (handy
 /// for visual tests via `/#<route>` and the hidden `/dev` menu).
@@ -21,6 +23,8 @@ class AppRouter {
   static const String discover = '/discover';
   static const String intention = '/intention';
   static const String profileReady = '/profil-pret';
+  static const String reco = '/reco';
+  static const String plan = '/plan';
 
   // Hidden dev + component demos.
   static const String dev = '/dev';
@@ -39,6 +43,10 @@ class AppRouter {
         page = const IntentionScreen();
       case profileReady:
         page = const ProfileReadyScreen();
+      case reco:
+        page = const RecoScreen();
+      case plan:
+        page = PlanStubScreen.fromRoute(settings);
       case dev:
         page = const DevMenuScreen();
       case bubble:
