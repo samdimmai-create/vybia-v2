@@ -4,6 +4,19 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import 'orb_painter.dart';
 
+/// A live snapshot of where the orb is aiming: the edge it's leaning toward
+/// ([direction], null in the deadzone) and how close it is to committing
+/// ([reach], 0 at centre → 1 at the threshold).
+class OrbAim {
+  const OrbAim(this.direction, this.reach);
+
+  final OrbDirection? direction;
+  final double reach;
+
+  /// Idle aim — no direction, no reach.
+  static const OrbAim rest = OrbAim(null, 0);
+}
+
 /// The Vybia brand primitive.
 ///
 /// Wraps [child] in a [Listener] (pointer events — never GestureDetector). An
@@ -23,6 +36,7 @@ class VybiaOrb extends StatefulWidget {
     required this.onDirection,
     this.onPositionChanged,
     this.onPresence,
+    this.onAim,
     this.showOrb = true,
     this.threshold = 72,
     this.orbSize = 88,
@@ -42,6 +56,12 @@ class VybiaOrb extends StatefulWidget {
   /// this so it is *born on touch and gone on release* in lockstep with the orb
   /// — quick but smooth, never an instant pop, never frozen.
   final ValueChanged<double>? onPresence;
+
+  /// Streams the live *aim*: the edge the finger is currently leaning toward and
+  /// how close it is to committing (`reach` 0..1). Lets a scene progressively
+  /// filter the image toward that edge's colour and recolour the orb, then clear
+  /// it on release. Fires `OrbAim.rest` (null direction, 0 reach) when idle.
+  final ValueChanged<OrbAim>? onAim;
 
   /// When false the orb's gesture/state machine still runs (and
   /// [onPositionChanged] / [onPresence] still fire) but the painted orb body is
@@ -102,6 +122,9 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
 
   void _emitPresence() => widget.onPresence?.call(_presence);
 
+  void _emitAim() =>
+      widget.onAim?.call(_active ? OrbAim(_direction, _reach) : OrbAim.rest);
+
   // ---- Geometry helpers -------------------------------------------------
   Offset get _delta => _current - _origin;
 
@@ -128,12 +151,14 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
     });
     _appear.forward(from: 0.0); // smooth birth, never an instant pop
     widget.onPositionChanged?.call(e.localPosition);
+    _emitAim();
   }
 
   void _onMove(PointerMoveEvent e) {
     if (!_active) return;
     setState(() => _current = e.localPosition);
     widget.onPositionChanged?.call(e.localPosition);
+    _emitAim();
   }
 
   void _onRelease() {
@@ -163,6 +188,7 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
     _appear.value = 0.0;
     _dissolve.value = 1.0;
     _emitPresence(); // presence == 0 now
+    _emitAim(); // aim cleared
     widget.onPositionChanged?.call(null);
   }
 

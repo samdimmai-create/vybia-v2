@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../shared/edge_action.dart';
 import '../../guest/state/guest_controller.dart';
 import '../../guest/widgets/scene_scaffold.dart';
 import '../../plans/screens/planifier_screen.dart';
@@ -82,6 +83,10 @@ class _RecoScreenState extends State<RecoScreen> {
               right: 'Pas pour moi',
               up: 'Plus d’infos',
               down: 'Planifier',
+              leftAction: EdgeAction.joy,
+              rightAction: EdgeAction.reject,
+              upAction: EdgeAction.curious,
+              downAction: EdgeAction.go,
               onDirection: _onDirection,
             ),
             if (_showDetail)

@@ -4,6 +4,7 @@ import '../../../components/bubble/bubble_image.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../shared/edge_action.dart';
 import '../../guest/widgets/scene_scaffold.dart';
 import '../model/plan.dart';
 import '../state/plan_controller.dart';
@@ -266,6 +267,10 @@ class _SelectedPlanLayer extends StatelessWidget {
           down: past ? 'Replanifier' : 'Modifier',
           left: 'Partager',
           right: 'Supprimer',
+          upAction: EdgeAction.curious,
+          downAction: EdgeAction.go,
+          leftAction: EdgeAction.joy,
+          rightAction: EdgeAction.reject,
           onDirection: onDirection,
         ),
         // A small close affordance so tapping out of the layer is discoverable.

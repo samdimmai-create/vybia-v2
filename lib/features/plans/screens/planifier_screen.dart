@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_colors.dart' show OrbDirection;
+import '../../../shared/edge_action.dart';
 import '../../guest/widgets/scene_scaffold.dart';
 import '../../reco/data/activity_catalog.dart';
 import '../../reco/model/activity.dart';
@@ -173,6 +174,7 @@ class _PlanifierScreenState extends State<PlanifierScreen> {
               : 'Tout est prêt. Glisse vers le bas pour confirmer ton plan.',
           up: 'Revenir',
           down: _isEdit ? 'Enregistrer' : 'Confirmer',
+          downAction: EdgeAction.go, // commit → green
           onDirection: _onConfirm,
         );
     }

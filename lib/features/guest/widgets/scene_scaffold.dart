@@ -6,6 +6,8 @@ import '../../../components/bubble/refraction_bubble.dart';
 import '../../../components/orb/vybia_orb.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../shared/edge_action.dart';
+import '../../../shared/edge_decisive.dart';
 import '../../../shared/edge_labels.dart';
 
 /// The universal guest scene: a full-bleed situational [image] always wearing
@@ -28,6 +30,10 @@ class SceneScaffold extends StatefulWidget {
     this.right,
     this.up,
     this.down,
+    this.leftAction = EdgeAction.neutral,
+    this.rightAction = EdgeAction.neutral,
+    this.upAction = EdgeAction.neutral,
+    this.downAction = EdgeAction.neutral,
     this.lensRadius = 84,
   });
 
@@ -42,6 +48,13 @@ class SceneScaffold extends StatefulWidget {
   final String? right;
   final String? up;
   final String? down;
+
+  /// The *meaning* of each edge, driving its decisive-colour filter (see
+  /// [EdgeDecisiveOverlay]). Defaults to a neutral brand tint.
+  final EdgeAction leftAction;
+  final EdgeAction rightAction;
+  final EdgeAction upAction;
+  final EdgeAction downAction;
   final double lensRadius;
 
   @override
@@ -53,6 +66,8 @@ class _SceneScaffoldState extends State<SceneScaffold>
   late final AnimationController _drift;
   Offset? _orb; // live finger position; null when resting
   double _presence = 0; // orb life force 0..1
+  OrbDirection? _aimDir; // edge the orb is leaning toward
+  double _aimReach = 0; // 0 centre → 1 at commit threshold
 
   static const double _ambient = 0.5; // every image always shows the bubble
 
@@ -70,6 +85,25 @@ class _SceneScaffoldState extends State<SceneScaffold>
     _drift.dispose();
     super.dispose();
   }
+
+  /// The action for the currently-aimed edge — but only when that edge is an
+  /// actual choice (has a label), so the orb never filters toward a dead edge.
+  EdgeAction? get _activeAction {
+    switch (_aimDir) {
+      case OrbDirection.left:
+        return _has(widget.left) ? widget.leftAction : null;
+      case OrbDirection.right:
+        return _has(widget.right) ? widget.rightAction : null;
+      case OrbDirection.up:
+        return _has(widget.up) ? widget.upAction : null;
+      case OrbDirection.down:
+        return _has(widget.down) ? widget.downAction : null;
+      case null:
+        return null;
+    }
+  }
+
+  bool _has(String? s) => s != null && s.isNotEmpty;
 
   /// Gentle Lissajous path used when no finger is down.
   Offset _idle(Size size) {
@@ -90,6 +124,10 @@ class _SceneScaffoldState extends State<SceneScaffold>
             showOrb: false, // the refraction bubble IS the orb here
             onPositionChanged: (p) => setState(() => _orb = p),
             onPresence: (v) => setState(() => _presence = v),
+            onAim: (aim) => setState(() {
+              _aimDir = aim.direction;
+              _aimReach = aim.reach;
+            }),
             onDirection: widget.onDirection,
             child: AnimatedBuilder(
               animation: _drift,
@@ -112,6 +150,15 @@ class _SceneScaffoldState extends State<SceneScaffold>
                       radius: widget.lensRadius,
                       magnification: 0.55,
                       active: active,
+                    ),
+                    // Decisive-edge colour feedback: filters the image toward the
+                    // aimed edge's action colour and recolours the orb.
+                    EdgeDecisiveOverlay(
+                      action: _activeAction,
+                      direction: _aimDir,
+                      reach: _aimReach,
+                      orbCenter: _orb,
+                      lensRadius: widget.lensRadius,
                     ),
                     _TopScrim(
                       headline: widget.headline,
