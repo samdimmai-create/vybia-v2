@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/guest/state/guest_controller.dart';
+import 'features/plans/state/plan_controller.dart';
 
 /// Root application widget. Wires the theme + router and hosts the single
 /// shared [GuestController] above the navigator (via [GuestScope]) so every
@@ -16,10 +17,12 @@ class VybiaApp extends StatefulWidget {
 
 class _VybiaAppState extends State<VybiaApp> {
   final GuestController _guest = GuestController();
+  final PlanController _plans = PlanController();
 
   @override
   void dispose() {
     _guest.dispose();
+    _plans.dispose();
     super.dispose();
   }
 
@@ -38,9 +41,15 @@ class _VybiaAppState extends State<VybiaApp> {
       onGenerateInitialRoutes: (initialRoute) =>
           [AppRouter.onGenerateRoute(RouteSettings(name: initialRoute))],
       onGenerateRoute: AppRouter.onGenerateRoute,
-      // GuestScope sits above the navigator so it survives route changes.
-      builder: (context, child) =>
-          GuestScope(controller: _guest, child: child ?? const SizedBox()),
+      // GuestScope + PlanScope sit above the navigator so session state
+      // survives route changes.
+      builder: (context, child) => GuestScope(
+        controller: _guest,
+        child: PlanScope(
+          controller: _plans,
+          child: child ?? const SizedBox(),
+        ),
+      ),
     );
   }
 }

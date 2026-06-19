@@ -25,6 +25,9 @@ class IntentionScreen extends StatelessWidget {
         guest.setIntention(Intention.plan);
         // Plan flow proper is S4; for now show the captured-profile recap.
         Navigator.of(context).pushReplacementNamed(AppRouter.profileReady);
+      } else if (d == OrbDirection.down) {
+        // Mes plans (per the V1 direction map: home/intention down).
+        Navigator.of(context).pushNamed(AppRouter.mesPlans);
       }
     }
 
@@ -34,6 +37,7 @@ class IntentionScreen extends StatelessWidget {
       prompt: 'Glisse vers ce qui te ressemble, là tout de suite.',
       left: 'Maintenant',
       right: 'Planifier',
+      down: 'Mes plans',
       onDirection: choose,
     );
   }

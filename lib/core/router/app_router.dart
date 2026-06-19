@@ -9,7 +9,8 @@ import '../../features/guest/screens/intention_screen.dart';
 import '../../features/guest/screens/profile_ready_screen.dart';
 import '../../features/guest/screens/splash_screen.dart';
 import '../../features/guest/screens/welcome_screen.dart';
-import '../../features/reco/screens/plan_stub_screen.dart';
+import '../../features/plans/screens/mes_plans_screen.dart';
+import '../../features/plans/screens/planifier_screen.dart';
 import '../../features/reco/screens/reco_screen.dart';
 
 /// Central route table. Kept tiny; every screen is reachable directly (handy
@@ -25,6 +26,7 @@ class AppRouter {
   static const String profileReady = '/profil-pret';
   static const String reco = '/reco';
   static const String plan = '/plan';
+  static const String mesPlans = '/mes-plans';
 
   // Hidden dev + component demos.
   static const String dev = '/dev';
@@ -46,7 +48,9 @@ class AppRouter {
       case reco:
         page = const RecoScreen();
       case plan:
-        page = PlanStubScreen.fromRoute(settings);
+        page = PlanifierScreen.fromRoute(settings);
+      case mesPlans:
+        page = const MesPlansScreen();
       case dev:
         page = const DevMenuScreen();
       case bubble:

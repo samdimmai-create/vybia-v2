@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../guest/state/guest_controller.dart';
 import '../../guest/widgets/scene_scaffold.dart';
+import '../../plans/screens/planifier_screen.dart';
 import '../state/reco_controller.dart';
 import 'reco_detail_overlay.dart';
 
@@ -52,8 +53,10 @@ class _RecoScreenState extends State<RecoScreen> {
       case OrbDirection.up:
         setState(() => _showDetail = true);
       case OrbDirection.down:
-        Navigator.of(context)
-            .pushNamed(AppRouter.plan, arguments: rec.activity);
+        Navigator.of(context).pushNamed(
+          AppRouter.plan,
+          arguments: PlanifierArgs(activity: rec.activity),
+        );
     }
   }
 
