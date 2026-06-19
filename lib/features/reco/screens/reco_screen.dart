@@ -33,7 +33,9 @@ class _RecoScreenState extends State<RecoScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Build once, from the shared guest profile captured during discovery.
-    _reco ??= RecoController(profile: GuestScope.of(context).profile);
+    // Threads the same store so likes/dislikes persist across relaunches.
+    final guest = GuestScope.of(context);
+    _reco ??= RecoController(profile: guest.profile, store: guest.store);
   }
 
   @override

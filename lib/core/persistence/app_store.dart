@@ -1,0 +1,155 @@
+import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../features/guest/model/guest_profile.dart';
+import '../../features/guest/state/guest_controller.dart';
+import '../../features/plans/model/plan.dart';
+import '../../features/reco/data/activity_catalog.dart';
+import '../../features/reco/model/activity.dart';
+
+/// The single local persistence repository for the whole guest model.
+///
+/// Backed by [SharedPreferences] (localStorage on web). Pure storage + JSON
+/// (de)serialization — no UI, no Flutter widgets. Everything the guest builds up
+/// across a session — the taste profile (declared dimensions + the learned
+/// values the engine and revealed-preference loop inferred), the current mood,
+/// the liked/decided activity history, the chosen intention and the saved plans
+/// — is persisted here so recommendations stay consistent across relaunches.
+class AppStore {
+  AppStore(this._prefs);
+
+  final SharedPreferences _prefs;
+
+  // Versioned keys so a future schema change is a clean migration, not a crash.
+  static const _kProfile = 'vybia.profile.v1';
+  static const _kLiked = 'vybia.liked.v1'; // liked activity ids (revealed pref)
+  static const _kDecided = 'vybia.decided.v1'; // liked OR disliked ids
+  static const _kPlans = 'vybia.plans.v1';
+  static const _kIntention = 'vybia.intention.v1';
+  static const _kSeeded = 'vybia.seeded.v1'; // first-run seed guard
+
+  /// Open the store, loading the backing prefs. Call once before first paint.
+  static Future<AppStore> open() async =>
+      AppStore(await SharedPreferences.getInstance());
+
+  // ---- Profile (declared dimensions + mood + learned values) ---------------
+
+  Map<String, dynamic>? readProfileJson() {
+    final raw = _prefs.getString(_kProfile);
+    if (raw == null) return null;
+    final decoded = jsonDecode(raw);
+    return decoded is Map<String, dynamic> ? decoded : null;
+  }
+
+  Future<void> saveProfile(GuestProfile profile) =>
+      _prefs.setString(_kProfile, jsonEncode(profile.toJson()));
+
+  // ---- Learned revealed-preference history ---------------------------------
+
+  List<String> readLikedIds() => _prefs.getStringList(_kLiked) ?? const [];
+  List<String> readDecidedIds() => _prefs.getStringList(_kDecided) ?? const [];
+
+  Future<void> saveLearned({
+    required Iterable<String> likedIds,
+    required Iterable<String> decidedIds,
+  }) async {
+    await _prefs.setStringList(_kLiked, likedIds.toList());
+    await _prefs.setStringList(_kDecided, decidedIds.toList());
+  }
+
+  // ---- Intention -----------------------------------------------------------
+
+  Intention? readIntention() {
+    final name = _prefs.getString(_kIntention);
+    if (name == null) return null;
+    for (final i in Intention.values) {
+      if (i.name == name) return i;
+    }
+    return null;
+  }
+
+  Future<void> saveIntention(Intention? intention) => intention == null
+      ? _prefs.remove(_kIntention)
+      : _prefs.setString(_kIntention, intention.name);
+
+  // ---- Plans ---------------------------------------------------------------
+
+  List<Plan> readPlans() {
+    final raw = _prefs.getString(_kPlans);
+    if (raw == null) return [];
+    final decoded = jsonDecode(raw);
+    if (decoded is! List) return [];
+    final out = <Plan>[];
+    for (final item in decoded) {
+      if (item is Map<String, dynamic>) {
+        final plan = _planFromJson(item);
+        if (plan != null) out.add(plan);
+      }
+    }
+    return out;
+  }
+
+  Future<void> savePlans(Iterable<Plan> plans) => _prefs.setString(
+        _kPlans,
+        jsonEncode([for (final p in plans) _planToJson(p)]),
+      );
+
+  Map<String, dynamic> _planToJson(Plan p) => {
+        'id': p.id,
+        'activity': p.activity.id,
+        'moment': p.moment.name,
+        'companions': p.companions.name,
+        'when': p.when.toIso8601String(),
+        'createdAt': p.createdAt.toIso8601String(),
+      };
+
+  Plan? _planFromJson(Map<String, dynamic> j) {
+    final activity = _activityById(j['activity'] as String?);
+    if (activity == null) return null; // catalog changed → drop stale plan
+    final moment = _enumByName(PlanMoment.values, j['moment'] as String?);
+    final companions =
+        _enumByName(PlanCompanions.values, j['companions'] as String?);
+    final when = DateTime.tryParse(j['when'] as String? ?? '');
+    if (moment == null || companions == null || when == null) return null;
+    return Plan(
+      id: j['id'] as String? ?? 'plan_restored',
+      activity: activity,
+      moment: moment,
+      companions: companions,
+      when: when,
+      createdAt: DateTime.tryParse(j['createdAt'] as String? ?? ''),
+    );
+  }
+
+  Activity? _activityById(String? id) {
+    if (id == null) return null;
+    for (final a in kActivityCatalog) {
+      if (a.id == id) return a;
+    }
+    return null;
+  }
+
+  T? _enumByName<T extends Enum>(List<T> values, String? name) {
+    if (name == null) return null;
+    for (final v in values) {
+      if (v.name == name) return v;
+    }
+    return null;
+  }
+
+  // ---- First-run seed guard ------------------------------------------------
+
+  bool get hasSeeded => _prefs.getBool(_kSeeded) ?? false;
+  Future<void> markSeeded() => _prefs.setBool(_kSeeded, true);
+
+  /// Wipe everything (used by tests and a hypothetical "tout effacer").
+  Future<void> clearAll() async {
+    await _prefs.remove(_kProfile);
+    await _prefs.remove(_kLiked);
+    await _prefs.remove(_kDecided);
+    await _prefs.remove(_kPlans);
+    await _prefs.remove(_kIntention);
+    await _prefs.remove(_kSeeded);
+  }
+}

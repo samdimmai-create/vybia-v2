@@ -45,6 +45,35 @@ class GuestProfile {
     _confidence[d] = (confidenceOf(d) + weight * 0.6).clamp(0.0, 1.0);
   }
 
+  /// A deliberate manual adjustment from the Profil screen: shift a dimension by
+  /// [delta] (clamped 0..1) and treat it as a known, owned preference (high
+  /// confidence) since the guest set it on purpose.
+  void adjust(Dimension d, double delta) {
+    _value[d] = (valueOf(d) + delta).clamp(0.0, 1.0);
+    _confidence[d] = (confidenceOf(d) + 0.25).clamp(0.0, 1.0);
+  }
+
+  /// JSON snapshot of the full profile (declared dimensions + everything the
+  /// engine and revealed-preference loop inferred). Keyed by [Dimension.name].
+  Map<String, dynamic> toJson() => {
+        'values': {for (final e in _value.entries) e.key.name: e.value},
+        'confidence': {for (final e in _confidence.entries) e.key.name: e.value},
+      };
+
+  /// Restore a profile previously written by [toJson]. Tolerant of missing or
+  /// unknown keys so a schema change never crashes startup.
+  void restore(Map<String, dynamic> json) {
+    clear();
+    final values = (json['values'] as Map?) ?? const {};
+    final confidence = (json['confidence'] as Map?) ?? const {};
+    for (final d in Dimension.values) {
+      final v = values[d.name];
+      final c = confidence[d.name];
+      if (v is num) _value[d] = v.toDouble();
+      if (c is num) _confidence[d] = c.toDouble();
+    }
+  }
+
   /// Human-readable recap lines (French) for the confident dimensions.
   List<({Dimension dim, String reading})> readout() {
     final out = <({Dimension dim, String reading})>[];

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'core/persistence/app_store.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/guest/state/guest_controller.dart';
@@ -7,9 +8,14 @@ import 'features/plans/state/plan_controller.dart';
 
 /// Root application widget. Wires the theme + router and hosts the single
 /// shared [GuestController] above the navigator (via [GuestScope]) so every
-/// guest screen reads and advances the same session.
+/// guest screen reads and advances the same session. The shared [AppStore]
+/// (loaded in main before first paint) is threaded into the controllers so the
+/// whole guest model persists across relaunches.
 class VybiaApp extends StatefulWidget {
-  const VybiaApp({super.key});
+  const VybiaApp({super.key, this.store});
+
+  /// Local persistence repository. Null in lightweight widget tests (in-memory).
+  final AppStore? store;
 
   /// App-level navigator key. Lets the immersive flows (and visible tests) push
   /// routes without threading a context, and keeps a single source of truth for
@@ -22,8 +28,8 @@ class VybiaApp extends StatefulWidget {
 }
 
 class _VybiaAppState extends State<VybiaApp> {
-  final GuestController _guest = GuestController();
-  final PlanController _plans = PlanController();
+  late final GuestController _guest = GuestController(store: widget.store);
+  late final PlanController _plans = PlanController(store: widget.store);
 
   @override
   void dispose() {

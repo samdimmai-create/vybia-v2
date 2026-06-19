@@ -1,22 +1,52 @@
 import 'package:flutter/widgets.dart';
 
+import '../../../core/persistence/app_store.dart';
 import '../../reco/data/activity_catalog.dart';
 import '../../reco/model/activity.dart';
 import '../model/plan.dart';
 
-/// Session store for the guest's plans (Futurs + Passés).
+/// Store for the guest's plans (Futurs + Passés).
 ///
 /// Lives above the navigator via [PlanScope] so it survives route changes —
-/// the same "simple provider" pattern as the guest session. In-memory only;
-/// persistence across reloads is S5. Seeds a couple of past plans so the Passés
-/// section reads as real on a fresh session (disable with `seed: false` in tests).
+/// the same "simple provider" pattern as the guest session. When an [AppStore]
+/// is supplied the plans are loaded from local storage on construction and
+/// written through on every create / update / remove, so they persist across
+/// relaunches. The two demo "Passés" plans are seeded ONLY on first run (guarded
+/// by the store), never re-seeded over the guest's real data.
 class PlanController extends ChangeNotifier {
-  PlanController({bool seed = true}) {
-    if (seed) _seedPast();
+  PlanController({bool seed = true, AppStore? store}) : _store = store {
+    if (store != null) {
+      _plans.addAll(store.readPlans());
+      _seq = _nextSeq();
+      if (!store.hasSeeded) {
+        if (seed) _seedPast();
+        store.markSeeded();
+        _persist();
+      }
+    } else if (seed) {
+      _seedPast();
+    }
   }
+
+  final AppStore? _store;
 
   final List<Plan> _plans = [];
   int _seq = 0;
+
+  void _persist() => _store?.savePlans(_plans);
+
+  /// First free `plan_<n>` index, so restored + new plans never collide.
+  int _nextSeq() {
+    var max = -1;
+    for (final p in _plans) {
+      final m = RegExp(r'^plan_(\d+)$').firstMatch(p.id);
+      if (m != null) {
+        final n = int.parse(m.group(1)!);
+        if (n > max) max = n;
+      }
+    }
+    return max + 1;
+  }
 
   /// Future plans, soonest first.
   List<Plan> get futurs {
@@ -84,6 +114,7 @@ class PlanController extends ChangeNotifier {
       when: whenFor(moment, pickedDate: pickedDate),
     );
     _plans.add(plan);
+    _persist();
     notifyListeners();
     return plan;
   }
@@ -103,12 +134,14 @@ class PlanController extends ChangeNotifier {
       plan.when = whenFor(moment, pickedDate: pickedDate);
     }
     if (companions != null) plan.companions = companions;
+    _persist();
     notifyListeners();
   }
 
   /// Remove a plan from the session (Supprimer).
   void remove(String id) {
     _plans.removeWhere((p) => p.id == id);
+    _persist();
     notifyListeners();
   }
 

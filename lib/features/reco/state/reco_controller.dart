@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../core/persistence/app_store.dart';
 import '../../guest/model/activity_axes.dart';
 import '../../guest/model/guest_profile.dart';
 import '../data/activity_catalog.dart';
@@ -19,18 +20,52 @@ class RecoController extends ChangeNotifier {
     required this.profile,
     RecommendationEngine? engine,
     RecoContext? context,
+    this.store,
   })  : engine = engine ?? const RecommendationEngine(catalog: kActivityCatalog),
         context = context ?? RecoContext.now() {
+    _hydrate();
     _rank();
   }
 
   final GuestProfile profile;
   final RecommendationEngine engine;
   final RecoContext context;
+  final AppStore? store;
 
   final Set<String> _decided = {}; // liked or disliked → never re-shown
   final Set<ActivityCategory> _likedCategories = {};
   final List<Activity> _liked = [];
+
+  /// Restore the revealed-preference history from storage so a relaunch doesn't
+  /// re-surface already-decided picks and the learned categories carry over.
+  void _hydrate() {
+    final store = this.store;
+    if (store == null) return;
+    _decided.addAll(store.readDecidedIds());
+    for (final id in store.readLikedIds()) {
+      final a = _activityById(id);
+      if (a != null) {
+        _liked.add(a);
+        _likedCategories.add(a.category);
+      }
+    }
+  }
+
+  Activity? _activityById(String id) {
+    for (final a in kActivityCatalog) {
+      if (a.id == id) return a;
+    }
+    return null;
+  }
+
+  void _persist() {
+    store
+      ?..saveLearned(
+        likedIds: _liked.map((a) => a.id),
+        decidedIds: _decided,
+      )
+      ..saveProfile(profile);
+  }
 
   List<Recommendation> _ranked = const [];
 
@@ -61,6 +96,7 @@ class RecoController extends ChangeNotifier {
     _likedCategories.add(rec.activity.category);
     _liked.add(rec.activity);
     _rank();
+    _persist();
     notifyListeners();
   }
 
@@ -71,6 +107,7 @@ class RecoController extends ChangeNotifier {
     _applyAxes(rec.activity, toward: false);
     _decided.add(rec.activity.id);
     _rank();
+    _persist();
     notifyListeners();
   }
 
