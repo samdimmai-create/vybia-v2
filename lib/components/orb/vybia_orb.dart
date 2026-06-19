@@ -21,12 +21,25 @@ class VybiaOrb extends StatefulWidget {
     super.key,
     required this.child,
     required this.onDirection,
+    this.onPositionChanged,
+    this.showOrb = true,
     this.threshold = 72,
     this.orbSize = 132,
   });
 
   final Widget child;
   final ValueChanged<OrbDirection> onDirection;
+
+  /// Fires the live pointer position while the orb is active (born → follows),
+  /// and `null` once it resets. Lets an overlay — e.g. the refraction lens —
+  /// track the orb without re-implementing the gesture state machine.
+  final ValueChanged<Offset?>? onPositionChanged;
+
+  /// When false the orb's gesture/state machine still runs (and
+  /// [onPositionChanged] still fires) but the painted orb body is hidden, so a
+  /// custom visual (the refraction bubble) can stand in for the orb.
+  final bool showOrb;
+
   final double threshold;
   final double orbSize;
 
@@ -89,11 +102,13 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
       _origin = e.localPosition;
       _current = e.localPosition;
     });
+    widget.onPositionChanged?.call(e.localPosition);
   }
 
   void _onMove(PointerMoveEvent e) {
     if (!_active) return;
     setState(() => _current = e.localPosition);
+    widget.onPositionChanged?.call(e.localPosition);
   }
 
   void _onRelease() {
@@ -121,6 +136,7 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
       _current = Offset.zero;
     });
     _dissolve.value = 1.0;
+    widget.onPositionChanged?.call(null);
   }
 
   @override
@@ -134,7 +150,7 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
       child: Stack(
         children: [
           Positioned.fill(child: widget.child),
-          if (_active)
+          if (_active && widget.showOrb)
             AnimatedBuilder(
               animation: Listenable.merge([_pulse, _dissolve]),
               builder: (context, _) {

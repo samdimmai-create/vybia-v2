@@ -9,9 +9,11 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-OUTDIR="/tmp/vybia_v2"
+# Screenshots live IN the project (./screenshots) so the founder can open them —
+# never /tmp. The founder being able to open the PNG is the only proof of PASS.
+OUTDIR="$ROOT/screenshots"
 ROUTE="${1:-/}"
-OUT="${2:-$OUTDIR/s0_orb_demo.png}"
+OUT="${2:-$OUTDIR/orb_demo.png}"
 PORT="${PORT:-8099}"
 URL="http://localhost:${PORT}/#${ROUTE}"
 
@@ -58,6 +60,8 @@ echo "[3/4] Screenshotting ${URL} (500x1084 logical @2x — mobile portrait)…"
 echo "[4/4] Done."
 if [[ -f "$OUT" ]]; then
   echo "SCREENSHOT: $OUT"
+  # Pop the screenshot open so the founder SEES the proof.
+  open "$OUT" 2>/dev/null || true
 else
   echo "BLOCKED: screenshot was not written" >&2
   exit 1

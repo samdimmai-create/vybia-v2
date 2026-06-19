@@ -59,10 +59,16 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  # Bundled image assets. V1 shipped with zero images (a documented failure);
+  # V2 bundles them so the universal bubble effect always has real content.
+  assets:
+    - assets/images/emotions/
+    - assets/images/recos/
+
+  # GLSL fragment shaders (liquid-glass refraction). Compiled by the Flutter
+  # toolchain and loaded at runtime via flutter_shaders.
+  shaders:
+    - assets/shaders/bubble.frag
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
