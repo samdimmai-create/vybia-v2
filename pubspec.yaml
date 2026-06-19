@@ -72,6 +72,7 @@ flutter:
   # toolchain and loaded at runtime via flutter_shaders.
   shaders:
     - assets/shaders/bubble.frag
+    - assets/shaders/bubble_calm.frag
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

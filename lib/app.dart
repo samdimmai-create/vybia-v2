@@ -37,10 +37,16 @@ class _VybiaAppState extends State<VybiaApp> {
   // crosshair-free. Each hop prints `VYBIA_SCENE <name>` for the capture script.
   static const bool _kAutoDrive = bool.fromEnvironment('VYBIA_AUTODRIVE');
 
+  // When a single start route is pinned (`--dart-define=VYBIA_START=/reco`) the
+  // multi-scene hop tour is skipped so the app stays on that one scene — the
+  // scene's own orb autodrive still runs. This makes single-route proof
+  // captures deterministic (no 42s scene-hop racing the screenshot).
+  static const String _kStart = String.fromEnvironment('VYBIA_START');
+
   @override
   void initState() {
     super.initState();
-    if (_kAutoDrive) {
+    if (_kAutoDrive && _kStart.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _runProofTour());
     }
   }

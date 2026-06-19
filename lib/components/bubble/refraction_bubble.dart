@@ -74,10 +74,19 @@ class _RefractionBubbleState extends State<RefractionBubble> {
     _resolveImage();
   }
 
+  // S6.2 A/B: `--dart-define=VYBIA_LENS=calm` swaps in the calmer convex lens
+  // (bubble_calm.frag) for proof captures. Default 'vif' = the current S6.1
+  // shader. Selection is global (every bubble in the app honours it) so the
+  // founder compares like-for-like; nothing is made the default here.
+  static const String _lensVariant =
+      String.fromEnvironment('VYBIA_LENS', defaultValue: 'vif');
+  static String get _shaderAsset => _lensVariant == 'calm'
+      ? 'assets/shaders/bubble_calm.frag'
+      : 'assets/shaders/bubble.frag';
+
   Future<void> _loadShader() async {
     try {
-      final program =
-          await ui.FragmentProgram.fromAsset('assets/shaders/bubble.frag');
+      final program = await ui.FragmentProgram.fromAsset(_shaderAsset);
       if (!mounted) return;
       setState(() => _shader = program.fragmentShader());
     } catch (e) {
