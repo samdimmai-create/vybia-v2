@@ -12,6 +12,7 @@ import '../../features/guest/screens/splash_screen.dart';
 import '../../features/guest/screens/welcome_screen.dart';
 import '../../features/plans/screens/mes_plans_screen.dart';
 import '../../features/plans/screens/planifier_screen.dart';
+import '../../features/profile/screens/profil_screen.dart';
 import '../../features/reco/screens/reco_screen.dart';
 
 /// Central route table. Kept tiny; every screen is reachable directly (handy
@@ -28,6 +29,7 @@ class AppRouter {
   static const String reco = '/reco';
   static const String plan = '/plan';
   static const String mesPlans = '/mes-plans';
+  static const String profil = '/profil';
 
   // Hidden dev + component demos.
   static const String dev = '/dev';
@@ -53,6 +55,8 @@ class AppRouter {
         page = PlanifierScreen.fromRoute(settings);
       case mesPlans:
         page = const MesPlansScreen();
+      case profil:
+        page = const ProfilScreen();
       case dev:
         page = const DevMenuScreen();
       case bubble:

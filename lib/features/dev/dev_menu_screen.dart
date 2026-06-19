@@ -18,6 +18,7 @@ class DevMenuScreen extends StatelessWidget {
     ('Intention (maintenant / planifier)', AppRouter.intention),
     ('Reco (scènes immersives)', AppRouter.reco),
     ('Mes plans (futurs / passés)', AppRouter.mesPlans),
+    ('Mon profil (aperçu / ajuster)', AppRouter.profil),
     ('Profil prêt (récap)', AppRouter.profileReady),
     ('— Bulle (gros plan réfraction)', AppRouter.bubble),
     ('— Orbe (aperçu)', AppRouter.orbPreview),

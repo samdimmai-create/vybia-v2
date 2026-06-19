@@ -84,6 +84,10 @@ class GuestProfile {
     return out;
   }
 
+  /// Human-readable current leaning for a single dimension (used by the Profil
+  /// "Ajuster" scene to show the live effect of each orb nudge).
+  String readingFor(Dimension d) => _reading(d, valueOf(d));
+
   String _reading(Dimension d, double v) {
     switch (d) {
       case Dimension.mood:

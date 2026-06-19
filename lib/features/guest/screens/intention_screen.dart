@@ -28,6 +28,9 @@ class IntentionScreen extends StatelessWidget {
       } else if (d == OrbDirection.down) {
         // Mes plans (per the V1 direction map: home/intention down).
         Navigator.of(context).pushNamed(AppRouter.mesPlans);
+      } else if (d == OrbDirection.up) {
+        // Mon profil (Accueil UP, per the established direction map).
+        Navigator.of(context).pushNamed(AppRouter.profil);
       }
     }
 
@@ -37,6 +40,7 @@ class IntentionScreen extends StatelessWidget {
       prompt: 'Glisse vers ce qui te ressemble, là tout de suite.',
       left: 'Maintenant',
       right: 'Planifier',
+      up: 'Mon profil',
       down: 'Mes plans',
       onDirection: choose,
     );
