@@ -118,6 +118,14 @@ class RecoController extends ChangeNotifier {
     );
   }
 
+  /// Re-rank against the current profile and notify. Used by the adaptive loop
+  /// (S9B) after a question batch has sharpened the profile *between* reco
+  /// rounds, so the next round already reflects the newly learned taste.
+  void refresh() {
+    _rank();
+    notifyListeners();
+  }
+
   /// Intéressant (S9A): pull the profile toward this activity and re-rank. A
   /// revealed-preference reaction, not a selection — the loop continues.
   void markInteresting() {

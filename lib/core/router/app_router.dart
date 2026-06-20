@@ -7,6 +7,7 @@ import '../../features/dev/dev_menu_screen.dart';
 import '../../features/dev/edge_decisive_demo_screen.dart';
 import '../../features/guest/screens/accueil_screen.dart';
 import '../../features/guest/screens/discover_screen.dart';
+import '../../features/guest/screens/engine_loop_screen.dart';
 import '../../features/guest/screens/intention_screen.dart';
 import '../../features/guest/screens/profile_ready_screen.dart';
 import '../../features/guest/screens/splash_screen.dart';
@@ -26,6 +27,7 @@ class AppRouter {
   static const String accueil = '/accueil';
   static const String welcome = '/welcome';
   static const String discover = '/discover';
+  static const String engine = '/engine'; // S9B: the adaptive question↔reco loop
   static const String intention = '/intention';
   static const String profileReady = '/profil-pret';
   static const String reco = '/reco';
@@ -49,6 +51,8 @@ class AppRouter {
         page = const WelcomeScreen();
       case discover:
         page = const DiscoverScreen();
+      case engine:
+        page = const EngineLoopScreen();
       case intention:
         page = const IntentionScreen();
       case profileReady:

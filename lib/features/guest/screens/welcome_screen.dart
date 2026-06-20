@@ -42,7 +42,9 @@ class WelcomeScreen extends StatelessWidget {
             Dimension.vibe: 0.8,
           });
       }
-      Navigator.of(context).pushReplacementNamed(AppRouter.discover);
+      // S9B: mood handed off to the adaptive engine LOOP (question batches ↔
+      // reco rounds, alternating until Planifier), not the old linear discover.
+      Navigator.of(context).pushReplacementNamed(AppRouter.engine);
     }
 
     return SceneScaffold(
