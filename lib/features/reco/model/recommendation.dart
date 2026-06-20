@@ -10,9 +10,17 @@ class Recommendation {
     required this.why,
     required this.topDimensions,
     this.distanceKm,
+    this.imageOverride,
   });
 
   final Activity activity;
+
+  /// S9F: the engine's smart, vibe-aware image pick for this recommendation.
+  /// Falls back to the activity's own bundled image when not set.
+  final String? imageOverride;
+
+  /// The image to show — the engine's vibe-aware pick, else the activity's own.
+  String get image => imageOverride ?? activity.image;
 
   /// Real haversine distance (km) from the guest to this place, or null when the
   /// location is unknown (S7C).

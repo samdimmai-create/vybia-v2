@@ -2,6 +2,7 @@ import '../../../core/geo/geo.dart';
 import '../../guest/model/activity_axes.dart';
 import '../../guest/model/dimension.dart';
 import '../../guest/model/guest_profile.dart';
+import '../content/content_provider.dart';
 import '../model/activity.dart';
 import '../model/recommendation.dart';
 import 'leisure_motivation.dart';
@@ -25,10 +26,17 @@ import 'reco_context.dart';
 /// discovery unless novelty-averse) → best pick first, then 4–6 alternatives one
 /// at a time at the orb, each with its real distance and a tailored "pourquoi".
 class RecommendationEngine {
-  const RecommendationEngine({this.catalog});
+  const RecommendationEngine({
+    this.catalog,
+    this.content = const TemplatedContentProvider(),
+  });
 
   /// Defaults to the seeded Montréal catalog; injectable for tests.
   final List<Activity>? catalog;
+
+  /// S9F: the content surface (tailored "pourquoi" + smart image pick). Swap for
+  /// an LLM-backed provider later without touching the engine.
+  final ContentProvider content;
 
   // ---- Blend weights (sum ≈ 1; penalties subtract on top). -----------------
   static const double _wPref = 0.42;
@@ -114,9 +122,11 @@ class RecommendationEngine {
         activity: a,
         score: score,
         isBestPick: false,
-        why: _why(match.topDims, a),
+        why: content.why(a, profile,
+            lms: lms, topDims: match.topDims, context: ctx),
         topDimensions: match.topDims,
         distanceKm: distanceKm,
+        imageOverride: content.imageFor(a, profile),
       );
     }).toList();
 
@@ -132,6 +142,7 @@ class RecommendationEngine {
       why: lead.why,
       topDimensions: lead.topDimensions,
       distanceKm: lead.distanceKm,
+      imageOverride: lead.imageOverride,
     );
     return out;
   }
@@ -284,42 +295,7 @@ class RecommendationEngine {
     return (0.6 * timeFit + 0.4 * seasonFit).clamp(0.0, 1.0);
   }
 
-  // ---- Explanation ---------------------------------------------------------
-
-  String _why(List<Dimension> top, Activity a) {
-    // Distance is shown explicitly on the card ("à X km"), so keep it out of the
-    // prose to avoid a vague "à deux pas" contradicting a precise "à 4,4 km".
-    final dims = top.where((d) => d != Dimension.distance).toList();
-    if (dims.isEmpty) {
-      return 'Un choix équilibré, dans l’esprit de ton moment.';
-    }
-    final frags = dims.take(2).map((d) => _fragment(d, a.tag(d))).toList();
-    return '${_capitalize(frags.join(', '))}.';
-  }
-
-  String _fragment(Dimension d, double v) {
-    switch (d) {
-      case Dimension.energy:
-        return v > 0.6 ? 'ça bouge, à ton rythme' : 'tout en douceur';
-      case Dimension.social:
-        return v > 0.6 ? 'avec du monde autour' : 'au calme, juste pour toi';
-      case Dimension.novelty:
-        return v > 0.6 ? 'une vraie découverte' : 'une valeur sûre';
-      case Dimension.distance:
-        return v > 0.6 ? 'ça vaut le petit trajet' : 'à deux pas';
-      case Dimension.indoor:
-        return v > 0.6 ? 'bien à l’abri' : 'au grand air';
-      case Dimension.timing:
-        return v > 0.6 ? 'taillé pour la soirée' : 'parfait en journée';
-      case Dimension.budget:
-        return v < 0.4 ? 'sans te ruiner' : 'tu te fais plaisir';
-      case Dimension.vibe:
-        return v > 0.6 ? 'une ambiance vivante' : 'une atmosphère intime';
-      case Dimension.mood:
-        return 'dans ton humeur du moment';
-    }
-  }
-
-  String _capitalize(String s) =>
-      s.isEmpty ? s : '${s[0].toUpperCase()}${s.substring(1)}';
+  // S9F: the "pourquoi" and the image pick now come from the [ContentProvider]
+  // (see content/content_provider.dart) — rich, varied, LLM-swappable templates
+  // keyed to the profile + motive + matched axes + active life-context.
 }

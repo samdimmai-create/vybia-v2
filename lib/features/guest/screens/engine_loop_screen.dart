@@ -150,7 +150,7 @@ class _EngineLoopScreenState extends State<EngineLoopScreen> {
       children: [
         SceneScaffold(
           key: ValueKey('reco_${rec.activity.id}'),
-          image: rec.activity.image,
+          image: rec.image, // S9F: engine's vibe-aware pick
           badge: rec.isBestPick ? '★ Meilleur choix pour toi' : null,
           headline: rec.activity.titleFr,
           prompt: rec.why,
