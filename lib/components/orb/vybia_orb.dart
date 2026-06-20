@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart' show Ticker;
 
 import '../../core/theme/app_colors.dart';
 import 'orb_painter.dart';
+import 'orb_throw.dart';
 
 /// A live snapshot of where the orb is aiming: the edge it's leaning toward
 /// ([direction], null in the deadzone) and how close it is to committing
@@ -36,9 +39,17 @@ class OrbAim {
 ///     jitter, or a release before completion, cancels it cleanly — no
 ///     navigation and no edge commit.
 ///
+/// S8 interaction model (V1 momentum parity):
+///   * A quick FLICK — a release below the commit distance but above
+///     [throwVelocity] — *throws* the orb. It keeps traveling on its own along
+///     the release direction/force on a gently curved path (friction); if it
+///     reaches a decisive edge it COMMITS that direction exactly like a held
+///     commit (same decisive colour as it nears), and if it runs out of
+///     momentum first it dissolves with NO commit. See [ThrowSimulation].
+///
 /// State is fully reset on BOTH pointer-up and pointer-cancel, and every timer
-/// is cancelled before a commit — so the orb can never freeze on screen (this
-/// was V1's number-one bug, designed out here).
+/// (and the flight ticker) is cancelled before a commit — so the orb can never
+/// freeze on screen (this was V1's number-one bug, designed out here).
 class VybiaOrb extends StatefulWidget {
   const VybiaOrb({
     super.key,
@@ -56,6 +67,7 @@ class VybiaOrb extends StatefulWidget {
     this.orbSize = 88,
     this.holdStill = const Duration(seconds: 3),
     this.holdGrow = const Duration(milliseconds: 1000),
+    this.throwVelocity = 720,
   });
 
   final Widget child;
@@ -110,6 +122,10 @@ class VybiaOrb extends StatefulWidget {
   /// How long the warning/grow runs before it navigates home if held.
   final Duration holdGrow;
 
+  /// Release speed (px/s) at or above which a sub-threshold release becomes a
+  /// *throw* (ballistic momentum) instead of a still tap.
+  final double throwVelocity;
+
   @override
   State<VybiaOrb> createState() => _VybiaOrbState();
 }
@@ -126,6 +142,15 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
   Offset _current = Offset.zero;
   Timer? _dissolveTimer;
   Timer? _immobileTimer; // fires when contact has been still long enough
+
+  // ---- Throw / momentum (S8) --------------------------------------------
+  late final Ticker _flightTicker;
+  ThrowSimulation? _sim; // active ballistic flight, or null
+  bool _flying = false;
+  Offset _flightPos = Offset.zero;
+  double? _lastFlightSec;
+  Size _bounds = Size.zero; // scene size, captured in build
+  VelocityTracker? _tracker; // measures the release velocity of the gesture
 
   // Double-tap tracking.
   DateTime? _lastTapUp;
@@ -164,12 +189,14 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
     )
       ..addListener(_emitHold)
       ..addStatusListener(_onHoldStatus);
+    _flightTicker = createTicker(_onFlightTick);
   }
 
   @override
   void dispose() {
     _dissolveTimer?.cancel();
     _immobileTimer?.cancel();
+    _flightTicker.dispose();
     _pulse.dispose();
     _appear.dispose();
     _dissolve.dispose();
@@ -247,6 +274,7 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
   // ---- Pointer lifecycle ------------------------------------------------
   void _onDown(PointerDownEvent e) {
     _dissolveTimer?.cancel();
+    _stopFlight(); // a fresh touch interrupts any in-flight throw cleanly
     _dissolve.value = 1.0;
     setState(() {
       _active = true;
@@ -255,6 +283,8 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
       _current = e.localPosition;
     });
     _hold.value = 0.0;
+    _tracker = VelocityTracker.withKind(e.kind)
+      ..addPosition(e.timeStamp, e.localPosition);
     _appear.forward(from: 0.0); // smooth birth, never an instant pop
     _startImmobileTimer();
     widget.onPositionChanged?.call(e.localPosition);
@@ -263,6 +293,7 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
 
   void _onMove(PointerMoveEvent e) {
     if (!_active) return;
+    _tracker?.addPosition(e.timeStamp, e.localPosition);
     setState(() => _current = e.localPosition);
     // Real movement = aiming → cancel any hold-to-home and stop the still timer.
     if (_delta.distance > _holdJitter) {
@@ -292,7 +323,20 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
     if (dir != null) {
       widget.onDirection(dir);
       _lastTapUp = null; // a committed edge is not half of a double-tap
-    } else {
+      _dissolve.reverse(from: 1.0);
+      _dissolveTimer = Timer(const Duration(milliseconds: 160), _reset);
+      return;
+    }
+
+    // Sub-threshold release: a quick FLICK becomes a throw (momentum). A
+    // near-stationary release falls through to the tap / double-tap path.
+    final vel = _tracker?.getVelocity().pixelsPerSecond ?? Offset.zero;
+    if (vel.distance >= widget.throwVelocity && _bounds != Size.zero) {
+      _startThrow(_current, vel);
+      return;
+    }
+
+    {
       // A still tap (no commit). Detect a quick double-tap.
       final now = DateTime.now();
       final last = _lastTapUp;
@@ -312,9 +356,66 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
     _dissolveTimer = Timer(const Duration(milliseconds: 160), _reset);
   }
 
+  // ---- Throw / momentum --------------------------------------------------
+  /// Stop any in-flight throw immediately, without committing or dissolving
+  /// (used when a fresh touch lands mid-flight).
+  void _stopFlight() {
+    if (_flightTicker.isActive) _flightTicker.stop();
+    _flying = false;
+    _sim = null;
+    _lastFlightSec = null;
+  }
+
+  /// Seed and start a ballistic flight from [pos] with release velocity [vel].
+  void _startThrow(Offset pos, Offset vel) {
+    _sim = ThrowSimulation(bounds: _bounds, position: pos, velocity: vel);
+    _flying = true;
+    _flightPos = pos;
+    _lastFlightSec = null;
+    // Keep the orb fully present during flight (born, not dissolving).
+    _appear.value = 1.0;
+    _dissolve.value = 1.0;
+    _flightTicker.start();
+  }
+
+  void _onFlightTick(Duration elapsed) {
+    final sim = _sim;
+    if (sim == null) return;
+    final sec = elapsed.inMicroseconds / 1e6;
+    final dt = _lastFlightSec == null
+        ? 1 / 60
+        : (sec - _lastFlightSec!).clamp(0.0, 0.05).toDouble();
+    _lastFlightSec = sec;
+    final result = sim.step(dt);
+    setState(() => _flightPos = sim.position);
+    widget.onPositionChanged?.call(sim.position);
+    // Decisive colour as it nears the edge — exactly like a held aim.
+    widget.onAim?.call(OrbAim(sim.headingEdge, sim.reach));
+    if (result == ThrowResult.commit) {
+      _endThrow(sim.committedDirection);
+    } else if (result == ThrowResult.dissolve) {
+      _endThrow(null);
+    }
+  }
+
+  /// End a flight in COMMIT (an edge was reached) or DISSOLVE (ran out of
+  /// momentum) — never a freeze.
+  void _endThrow(OrbDirection? committed) {
+    _stopFlight();
+    if (committed != null) {
+      widget.onDirection(committed);
+      _reset();
+    } else {
+      // Decelerated mid-scene: dissolve in place, no commit.
+      _dissolve.reverse(from: 1.0);
+      _dissolveTimer = Timer(const Duration(milliseconds: 160), _reset);
+    }
+  }
+
   void _reset() {
     _dissolveTimer?.cancel();
     _immobileTimer?.cancel();
+    _stopFlight();
     if (!mounted) return;
     setState(() {
       _active = false;
@@ -333,47 +434,57 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Listener(
-      behavior: HitTestBehavior.opaque,
-      onPointerDown: _onDown,
-      onPointerMove: _onMove,
-      onPointerUp: (_) => _onRelease(),
-      onPointerCancel: (_) => _reset(), // never freeze
-      child: Stack(
-        children: [
-          Positioned.fill(child: widget.child),
-          if (_active && widget.showOrb)
-            AnimatedBuilder(
-              animation: Listenable.merge([_pulse, _appear, _dissolve, _hold]),
-              builder: (context, _) {
-                final presence = _presence;
-                // Pop-in: scales from 0.62 → 1.0 with the birth curve, then
-                // grows further while the hold-to-home warning is active.
-                final scale =
-                    (0.62 + 0.38 * presence) * (1 + _hold.value * _holdGrowFactor);
-                return Positioned(
-                  left: _current.dx - widget.orbSize / 2,
-                  top: _current.dy - widget.orbSize / 2,
-                  width: widget.orbSize,
-                  height: widget.orbSize,
-                  child: IgnorePointer(
-                    child: Transform.scale(
-                      scale: scale,
-                      child: CustomPaint(
-                        painter: OrbPainter(
-                          pulse: _pulse.value,
-                          opacity: presence,
-                          reach: _reach,
-                          direction: _direction,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        _bounds = Size(constraints.maxWidth, constraints.maxHeight);
+        return Listener(
+          behavior: HitTestBehavior.opaque,
+          onPointerDown: _onDown,
+          onPointerMove: _onMove,
+          onPointerUp: (_) => _onRelease(),
+          onPointerCancel: (_) => _reset(), // never freeze
+          child: Stack(
+            children: [
+              Positioned.fill(child: widget.child),
+              if ((_active || _flying) && widget.showOrb)
+                AnimatedBuilder(
+                  animation:
+                      Listenable.merge([_pulse, _appear, _dissolve, _hold]),
+                  builder: (context, _) {
+                    final presence = _presence;
+                    // During a throw the orb rides the flight position and is
+                    // tinted by the edge it is heading toward; otherwise it sits
+                    // at the finger and grows with the hold-to-home warning.
+                    final pos = _flying ? _flightPos : _current;
+                    final dir = _flying ? _sim?.headingEdge : _direction;
+                    final reach = _flying ? (_sim?.reach ?? 0.0) : _reach;
+                    final scale = (0.62 + 0.38 * presence) *
+                        (1 + _hold.value * _holdGrowFactor);
+                    return Positioned(
+                      left: pos.dx - widget.orbSize / 2,
+                      top: pos.dy - widget.orbSize / 2,
+                      width: widget.orbSize,
+                      height: widget.orbSize,
+                      child: IgnorePointer(
+                        child: Transform.scale(
+                          scale: scale,
+                          child: CustomPaint(
+                            painter: OrbPainter(
+                              pulse: _pulse.value,
+                              opacity: presence,
+                              reach: reach,
+                              direction: dir,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                );
-              },
-            ),
-        ],
-      ),
+                    );
+                  },
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
