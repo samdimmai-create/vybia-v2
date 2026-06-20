@@ -5,11 +5,20 @@ import 'package:flutter/material.dart';
 
 import '../../../components/bubble/refraction_bubble.dart';
 import '../../../components/orb/vybia_orb.dart';
+import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/edge_action.dart';
 import '../../../shared/edge_decisive.dart';
 import '../../../shared/edge_labels.dart';
+
+/// One-time, app-launch-scoped coach mark guard: a brand-new guest sees a single
+/// subtle "touche pour explorer" hint at rest on the first scene, then never
+/// again this launch (the rest state is image + description only afterwards).
+class _Coach {
+  _Coach._();
+  static bool shown = false;
+}
 
 /// The universal guest scene: a full-bleed situational [image] always wearing
 /// the Vybia bubble treatment, driven entirely by the orb.
@@ -36,7 +45,21 @@ class SceneScaffold extends StatefulWidget {
     this.upAction = EdgeAction.neutral,
     this.downAction = EdgeAction.neutral,
     this.lensRadius = 60,
+    this.onDoubleTap,
+    this.onHoldHome,
+    this.enableHoldHome = true,
   });
+
+  /// Quick double-tap → "return to the previous image/page". Defaults to
+  /// `Navigator.maybePop` (back navigation) when not supplied.
+  final VoidCallback? onDoubleTap;
+
+  /// Immobile hold-to-home completion → navigate to accueil. Defaults to
+  /// returning to the Welcome scene when not supplied.
+  final VoidCallback? onHoldHome;
+
+  /// Disables the hold-to-home gesture (e.g. on the accueil scene itself).
+  final bool enableHoldHome;
 
   final String image;
   final String headline;
@@ -69,6 +92,7 @@ class _SceneScaffoldState extends State<SceneScaffold>
   double _presence = 0; // orb life force 0..1
   OrbDirection? _aimDir; // edge the orb is leaning toward
   double _aimReach = 0; // 0 centre → 1 at commit threshold
+  double _hold = 0; // hold-to-home warning progress 0..1
 
   // S6.3: the illustrative image is the hero. At rest there is NO lens — the
   // bubble is a small jewel that is born under the finger on contact and melts
@@ -86,15 +110,18 @@ class _SceneScaffoldState extends State<SceneScaffold>
   // release builds (const false → tree-shaken).
   static const bool _kAutoDrive = bool.fromEnvironment('VYBIA_AUTODRIVE');
 
-  // (dxFrac, dyFrac, dir, reach, presence, name). presence 0 ⇒ lens off (drift).
-  static const List<(double, double, OrbDirection?, double, double, String)>
+  // (dxFrac, dyFrac, dir, reach, presence, name, hold). presence 0 ⇒ lens off.
+  // hold > 0 ⇒ hold-to-home warning (bubble grows, warning hint shows).
+  static const List<(double, double, OrbDirection?, double, double, String, double)>
       _driveScript = [
-    (0.0, 0.0, null, 0.0, 0.0, 'rest'), // no-orb half of the refraction compare
-    (0.0, 0.0, null, 0.0, 1.0, 'centre'), // pure glass droplet, no edge colour
-    (-0.20, 0.0, OrbDirection.left, 1.0, 1.0, 'left'),
-    (0.20, 0.0, OrbDirection.right, 1.0, 1.0, 'right'),
-    (0.0, 0.18, OrbDirection.down, 1.0, 1.0, 'down'),
-    (0.0, -0.18, OrbDirection.up, 1.0, 1.0, 'up'),
+    (0.0, 0.0, null, 0.0, 0.0, 'rest', 0.0), // image + description only
+    (0.0, 0.0, null, 0.0, 1.0, 'centre', 0.0), // on-contact: orb + edges appear
+    (-0.20, 0.0, OrbDirection.left, 1.0, 1.0, 'left', 0.0),
+    (0.20, 0.0, OrbDirection.right, 1.0, 1.0, 'right', 0.0),
+    (0.0, 0.18, OrbDirection.down, 1.0, 1.0, 'down', 0.0),
+    (0.0, -0.18, OrbDirection.up, 1.0, 1.0, 'up', 0.0),
+    (0.0, 0.0, null, 0.0, 1.0, 'hold', 0.55), // ≥3s immobile: warning + grow
+    (0.0, 0.0, null, 0.0, 0.35, 'shrink', 0.0), // release before complete: cancel
   ];
   Timer? _driveTimer;
   int _driveStep = 0;
@@ -115,11 +142,13 @@ class _SceneScaffoldState extends State<SceneScaffold>
         _presence = 0;
         _aimDir = null;
         _aimReach = 0;
+        _hold = 0;
       } else {
         _forceActive = null;
         _presence = s.$5;
         _aimDir = s.$3;
         _aimReach = s.$4;
+        _hold = s.$7;
       }
     });
     debugPrint('VYBIA_DRIVE ${s.$6}');
@@ -186,13 +215,23 @@ class _SceneScaffoldState extends State<SceneScaffold>
           _lastSize = size;
           return VybiaOrb(
             showOrb: false, // the refraction bubble IS the orb here
+            enableHoldHome: widget.enableHoldHome,
             onPositionChanged: (p) => setState(() => _orb = p),
-            onPresence: (v) => setState(() => _presence = v),
+            onPresence: (v) => setState(() {
+              _presence = v;
+              if (v > 0.01) _Coach.shown = true; // guest has touched once
+            }),
             onAim: (aim) => setState(() {
               _aimDir = aim.direction;
               _aimReach = aim.reach;
             }),
+            onHoldProgress: (v) => setState(() => _hold = v),
             onDirection: widget.onDirection,
+            onDoubleTap:
+                widget.onDoubleTap ?? () => Navigator.of(context).maybePop(),
+            onHoldHome: widget.onHoldHome ??
+                () => Navigator.of(context).pushNamedAndRemoveUntil(
+                    AppRouter.welcome, (_) => false),
             child: AnimatedBuilder(
               animation: _drift,
               builder: (context, _) {
@@ -206,13 +245,19 @@ class _SceneScaffoldState extends State<SceneScaffold>
                             .clamp(0.0, 1.0)
                             .toDouble()
                         : _ambient);
+                // S7-A: the orb-driven UI (edge labels + guidance chip) is hidden
+                // at rest and fades IN together with the orb on contact. Use the
+                // presence (or the autodrive hold) as the single fade signal.
+                final ui = _presence.clamp(0.0, 1.0).toDouble();
+                // Hold-to-home grows the bubble progressively toward the screen.
+                final radius = widget.lensRadius * (1 + _hold * 9);
                 return Stack(
                   fit: StackFit.expand,
                   children: [
                     RefractionBubble(
                       image: AssetImage(widget.image),
                       orbCenter: center,
-                      radius: widget.lensRadius,
+                      radius: radius,
                       magnification: 0.8,
                       active: active,
                     ),
@@ -225,19 +270,37 @@ class _SceneScaffoldState extends State<SceneScaffold>
                       orbCenter: _orb,
                       lensRadius: widget.lensRadius,
                     ),
+                    // Rest state = hero image + description only. Always painted.
                     _TopScrim(
                       headline: widget.headline,
                       prompt: widget.prompt,
                       badge: widget.badge,
                     ),
-                    EdgeLabels(
-                      left: widget.left,
-                      right: widget.right,
-                      up: widget.up,
-                      down: widget.down,
-                    ),
-                    if (widget.prompt != null)
-                      _hintChip(t, 'Touche, glisse, et choisis ta direction'),
+                    // Edge labels + guidance chip: born/gone with the orb.
+                    if (ui > 0.001)
+                      Opacity(
+                        opacity: ui,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            EdgeLabels(
+                              left: widget.left,
+                              right: widget.right,
+                              up: widget.up,
+                              down: widget.down,
+                            ),
+                            if (widget.prompt != null)
+                              _hintChip(
+                                  t, 'Touche, glisse, et choisis ta direction'),
+                          ],
+                        ),
+                      ),
+                    // First-run-only coach mark: at rest, tell a brand-new guest
+                    // they can touch. Disappears for the rest of the launch.
+                    if (!_Coach.shown && ui <= 0.001 && _hold <= 0.001)
+                      _hintChip(t, 'Touche l’image pour explorer'),
+                    // Hold-to-home warning hint.
+                    if (_hold > 0.001) _holdWarning(t),
                   ],
                 );
               },
@@ -270,6 +333,37 @@ class _SceneScaffoldState extends State<SceneScaffold>
                 label,
                 style: t.labelSmall?.copyWith(color: AppColors.textSecondary),
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Calm centred warning shown once the immobile hold-to-home threshold is
+  /// reached: keep holding and you'll be taken back to the accueil. Its opacity
+  /// tracks the grow progress so it feels like a deliberate, building gesture.
+  Widget _holdWarning(TextTheme t) {
+    return IgnorePointer(
+      child: Center(
+        child: Opacity(
+          opacity: (0.4 + 0.6 * _hold).clamp(0.0, 1.0).toDouble(),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.md,
+            ),
+            decoration: BoxDecoration(
+              color: AppColors.bg.withValues(alpha: 0.62),
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              border:
+                  Border.all(color: AppColors.pearl.withValues(alpha: 0.3)),
+            ),
+            child: Text(
+              'Continue de maintenir pour revenir à l’accueil',
+              textAlign: TextAlign.center,
+              style: t.titleMedium?.copyWith(color: AppColors.pearl),
             ),
           ),
         ),
