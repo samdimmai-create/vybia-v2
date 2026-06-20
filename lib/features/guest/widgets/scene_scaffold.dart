@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
@@ -52,9 +53,33 @@ class SceneScaffold extends StatefulWidget {
     this.onDoubleTap,
     this.onHoldHome,
     this.enableHoldHome = true,
+    this.bottomBubble = false,
+    this.infoLine,
+    this.tags = const [],
     this.debugHoldProof = false,
     this.debugThrowProof = false,
+    this.debugAimProof,
   });
+
+  /// S8.1D: present the description as a rounded-rect glass BUBBLE pinned near
+  /// the BOTTOM (V1 style) instead of the top scrim. Used by the image/activity
+  /// scenes (reco + the mood/preference scenes); the structural flows (plan,
+  /// profil, mes plans) keep the plain top scrim. At rest the bubble is visible;
+  /// on contact it fades out as the edge indicators + orb fade in, and it fades
+  /// back on release/cancel.
+  final bool bottomBubble;
+
+  /// Optional one-line context for the bottom bubble, e.g. "à 1,4 km · Café ·
+  /// posé". Shown under the title; ignored unless [bottomBubble] is true.
+  final String? infoLine;
+
+  /// Optional short tag chips for the bottom bubble (e.g. ["cosy"]).
+  final List<String> tags;
+
+  /// Debug-only: pin the scene in the on-contact state aimed at this edge (orb
+  /// + edges visible, bubble hidden, decisive wave radiating) for a
+  /// deterministic screenshot. Used by the S8.1 proof tour.
+  final OrbDirection? debugAimProof;
 
   /// Debug-only: pin this scene in the calm hold-to-home portal state (half-open
   /// at centre) for a deterministic screenshot. Used by the S8 proof tour.
@@ -192,7 +217,8 @@ class _SceneScaffoldState extends State<SceneScaffold>
     }
     final holdProof = _kHoldProof || widget.debugHoldProof;
     final throwProof = _kThrowProof || widget.debugThrowProof;
-    if (holdProof || throwProof) {
+    final aimProof = widget.debugAimProof;
+    if (holdProof || throwProof || aimProof != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted || _lastSize == Size.zero) return;
         setState(() {
@@ -201,6 +227,12 @@ class _SceneScaffoldState extends State<SceneScaffold>
           if (holdProof) {
             _orb = Offset(_lastSize.width / 2, _lastSize.height / 2);
             _hold = 0.62; // portal half-open, filled with calm
+          } else if (aimProof != null) {
+            // On-contact aim toward [aimProof]: orb sits ~70% toward that edge
+            // with a high reach so the decisive radial wave is in full bloom.
+            _orb = _aimPoint(_lastSize, aimProof);
+            _aimDir = aimProof;
+            _aimReach = 0.85;
           } else {
             // Thrown orb in flight, nearing the right edge and committing.
             _orb = Offset(_lastSize.width * 0.9, _lastSize.height / 2);
@@ -209,6 +241,22 @@ class _SceneScaffoldState extends State<SceneScaffold>
           }
         });
       });
+    }
+  }
+
+  /// A point ~70% of the way from centre toward [dir]'s edge — where the orb
+  /// sits for the on-contact aim proof.
+  static Offset _aimPoint(Size s, OrbDirection dir) {
+    final cx = s.width / 2, cy = s.height / 2;
+    switch (dir) {
+      case OrbDirection.left:
+        return Offset(s.width * 0.18, cy);
+      case OrbDirection.right:
+        return Offset(s.width * 0.82, cy);
+      case OrbDirection.up:
+        return Offset(cx, s.height * 0.24);
+      case OrbDirection.down:
+        return Offset(cx, s.height * 0.76);
     }
   }
 
@@ -334,12 +382,26 @@ class _SceneScaffoldState extends State<SceneScaffold>
                           ),
                         ),
                       ),
-                    // Rest state = hero image + description only. Always painted.
-                    _TopScrim(
-                      headline: widget.headline,
-                      prompt: widget.prompt,
-                      badge: widget.badge,
-                    ),
+                    // Description. S8.1D: the image/activity scenes wear the
+                    // V1-style bottom glass bubble that recedes on contact;
+                    // structural scenes keep the always-on top scrim.
+                    if (widget.bottomBubble)
+                      // Fades out as the orb is born (ui → 1) and back on
+                      // release. The image itself stays clear behind it.
+                      _BottomBubble(
+                        opacity: (1 - ui).clamp(0.0, 1.0).toDouble(),
+                        badge: widget.badge,
+                        title: widget.headline,
+                        subtitle: widget.prompt,
+                        infoLine: widget.infoLine,
+                        tags: widget.tags,
+                      )
+                    else
+                      _TopScrim(
+                        headline: widget.headline,
+                        prompt: widget.prompt,
+                        badge: widget.badge,
+                      ),
                     // Edge labels + guidance chip: born/gone with the orb.
                     if (ui > 0.001)
                       Opacity(
@@ -353,15 +415,21 @@ class _SceneScaffoldState extends State<SceneScaffold>
                               up: widget.up,
                               down: widget.down,
                             ),
-                            if (widget.prompt != null)
+                            // The bottom bubble carries its own "touche et
+                            // décide" hint, so the redundant guidance chip is
+                            // only shown on the plain (structural) scenes.
+                            if (!widget.bottomBubble && widget.prompt != null)
                               _hintChip(
                                   t, 'Touche, glisse, et choisis ta direction'),
                           ],
                         ),
                       ),
-                    // First-run-only coach mark: at rest, tell a brand-new guest
-                    // they can touch. Disappears for the rest of the launch.
-                    if (!_Coach.shown && ui <= 0.001 && _hold <= 0.001)
+                    // First-run-only coach mark (structural scenes only — the
+                    // bubble scenes show their own hint under the bubble).
+                    if (!widget.bottomBubble &&
+                        !_Coach.shown &&
+                        ui <= 0.001 &&
+                        _hold <= 0.001)
                       _hintChip(t, 'Touche l’image pour explorer'),
                     // Hold-to-home warning hint.
                     if (_hold > 0.001) _holdWarning(t),
@@ -451,6 +519,164 @@ class _CircleReveal extends CustomClipper<Path> {
   @override
   bool shouldReclip(covariant _CircleReveal old) =>
       old.center != center || old.radius != radius;
+}
+
+/// S8.1D: the V1-style description bubble — a rounded-rect glass card pinned
+/// near the bottom holding the badge, title, the "pourquoi" line, an info line
+/// and tag chips, with a small "touche et décide" hint below it. A subtle scrim
+/// + blur is LOCAL to the bubble only, so the rest of the hero image stays
+/// clear. Its [opacity] is driven by the scene: full at rest, fading to 0 as
+/// the orb is born on contact (and back on release).
+class _BottomBubble extends StatelessWidget {
+  const _BottomBubble({
+    required this.opacity,
+    required this.title,
+    this.badge,
+    this.subtitle,
+    this.infoLine,
+    this.tags = const [],
+  });
+
+  final double opacity;
+  final String title;
+  final String? badge;
+  final String? subtitle;
+  final String? infoLine;
+  final List<String> tags;
+
+  @override
+  Widget build(BuildContext context) {
+    if (opacity <= 0.001) return const SizedBox.shrink();
+    final t = Theme.of(context).textTheme;
+    return IgnorePointer(
+      child: Opacity(
+        opacity: opacity,
+        child: SafeArea(
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.lg),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                    child: BackdropFilter(
+                      filter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface.withValues(alpha: 0.46),
+                          borderRadius: BorderRadius.circular(AppRadius.lg),
+                          border: Border.all(
+                              color: AppColors.pearl.withValues(alpha: 0.16)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (badge != null) ...[
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.sm, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color:
+                                      AppColors.primary.withValues(alpha: 0.9),
+                                  borderRadius:
+                                      BorderRadius.circular(AppRadius.pill),
+                                ),
+                                child: Text(
+                                  badge!,
+                                  style: t.labelMedium?.copyWith(
+                                    color: AppColors.bg,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: AppSpacing.sm),
+                            ],
+                            Text(
+                              title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: t.titleLarge?.copyWith(
+                                color: AppColors.pearl,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            if (subtitle != null) ...[
+                              const SizedBox(height: AppSpacing.xxs),
+                              Text(
+                                subtitle!,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: t.bodyMedium
+                                    ?.copyWith(color: AppColors.textSecondary),
+                              ),
+                            ],
+                            if (infoLine != null) ...[
+                              const SizedBox(height: AppSpacing.xs),
+                              Text(
+                                infoLine!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: t.labelMedium?.copyWith(
+                                  color: AppColors.accent,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                            if (tags.isNotEmpty) ...[
+                              const SizedBox(height: AppSpacing.sm),
+                              Wrap(
+                                spacing: AppSpacing.xs,
+                                runSpacing: AppSpacing.xs,
+                                children: [
+                                  for (final tag in tags)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: AppSpacing.sm,
+                                          vertical: 3),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.surfaceRaised
+                                            .withValues(alpha: 0.7),
+                                        borderRadius: BorderRadius.circular(
+                                            AppRadius.pill),
+                                        border: Border.all(
+                                            color: AppColors.accent
+                                                .withValues(alpha: 0.4)),
+                                      ),
+                                      child: Text(
+                                        '• $tag',
+                                        style: t.labelSmall?.copyWith(
+                                            color: AppColors.textSecondary),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    'touche et décide',
+                    style: t.labelSmall?.copyWith(
+                      color: AppColors.textMuted,
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// Headline + optional prompt floated on a top legibility scrim.

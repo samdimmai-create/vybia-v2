@@ -47,8 +47,9 @@ class WelcomeScreen extends StatelessWidget {
 
     return SceneScaffold(
       image: Img.calm,
-      headline: 'Comment veux-tu\nte sentir ?',
+      headline: 'Comment veux-tu te sentir ?',
       prompt: 'Sans compte, sans détour. Choisis avec l’orbe.',
+      bottomBubble: true,
       onDirection: choose,
       left: 'Posé',
       up: 'Curieux',

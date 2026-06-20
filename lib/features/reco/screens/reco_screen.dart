@@ -6,11 +6,45 @@ import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/edge_action.dart';
+import '../../guest/model/dimension.dart';
 import '../../guest/state/guest_controller.dart';
 import '../../guest/widgets/scene_scaffold.dart';
 import '../../plans/screens/planifier_screen.dart';
+import '../model/activity.dart';
+import '../model/recommendation.dart';
 import '../state/reco_controller.dart';
 import 'reco_detail_overlay.dart';
+
+/// The bottom-bubble info line: "à 1,4 km · Café" (distance folded in only when
+/// the location is known). Kept to one tidy line of real context.
+String _infoLine(Recommendation rec) {
+  final parts = <String>[
+    if (rec.distanceKm != null) formatDistance(rec.distanceKm!),
+    rec.activity.category.labelFr,
+  ];
+  return parts.join(' · ');
+}
+
+/// Up to two short vibe tags derived from the activity's taste axes, so the
+/// bubble reads like a curated proposal ("• posé", "• calme").
+List<String> _vibeTags(Activity a) {
+  final tags = <String>[];
+  final vibe = a.tag(Dimension.vibe);
+  if (vibe <= 0.4) {
+    tags.add('intime');
+  } else if (vibe >= 0.65) {
+    tags.add('animé');
+  } else {
+    tags.add('posé');
+  }
+  final energy = a.tag(Dimension.energy);
+  if (energy <= 0.35) {
+    tags.add('calme');
+  } else if (energy >= 0.7) {
+    tags.add('énergique');
+  }
+  return tags;
+}
 
 /// The core: immersive, all-orb recommendation scenes with live revealed-
 /// preference learning.
@@ -119,9 +153,12 @@ class _RecoScreenState extends State<RecoScreen> {
               image: rec.activity.image,
               badge: rec.isBestPick ? '★ Meilleur choix pour toi' : null,
               headline: rec.activity.titleFr,
-              prompt: rec.distanceKm != null
-                  ? '${rec.why}\n${formatDistanceEta(rec.distanceKm!)}'
-                  : rec.why,
+              prompt: rec.why,
+              // S8.1D: description lives in the V1-style bottom glass bubble;
+              // the distance/category/vibe become its single info line + tags.
+              bottomBubble: true,
+              infoLine: _infoLine(rec),
+              tags: _vibeTags(rec.activity),
               left: 'J’aime',
               right: 'Pas pour moi',
               up: 'Plus d’infos',

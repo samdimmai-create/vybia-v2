@@ -49,6 +49,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       image: backdrop,
       headline: q.prompt,
       prompt: 'On affine ton profil au fil de tes choix.',
+      bottomBubble: true,
       left: q.optionFor(OrbDirection.left)?.label,
       right: q.optionFor(OrbDirection.right)?.label,
       up: q.optionFor(OrbDirection.up)?.label,

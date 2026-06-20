@@ -174,6 +174,46 @@ void main() {
     await g.up();
     await tester.pump(const Duration(milliseconds: 300));
   });
+
+  testWidgets('SceneScaffold bottom bubble: visible at rest, recedes on contact '
+      '(S8.1D)', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: SceneScaffold(
+          image: 'assets/images/places/cafe.jpg',
+          headline: 'Café Olimpico',
+          prompt: 'Une pause douce, un café soigné.',
+          bottomBubble: true,
+          infoLine: 'à 1,4 km · Café',
+          tags: ['posé', 'calme'],
+          left: 'J’aime',
+          right: 'Pas pour moi',
+          onDirection: _noop,
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+
+    // Rest: the bottom bubble shows the title, info line and the hint; the edge
+    // labels are NOT painted yet.
+    expect(find.text('Café Olimpico'), findsOneWidget);
+    expect(find.text('à 1,4 km · Café'), findsOneWidget);
+    expect(find.text('touche et décide'), findsOneWidget);
+    expect(find.text('J’aime'), findsNothing);
+
+    // On contact the bubble recedes (opacity → 0 ⇒ removed) and the edges fade
+    // in with the orb.
+    final g = await tester.startGesture(const Offset(200, 400));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 160));
+    expect(find.text('J’aime'), findsOneWidget);
+    expect(find.text('à 1,4 km · Café'), findsNothing);
+    expect(find.text('touche et décide'), findsNothing);
+
+    await g.up();
+    await tester.pump(const Duration(milliseconds: 300));
+  });
 }
 
 void _noop(OrbDirection _) {}
