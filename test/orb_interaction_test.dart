@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vybia_v2/components/orb/vybia_orb.dart';
 import 'package:vybia_v2/core/theme/app_colors.dart';
 import 'package:vybia_v2/features/guest/widgets/scene_scaffold.dart';
+import 'package:vybia_v2/shared/glass.dart';
 
 /// S7 PART A — the founder's orb interaction model.
 void main() {
@@ -222,6 +223,8 @@ void main() {
     await tester.pump(const Duration(milliseconds: 160)); // ramp past birth
     expect(find.text('J’aime'), findsOneWidget);
     expect(find.text('Pas pour moi'), findsOneWidget);
+    // S9.3: each choice label wears the liquid-glass capsule.
+    expect(find.byType(GlassCapsule), findsWidgets);
 
     await g.up();
     await tester.pump(const Duration(milliseconds: 300));
@@ -258,6 +261,10 @@ void main() {
     // so there is NO BackdropFilter behind the text (at rest, no edge filter is
     // engaged either). The image must read as the hero behind the floating text.
     expect(find.byType(BackdropFilter), findsNothing);
+    // S9.3: the badge + tag chips wear the liquid-glass capsule (faked cheaply
+    // with a gradient + rim + glow, NOT a backdrop blur — so the no-frosting
+    // guarantee above still holds).
+    expect(find.byType(GlassCapsule), findsWidgets);
 
     // On contact the bubble recedes (opacity → 0 ⇒ removed) and the edges fade
     // in with the orb.

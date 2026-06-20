@@ -7,6 +7,7 @@ import 'features/dev/s8_1_proof_tour.dart';
 import 'features/dev/s8_proof_tour.dart';
 import 'features/dev/s9_1_engine_proof_tour.dart';
 import 'features/dev/s9_2_proof_tour.dart';
+import 'features/dev/s9_3_proof_tour.dart';
 import 'features/guest/state/guest_controller.dart';
 import 'features/plans/state/plan_controller.dart';
 
@@ -65,6 +66,10 @@ class _VybiaAppState extends State<VybiaApp> {
   // behind the floating text at rest, gone on contact.
   static const bool _kProof92 = bool.fromEnvironment('VYBIA_PROOF92');
 
+  // S9.3: VISIBLE-IN-CHROME proof of the liquid-glass info bubble + edge labels
+  // (`--dart-define=VYBIA_PROOF93=true`) on a bright AND a dark background.
+  static const bool _kProof93 = bool.fromEnvironment('VYBIA_PROOF93');
+
   @override
   void initState() {
     super.initState();
@@ -122,7 +127,7 @@ class _VybiaAppState extends State<VybiaApp> {
         ),
       );
     }
-    if (_kProof || _kProof81 || _kProof92) {
+    if (_kProof || _kProof81 || _kProof92 || _kProof93) {
       return MaterialApp(
         title: 'Vybia',
         debugShowCheckedModeBanner: false,
@@ -131,7 +136,9 @@ class _VybiaAppState extends State<VybiaApp> {
           controller: _guest,
           child: PlanScope(
             controller: _plans,
-            child: _kProof92
+            child: _kProof93
+                ? const S93ProofTour()
+                : _kProof92
                 ? const S92ProofTour()
                 : _kProof81
                 ? const S81ProofTour()

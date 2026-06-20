@@ -12,6 +12,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../shared/edge_action.dart';
 import '../../../shared/edge_decisive.dart';
 import '../../../shared/edge_labels.dart';
+import '../../../shared/glass.dart';
 
 /// One-time, app-launch-scoped coach mark guard: a brand-new guest sees a single
 /// subtle "touche pour explorer" hint at rest on the first scene, then never
@@ -572,25 +573,16 @@ class _CircleReveal extends CustomClipper<Path> {
       old.center != center || old.radius != radius;
 }
 
-/// Soft legibility shadow worn by the bottom-bubble text so it reads cleanly
-/// over ANY photo WITHOUT an opaque background (S9.2). A tight dark glow hugs
-/// each glyph; a wider, softer one lifts it off bright/busy regions. This —
-/// plus weight/colour and a barely-there bottom gradient veil — replaces the
-/// old frosted card so the hero image is never hidden.
-const List<Shadow> _kBubbleTextShadow = [
-  Shadow(color: Colors.black, blurRadius: 4),
-  Shadow(color: Colors.black87, blurRadius: 14),
-];
-
-/// S9.2: the V1-style description — badge, title, the "pourquoi" line, an info
-/// line and tag chips, with a small "touche et décide" hint below it — pinned
-/// near the BOTTOM and floating DIRECTLY over the hero image. There is NO
-/// opaque card and NO backdrop blur: the illustrative image shows through
-/// fully, exactly like the V1 "Columbus Café & Co" card. Text stays legible
-/// purely via [_kBubbleTextShadow] + weight, with at most a very faint
-/// bottom-anchored gradient veil for contrast on bright photos. Its [opacity]
-/// is driven by the scene: full at rest, fading to 0 as the orb is born on
-/// contact (and back on release).
+/// S9.2 + S9.3: the V1-style description — badge, title, the "pourquoi" line, an
+/// info line and tag chips, with a small "touche et décide" hint below it —
+/// pinned near the BOTTOM and floating DIRECTLY over the hero image. There is NO
+/// opaque card and NO full backdrop blur: the illustrative image shows through
+/// fully, like the V1 "Columbus Café & Co" card. The title / pourquoi / info /
+/// hint stay FLOATING TEXT with [kGlassTextShadow] so reading is instant; the
+/// badge + tag chips wear the liquid-glass [GlassCapsule] (S9.3) so the chrome
+/// reads as one sea-glass family with the orb — dew beads on the photo, not a
+/// UI card. Its [opacity] is driven by the scene: full at rest, fading to 0 as
+/// the orb is born on contact (and back on release).
 class _BottomBubble extends StatelessWidget {
   const _BottomBubble({
     required this.opacity,
@@ -636,7 +628,7 @@ class _BottomBubble extends StatelessWidget {
                     // top of the text → barely tinted at the very bottom) so a
                     // bright photo never washes the smallest text out.
                     // Legibility otherwise rides entirely on the text's own
-                    // shadow/glow + weight (_kBubbleTextShadow), V1-card style.
+                    // shadow/glow + weight (kGlassTextShadow), V1-card style.
                     padding: const EdgeInsets.all(AppSpacing.md),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -652,22 +644,19 @@ class _BottomBubble extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (badge != null) ...[
-                          Container(
+                          GlassCapsule(
+                            tint: AppColors.champagne,
+                            strong: true,
                             padding: const EdgeInsets.symmetric(
                               horizontal: AppSpacing.sm,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.92),
-                              borderRadius: BorderRadius.circular(
-                                AppRadius.pill,
-                              ),
+                              vertical: 4,
                             ),
                             child: Text(
                               badge!,
                               style: t.labelMedium?.copyWith(
-                                color: AppColors.bg,
+                                color: AppColors.pearl,
                                 fontWeight: FontWeight.w700,
+                                shadows: kGlassTextShadow,
                               ),
                             ),
                           ),
@@ -680,7 +669,7 @@ class _BottomBubble extends StatelessWidget {
                           style: t.titleLarge?.copyWith(
                             color: AppColors.pearl,
                             fontWeight: FontWeight.w700,
-                            shadows: _kBubbleTextShadow,
+                            shadows: kGlassTextShadow,
                           ),
                         ),
                         if (subtitle != null) ...[
@@ -691,7 +680,7 @@ class _BottomBubble extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: t.bodyMedium?.copyWith(
                               color: AppColors.pearl.withValues(alpha: 0.92),
-                              shadows: _kBubbleTextShadow,
+                              shadows: kGlassTextShadow,
                             ),
                           ),
                         ],
@@ -704,7 +693,7 @@ class _BottomBubble extends StatelessWidget {
                             style: t.labelMedium?.copyWith(
                               color: AppColors.accent,
                               fontWeight: FontWeight.w700,
-                              shadows: _kBubbleTextShadow,
+                              shadows: kGlassTextShadow,
                             ),
                           ),
                         ],
@@ -715,29 +704,17 @@ class _BottomBubble extends StatelessWidget {
                             runSpacing: AppSpacing.xs,
                             children: [
                               for (final tag in tags)
-                                Container(
+                                GlassCapsule(
+                                  tint: AppColors.accent,
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: AppSpacing.sm,
-                                    vertical: 3,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.surfaceRaised.withValues(
-                                      alpha: 0.55,
-                                    ),
-                                    borderRadius: BorderRadius.circular(
-                                      AppRadius.pill,
-                                    ),
-                                    border: Border.all(
-                                      color: AppColors.accent.withValues(
-                                        alpha: 0.55,
-                                      ),
-                                    ),
+                                    vertical: 4,
                                   ),
                                   child: Text(
                                     '• $tag',
                                     style: t.labelSmall?.copyWith(
                                       color: AppColors.pearl,
-                                      shadows: _kBubbleTextShadow,
+                                      shadows: kGlassTextShadow,
                                     ),
                                   ),
                                 ),
@@ -753,7 +730,7 @@ class _BottomBubble extends StatelessWidget {
                     style: t.labelSmall?.copyWith(
                       color: AppColors.pearl.withValues(alpha: 0.85),
                       letterSpacing: 0.4,
-                      shadows: _kBubbleTextShadow,
+                      shadows: kGlassTextShadow,
                     ),
                   ),
                 ],
