@@ -71,7 +71,7 @@ const Map<PlaceCategory, CategoryProfile> kPlaceCategoryProfiles = {
     motives: (hedonic: 0.8, relaxation: 0.4, eudaimonic: 0.4),
     budget: 2,
     indoor: true,
-    image: Img.social,
+    image: Img.restaurant,
     activityCategory: ActivityCategory.food,
   ),
   PlaceCategory.bar: CategoryProfile(
@@ -88,7 +88,7 @@ const Map<PlaceCategory, CategoryProfile> kPlaceCategoryProfiles = {
     motives: (hedonic: 0.85, relaxation: 0.4, eudaimonic: 0.2),
     budget: 2,
     indoor: true,
-    image: Img.rooftop,
+    image: Img.bar,
     activityCategory: ActivityCategory.nightlife,
   ),
   PlaceCategory.cinema: CategoryProfile(
@@ -122,7 +122,7 @@ const Map<PlaceCategory, CategoryProfile> kPlaceCategoryProfiles = {
     motives: (hedonic: 0.6, relaxation: 0.45, eudaimonic: 0.65),
     budget: 2,
     indoor: true,
-    image: Img.cinema,
+    image: Img.theatre,
     activityCategory: ActivityCategory.culture,
   ),
   PlaceCategory.museum: CategoryProfile(
@@ -139,7 +139,7 @@ const Map<PlaceCategory, CategoryProfile> kPlaceCategoryProfiles = {
     motives: (hedonic: 0.4, relaxation: 0.5, eudaimonic: 0.9),
     budget: 2,
     indoor: true,
-    image: Img.curious,
+    image: Img.museum,
     activityCategory: ActivityCategory.culture,
   ),
   PlaceCategory.gallery: CategoryProfile(
@@ -156,7 +156,7 @@ const Map<PlaceCategory, CategoryProfile> kPlaceCategoryProfiles = {
     motives: (hedonic: 0.45, relaxation: 0.5, eudaimonic: 0.85),
     budget: 1,
     indoor: true,
-    image: Img.curious,
+    image: Img.gallery,
     activityCategory: ActivityCategory.creative,
   ),
   PlaceCategory.viewpoint: CategoryProfile(
@@ -173,7 +173,7 @@ const Map<PlaceCategory, CategoryProfile> kPlaceCategoryProfiles = {
     motives: (hedonic: 0.4, relaxation: 0.8, eudaimonic: 0.5),
     budget: 0,
     indoor: false,
-    image: Img.walkNight,
+    image: Img.viewpoint,
     activityCategory: ActivityCategory.nature,
   ),
   PlaceCategory.park: CategoryProfile(
@@ -191,7 +191,7 @@ const Map<PlaceCategory, CategoryProfile> kPlaceCategoryProfiles = {
     budget: 0,
     indoor: false,
     winterFriendly: false,
-    image: Img.energetic,
+    image: Img.park,
     activityCategory: ActivityCategory.nature,
   ),
   PlaceCategory.garden: CategoryProfile(
@@ -209,7 +209,7 @@ const Map<PlaceCategory, CategoryProfile> kPlaceCategoryProfiles = {
     budget: 1,
     indoor: false,
     winterFriendly: false,
-    image: Img.rooftop,
+    image: Img.garden,
     activityCategory: ActivityCategory.nature,
   ),
   PlaceCategory.market: CategoryProfile(
@@ -227,7 +227,7 @@ const Map<PlaceCategory, CategoryProfile> kPlaceCategoryProfiles = {
     budget: 1,
     indoor: false,
     winterFriendly: false,
-    image: Img.curious,
+    image: Img.market,
     activityCategory: ActivityCategory.food,
   ),
   PlaceCategory.sports: CategoryProfile(
@@ -244,7 +244,7 @@ const Map<PlaceCategory, CategoryProfile> kPlaceCategoryProfiles = {
     motives: (hedonic: 0.7, relaxation: 0.3, eudaimonic: 0.65),
     budget: 2,
     indoor: true,
-    image: Img.energetic,
+    image: Img.sports,
     activityCategory: ActivityCategory.active,
   ),
 };

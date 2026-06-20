@@ -35,7 +35,7 @@ class IntentionScreen extends StatelessWidget {
     }
 
     return SceneScaffold(
-      image: Img.walkNight,
+      image: Img.viewpoint,
       headline: 'Maintenant ou\nplanifier ?',
       prompt: 'Glisse vers ce qui te ressemble, là tout de suite.',
       left: 'Maintenant',

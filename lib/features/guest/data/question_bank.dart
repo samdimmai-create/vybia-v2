@@ -39,7 +39,7 @@ const List<Question> kQuestionBank = [
       QOption(
         direction: OrbDirection.left,
         label: 'Rien qu’à moi',
-        image: Img.walkNight,
+        image: Img.park,
         value: 0.1,
         nudges: {Dimension.vibe: 0.3},
       ),
@@ -88,7 +88,7 @@ const List<Question> kQuestionBank = [
       QOption(
         direction: OrbDirection.right,
         label: 'Prêt à bouger',
-        image: Img.rooftop,
+        image: Img.viewpoint,
         value: 0.9,
         nudges: {Dimension.energy: 0.7, Dimension.indoor: 0.2},
       ),
@@ -102,7 +102,7 @@ const List<Question> kQuestionBank = [
       QOption(
         direction: OrbDirection.left,
         label: 'Au grand air',
-        image: Img.rooftop,
+        image: Img.park,
         value: 0.1,
         nudges: {Dimension.distance: 0.6},
       ),
@@ -123,13 +123,13 @@ const List<Question> kQuestionBank = [
       QOption(
         direction: OrbDirection.left,
         label: 'En pleine journée',
-        image: Img.curious,
+        image: Img.garden,
         value: 0.1,
       ),
       QOption(
         direction: OrbDirection.right,
         label: 'Pour ce soir',
-        image: Img.walkNight,
+        image: Img.bar,
         value: 0.9,
         nudges: {Dimension.vibe: 0.7},
       ),
@@ -149,7 +149,7 @@ const List<Question> kQuestionBank = [
       QOption(
         direction: OrbDirection.right,
         label: 'Sans compter',
-        image: Img.rooftop,
+        image: Img.restaurant,
         value: 0.9,
         nudges: {Dimension.distance: 0.4},
       ),

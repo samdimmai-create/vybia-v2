@@ -24,9 +24,9 @@ class RefractionDemoScreen extends StatefulWidget {
 class _RefractionDemoScreenState extends State<RefractionDemoScreen>
     with SingleTickerProviderStateMixin {
   static const _images = <(String, String)>[
-    ('assets/images/recos/walk_night.jpg', 'Ville la nuit'),
-    ('assets/images/recos/rooftop.jpg', 'Grand air'),
-    ('assets/images/recos/cafe.jpg', 'Cocon intérieur'),
+    ('assets/images/places/viewpoint.jpg', 'Ville la nuit'),
+    ('assets/images/places/garden.jpg', 'Grand air'),
+    ('assets/images/places/cafe.jpg', 'Cocon intérieur'),
   ];
 
   late final AnimationController _drift;

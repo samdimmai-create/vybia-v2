@@ -66,7 +66,8 @@ flutter:
   # V2 bundles them so the universal bubble effect always has real content.
   assets:
     - assets/images/emotions/
-    - assets/images/recos/
+    - assets/images/places/
+    - assets/images/NOTICES.md
     # Build-time OpenStreetMap Montréal snapshot (offline, deterministic, free).
     - assets/data/montreal_places.json
 

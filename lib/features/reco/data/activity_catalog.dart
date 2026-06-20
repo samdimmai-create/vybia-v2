@@ -104,7 +104,7 @@ const List<Activity> kActivityCatalog = [
         'douce de la ville en dessous. Une soirée qui se savoure en hauteur.',
     lat: 45.5048,
     lng: -73.5617,
-    image: Img.rooftop,
+    image: Img.bar,
   ),
   Activity(
     id: 'cinema_du_parc',
@@ -150,7 +150,7 @@ const List<Activity> kActivityCatalog = [
         's’adoucit. Une marche qui remet les idées en place.',
     lat: 45.5048,
     lng: -73.5500,
-    image: Img.walkNight,
+    image: Img.viewpoint,
   ),
   Activity(
     id: 'mbam_museum',
@@ -382,7 +382,7 @@ const List<Activity> kActivityCatalog = [
         'froid vif qui réveille. L’hiver montréalais qu’on aime.',
     lat: 45.5060,
     lng: -73.5480,
-    image: Img.walkNight,
+    image: Img.sports,
   ),
   Activity(
     id: 'botanical_garden',
@@ -406,7 +406,7 @@ const List<Activity> kActivityCatalog = [
         'au cœur de la ville. Respirer, lentement.',
     lat: 45.5595,
     lng: -73.5620,
-    image: Img.rooftop,
+    image: Img.garden,
   ),
   Activity(
     id: 'standup_comedy',
@@ -475,6 +475,6 @@ const List<Activity> kActivityCatalog = [
         'calme du sommet. Un moment suspendu, à deux ou en solo.',
     lat: 45.5040,
     lng: -73.5876,
-    image: Img.walkNight,
+    image: Img.viewpoint,
   ),
 ];

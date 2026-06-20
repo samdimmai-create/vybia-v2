@@ -16,7 +16,7 @@ import '../../shared/edge_decisive.dart';
 class EdgeDecisiveDemoScreen extends StatelessWidget {
   const EdgeDecisiveDemoScreen({super.key});
 
-  static const _img = Img.walkNight;
+  static const _img = Img.viewpoint;
 
   @override
   Widget build(BuildContext context) {
