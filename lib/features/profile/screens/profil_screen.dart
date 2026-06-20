@@ -189,8 +189,11 @@ class _LearnedCard extends StatelessWidget {
     final profile = guest.profile;
     return SafeArea(
       child: Padding(
+        // S6.3: sit clear ABOVE the SceneScaffold's bottom "Touche, glisse…"
+        // hint chip (which is itself pinned at bottom: huge) so the last recap
+        // row (e.g. Ambiance / feutré) never overlaps the hint.
         padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.huge),
+            AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.huge + AppSpacing.xxl),
         child: Container(
           padding: const EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(

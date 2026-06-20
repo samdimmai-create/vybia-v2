@@ -30,9 +30,13 @@ out vec4 fragColor;
 
 // ---- Tunable look constants ------------------------------------------------
 // Raise LENS_AMP / MAG_AMP if the warp ever reads as a flat tint again.
+// S6.3: tuned for a small V1-size jewel (lensRadius ≈60 / ø≈120 px). LENS_AMP
+// and MAG_AMP scale with the radius so they read identically at any size, but
+// CHROMA_PX is an absolute pixel split → reduced 16→9 so the fringe stays ~7%
+// of the diameter on the smaller bead instead of looking blown out.
 const float LENS_AMP   = 1.6;   // radial displacement (geometry bend) amplitude
 const float MAG_AMP    = 1.0;   // extra magnification toward the centre
-const float CHROMA_PX  = 16.0;  // chromatic split at the rim, in px
+const float CHROMA_PX  = 9.0;   // chromatic split at the rim, in px
 const float RIM_BRIGHT = 0.70;  // brightness of the glass rim highlight
 const float SPEC_BRIGHT = 0.50; // upper-left specular kick brightness
 const float INNER_GLOW = 0.045; // gentle inner luminosity (droplet, not ring)

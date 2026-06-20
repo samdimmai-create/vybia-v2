@@ -35,7 +35,7 @@ class SceneScaffold extends StatefulWidget {
     this.rightAction = EdgeAction.neutral,
     this.upAction = EdgeAction.neutral,
     this.downAction = EdgeAction.neutral,
-    this.lensRadius = 108,
+    this.lensRadius = 60,
   });
 
   final String image;
@@ -70,7 +70,12 @@ class _SceneScaffoldState extends State<SceneScaffold>
   OrbDirection? _aimDir; // edge the orb is leaning toward
   double _aimReach = 0; // 0 centre → 1 at commit threshold
 
-  static const double _ambient = 0.5; // every image always shows the bubble
+  // S6.3: the illustrative image is the hero. At rest there is NO lens — the
+  // bubble is a small jewel that is born under the finger on contact and melts
+  // away on release, so the only thing that ever touches the image is (a) the
+  // local refraction wherever the orb is and (b) the growing decisive-edge
+  // filter. An ambient always-on lens would veil the resting image, so it's 0.
+  static const double _ambient = 0.0;
 
   // ---- Debug auto-drive --------------------------------------------------
   // When built with `--dart-define=VYBIA_AUTODRIVE=true`, the orb is driven
@@ -298,8 +303,11 @@ class _TopScrim extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
+              // S6.3: a tight, soft legibility scrim local to the headline only
+              // — just enough contrast for the title (which also carries its own
+              // text shadow), so the rest of the hero image stays bright.
               colors: [
-                AppColors.bg.withValues(alpha: 0.72),
+                AppColors.bg.withValues(alpha: 0.55),
                 AppColors.bg.withValues(alpha: 0.0),
               ],
             ),
