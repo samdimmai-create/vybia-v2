@@ -1,19 +1,26 @@
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-import '../core/theme/app_colors.dart';
+import '../core/theme/app_colors.dart' show OrbDirection;
 import 'edge_action.dart';
 
 /// The reusable DECISIVE-EDGE feedback layer.
 ///
 /// Drop this full-bleed above any orb-driven image (see `SceneScaffold`). As the
-/// orb nears a decisive edge it:
-///   1. progressively FILTERS the image toward that edge's action colour —
-///      0 at centre, intense near the edge, scaling with `reach`;
-///      `reject` instead drains colour to grayscale + darkens (a real
-///      [BackdropFilter] desaturation, masked from the edge);
-///   2. recolours the ORB's aura toward the same colour (a tinted glow at
+/// orb nears a decisive edge, the action colour radiates as a WAVE from the
+/// CONTACT POINT — the spot on the aimed screen edge the orb is heading toward:
+///   1. it is MOST INTENSE at that contact point and fades progressively with
+///      radial distance, so even the far frame is lightly touched while the
+///      IMAGE STAYS DISTINCT everywhere (never an opaque flood);
+///   2. both the peak intensity and the wave's reach scale with `reach`
+///      (proximity): far = a subtle halo at the aim point; very close to the
+///      edge = the image is almost fully filtered yet still recognisable;
+///   3. `reject` instead drains colour to grayscale + darkens — that drain also
+///      radiates from the contact point (a real [BackdropFilter] desaturation
+///      masked by the same radial wave);
+///   4. the ORB's aura leans toward the same colour (a tinted glow at
 ///      [orbCenter], or a darkening for `reject`).
 ///
 /// It paints nothing when idle, so it costs ~nothing until the user engages.
@@ -24,7 +31,7 @@ class EdgeDecisiveOverlay extends StatelessWidget {
     required this.direction,
     required this.reach,
     required this.orbCenter,
-    this.lensRadius = 84,
+    this.lensRadius = 44,
   });
 
   /// The action mapped to the currently-aimed edge, or null when idle.
@@ -36,14 +43,16 @@ class EdgeDecisiveOverlay extends StatelessWidget {
   /// 0 at centre → 1 at the commit threshold.
   final double reach;
 
-  /// Live orb position (for the aura), or null when resting.
+  /// Live orb position (for the aura + the wave's edge-anchor), or null when
+  /// resting.
   final Offset? orbCenter;
   final double lensRadius;
 
   @override
   Widget build(BuildContext context) {
     final a = action;
-    if (a == null || direction == null || reach <= 0.001) {
+    final d = direction;
+    if (a == null || d == null || reach <= 0.001) {
       return const SizedBox.shrink();
     }
 
@@ -51,13 +60,16 @@ class EdgeDecisiveOverlay extends StatelessWidget {
         ? Positioned.fill(
             child: ShaderMask(
               blendMode: BlendMode.dstIn,
-              shaderCallback: (rect) => _edgeGradient(
-                direction!,
+              shaderCallback: (rect) => _waveShader(
+                rect.size,
+                d,
+                orbCenter,
+                reach,
                 [
-                  Colors.white.withValues(alpha: (0.9 * reach).clamp(0, 1)),
+                  Colors.white.withValues(alpha: (0.92 * reach).clamp(0, 1)),
                   Colors.white.withValues(alpha: 0.0),
                 ],
-              ).createShader(rect),
+              ),
               child: BackdropFilter(
                 filter: ui.ColorFilter.matrix(_desaturateDarken),
                 child: const SizedBox.expand(),
@@ -74,7 +86,7 @@ class EdgeDecisiveOverlay extends StatelessWidget {
           CustomPaint(
             painter: _EdgeDecisivePainter(
               action: a,
-              direction: direction!,
+              direction: d,
               reach: reach,
               orbCenter: orbCenter,
               lensRadius: lensRadius,
@@ -86,25 +98,50 @@ class EdgeDecisiveOverlay extends StatelessWidget {
   }
 }
 
-/// Linear gradient that starts at the aimed edge and fades toward the centre.
-LinearGradient _edgeGradient(OrbDirection d, List<Color> colors) {
-  late final Alignment begin;
-  late final Alignment end;
+/// The wave's origin: the point on the aimed screen edge the orb is heading
+/// toward (so the colour reads as flowing IN from that edge), anchored to the
+/// orb's cross-axis position. Falls back to the edge mid-point at rest.
+@visibleForTesting
+Offset edgeWaveOrigin(Size size, OrbDirection d, Offset? orb) =>
+    _waveOrigin(size, d, orb);
+
+/// How far the wave reaches at this [reach] — exposed for tests.
+@visibleForTesting
+double edgeWaveRadius(Size size, double reach) => _waveRadius(size, reach);
+
+Offset _waveOrigin(Size size, OrbDirection d, Offset? orb) {
+  final c = orb ?? Offset(size.width / 2, size.height / 2);
   switch (d) {
     case OrbDirection.left:
-      begin = Alignment.centerLeft;
-      end = const Alignment(0.25, 0);
+      return Offset(0, c.dy);
     case OrbDirection.right:
-      begin = Alignment.centerRight;
-      end = const Alignment(-0.25, 0);
+      return Offset(size.width, c.dy);
     case OrbDirection.up:
-      begin = Alignment.topCenter;
-      end = const Alignment(0, 0.25);
+      return Offset(c.dx, 0);
     case OrbDirection.down:
-      begin = Alignment.bottomCenter;
-      end = const Alignment(0, -0.25);
+      return Offset(c.dx, size.height);
   }
-  return LinearGradient(begin: begin, end: end, colors: colors);
+}
+
+/// How far the wave reaches. Grows with [reach]: a tight halo when far, then
+/// past the screen diagonal when very close — so at full reach even the opposite
+/// corner still catches a little colour (it sits inside the falloff radius).
+double _waveRadius(Size size, double reach) {
+  final diag = math.sqrt(size.width * size.width + size.height * size.height);
+  return diag * (0.42 + 0.95 * reach);
+}
+
+/// A radial wave shader spreading [colors] (near → far) from the contact point.
+ui.Shader _waveShader(
+  Size size,
+  OrbDirection d,
+  Offset? orb,
+  double reach,
+  List<Color> colors,
+) {
+  final origin = _waveOrigin(size, d, orb);
+  final r = _waveRadius(size, reach).clamp(1.0, double.infinity);
+  return ui.Gradient.radial(origin, r, colors, const [0.0, 1.0]);
 }
 
 /// Grayscale (Rec. 709 luma) + darken to ~0.6 brightness — the reject filter.
@@ -135,28 +172,19 @@ class _EdgeDecisivePainter extends CustomPainter {
     final rect = Offset.zero & size;
     final color = action.color;
 
-    // ---- 1. Edge colour filter (tints), or darken band (reject) ----------
-    if (action.desaturates) {
-      // The grayscale is applied by the BackdropFilter; add a darkening slate
-      // band so the edge reads as "colour draining away".
-      canvas.drawRect(
-        rect,
-        Paint()
-          ..shader = _edgeGradient(direction, [
-            color.withValues(alpha: (0.55 * reach).clamp(0, 1)),
-            color.withValues(alpha: 0.0),
-          ]).createShader(rect),
-      );
-    } else {
-      canvas.drawRect(
-        rect,
-        Paint()
-          ..shader = _edgeGradient(direction, [
-            color.withValues(alpha: (0.62 * reach).clamp(0, 1)),
-            color.withValues(alpha: 0.0),
-          ]).createShader(rect),
-      );
-    }
+    // ---- 1. Decisive colour wave from the contact point ------------------
+    // Non-reject edges flood the frame with the action colour as a radial wave;
+    // reject radiates a darkening slate (the grayscale itself is applied by the
+    // ShaderMask BackdropFilter behind this painter, masked by the same wave).
+    final peak = action.desaturates ? 0.5 : 0.6;
+    canvas.drawRect(
+      rect,
+      Paint()
+        ..shader = _waveShader(size, direction, orbCenter, reach, [
+          color.withValues(alpha: (peak * reach).clamp(0, 1)),
+          color.withValues(alpha: 0.0),
+        ]),
+    );
 
     // ---- 2. Orb aura recolour -------------------------------------------
     final c = orbCenter;
@@ -185,7 +213,7 @@ class _EdgeDecisivePainter extends CustomPainter {
           ..blendMode = BlendMode.plus
           ..shader = RadialGradient(
             colors: [
-              color.withValues(alpha: 0.55 * reach),
+              color.withValues(alpha: 0.5 * reach),
               color.withValues(alpha: 0.0),
             ],
             stops: const [0.0, 1.0],
