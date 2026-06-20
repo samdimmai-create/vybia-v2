@@ -15,6 +15,7 @@ ROUTE="${2:?route}"
 BASE="${3:?out-basename}"
 GEO="${4:-}"
 WAIT="${5:-14}"
+EXTRA="${6:-}"
 OUT="$ROOT/screenshots"
 mkdir -p "$OUT"
 cd "$ROOT"
@@ -30,13 +31,14 @@ trap cleanup EXIT
 xcrun simctl terminate "$SIM" com.example.vybiaV2 >/dev/null 2>&1 || true
 sleep 1
 
-GEO_DEFINE=()
-[ -n "$GEO" ] && GEO_DEFINE=(--dart-define=VYBIA_GEO="$GEO")
+GEO_DEFINE=""
+[ -n "$GEO" ] && GEO_DEFINE="--dart-define=VYBIA_GEO=$GEO"
 
 echo "[shot] $ROUTE geo='${GEO:-none}' -> ${BASE}.png"
+# shellcheck disable=SC2086
 flutter run -d "$SIM" \
   --dart-define=VYBIA_START="$ROUTE" \
-  "${GEO_DEFINE[@]}" < "$FIFO" 2>&1 | (
+  $GEO_DEFINE $EXTRA < "$FIFO" 2>&1 | (
   while IFS= read -r line; do
     echo "$line"
     case "$line" in

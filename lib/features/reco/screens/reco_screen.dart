@@ -40,6 +40,12 @@ class _RecoScreenState extends State<RecoScreen> {
     if (_reco == null) {
       _reco = RecoController(profile: guest.profile, store: guest.store);
       _resolveLocation(); // guest-friendly: requested now, never a hard gate
+      // Debug-only: open Plus d'infos on load for the visible proof capture.
+      if (const bool.fromEnvironment('VYBIA_DETAIL')) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) setState(() => _showDetail = true);
+        });
+      }
     }
   }
 
