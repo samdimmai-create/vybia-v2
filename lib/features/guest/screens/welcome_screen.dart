@@ -46,7 +46,7 @@ class WelcomeScreen extends StatelessWidget {
     }
 
     return SceneScaffold(
-      image: Img.curious,
+      image: Img.calm,
       headline: 'Comment veux-tu\nte sentir ?',
       prompt: 'Sans compte, sans détour. Choisis avec l’orbe.',
       onDirection: choose,
@@ -54,8 +54,7 @@ class WelcomeScreen extends StatelessWidget {
       up: 'Curieux',
       right: 'Sociable',
       down: 'Plein d’énergie',
-      // This IS the accueil — hold-to-home would be a no-op here.
-      enableHoldHome: false,
+      // Hold-to-home returns to the calm Accueil hub (S8).
     );
   }
 }

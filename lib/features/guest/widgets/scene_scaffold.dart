@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../../components/bubble/calm_home_field.dart';
 import '../../../components/bubble/refraction_bubble.dart';
 import '../../../components/orb/vybia_orb.dart';
 import '../../../core/router/app_router.dart';
@@ -48,7 +49,17 @@ class SceneScaffold extends StatefulWidget {
     this.onDoubleTap,
     this.onHoldHome,
     this.enableHoldHome = true,
+    this.debugHoldProof = false,
+    this.debugThrowProof = false,
   });
+
+  /// Debug-only: pin this scene in the calm hold-to-home portal state (half-open
+  /// at centre) for a deterministic screenshot. Used by the S8 proof tour.
+  final bool debugHoldProof;
+
+  /// Debug-only: pin this scene with a thrown orb nearing the RIGHT edge and
+  /// committing, for a deterministic screenshot.
+  final bool debugThrowProof;
 
   /// Quick double-tap → "return to the previous image/page". Defaults to
   /// `Navigator.maybePop` (back navigation) when not supplied.
@@ -155,6 +166,13 @@ class _SceneScaffoldState extends State<SceneScaffold>
     _driveStep++;
   }
 
+  // Debug-only single-frame proof pins (S8). Each lands the scene in one
+  // deterministic state for a crosshair-free `xcrun simctl io screenshot`:
+  //   VYBIA_HOLD=true  → the calm hold-to-home portal, half-open at centre.
+  //   VYBIA_THROW=true → a thrown orb nearing the RIGHT edge, committing.
+  static const bool _kHoldProof = bool.fromEnvironment('VYBIA_HOLD');
+  static const bool _kThrowProof = bool.fromEnvironment('VYBIA_THROW');
+
   @override
   void initState() {
     super.initState();
@@ -167,6 +185,26 @@ class _SceneScaffoldState extends State<SceneScaffold>
         _autoTick();
         _driveTimer =
             Timer.periodic(const Duration(milliseconds: 5000), (_) => _autoTick());
+      });
+    }
+    final holdProof = _kHoldProof || widget.debugHoldProof;
+    final throwProof = _kThrowProof || widget.debugThrowProof;
+    if (holdProof || throwProof) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || _lastSize == Size.zero) return;
+        setState(() {
+          _forceActive = null;
+          _presence = 1.0;
+          if (holdProof) {
+            _orb = Offset(_lastSize.width / 2, _lastSize.height / 2);
+            _hold = 0.62; // portal half-open, filled with calm
+          } else {
+            // Thrown orb in flight, nearing the right edge and committing.
+            _orb = Offset(_lastSize.width * 0.9, _lastSize.height / 2);
+            _aimDir = OrbDirection.right;
+            _aimReach = 0.92;
+          }
+        });
       });
     }
   }
@@ -231,7 +269,7 @@ class _SceneScaffoldState extends State<SceneScaffold>
                 widget.onDoubleTap ?? () => Navigator.of(context).maybePop(),
             onHoldHome: widget.onHoldHome ??
                 () => Navigator.of(context).pushNamedAndRemoveUntil(
-                    AppRouter.welcome, (_) => false),
+                    AppRouter.accueil, (_) => false),
             child: AnimatedBuilder(
               animation: _drift,
               builder: (context, _) {
@@ -249,8 +287,15 @@ class _SceneScaffoldState extends State<SceneScaffold>
                 // at rest and fades IN together with the orb on contact. Use the
                 // presence (or the autodrive hold) as the single fade signal.
                 final ui = _presence.clamp(0.0, 1.0).toDouble();
-                // Hold-to-home grows the bubble progressively toward the screen.
-                final radius = widget.lensRadius * (1 + _hold * 9);
+                // S8: the hold-to-home grow no longer swirls the ACTIVITY image
+                // into a vortex. The refraction bubble keeps its calm contact
+                // size; instead a CalmHomeField *portal* (the neutral home
+                // water/ice/glass) expands from the orb and cross-fades in, so
+                // the orb reads as a calm portal opening to the Accueil — never
+                // a scary magnification of the activity photo.
+                final radius = widget.lensRadius;
+                final portalRadius = widget.lensRadius * (1 + _hold * 16);
+                final portalFill = (_hold * 1.4).clamp(0.0, 1.0).toDouble();
                 return Stack(
                   fit: StackFit.expand,
                   children: [
@@ -259,7 +304,8 @@ class _SceneScaffoldState extends State<SceneScaffold>
                       orbCenter: center,
                       radius: radius,
                       magnification: 0.8,
-                      active: active,
+                      // As the portal opens, let the activity refraction recede.
+                      active: active * (1 - 0.7 * _hold),
                     ),
                     // Decisive-edge colour feedback: filters the image toward the
                     // aimed edge's action colour and recolours the orb.
@@ -270,6 +316,21 @@ class _SceneScaffoldState extends State<SceneScaffold>
                       orbCenter: _orb,
                       lensRadius: widget.lensRadius,
                     ),
+                    // The calm home portal: a growing circle of neutral
+                    // water/ice/glass, centred on the orb, filling in as the
+                    // hold completes. At _hold→1 it covers the screen → accueil.
+                    if (_hold > 0.001)
+                      Positioned.fill(
+                        child: IgnorePointer(
+                          child: Opacity(
+                            opacity: portalFill,
+                            child: ClipPath(
+                              clipper: _CircleReveal(center, portalRadius),
+                              child: const CalmHomeField(),
+                            ),
+                          ),
+                        ),
+                      ),
                     // Rest state = hero image + description only. Always painted.
                     _TopScrim(
                       headline: widget.headline,
@@ -370,6 +431,23 @@ class _SceneScaffoldState extends State<SceneScaffold>
       ),
     );
   }
+}
+
+/// Clips its child to a growing circle centred at [center] — the expanding
+/// hold-to-home portal (S8).
+class _CircleReveal extends CustomClipper<Path> {
+  const _CircleReveal(this.center, this.radius);
+
+  final Offset center;
+  final double radius;
+
+  @override
+  Path getClip(Size size) =>
+      Path()..addOval(Rect.fromCircle(center: center, radius: radius));
+
+  @override
+  bool shouldReclip(covariant _CircleReveal old) =>
+      old.center != center || old.radius != radius;
 }
 
 /// Headline + optional prompt floated on a top legibility scrim.

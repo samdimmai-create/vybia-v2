@@ -29,7 +29,8 @@ class _SplashScreenState extends State<SplashScreen>
     )..repeat();
     _go = Timer(const Duration(milliseconds: 1700), () {
       if (!mounted) return;
-      Navigator.of(context).pushReplacementNamed(AppRouter.welcome);
+      // Land on the calm Accueil hub (S8) — the orb-choice-first home.
+      Navigator.of(context).pushReplacementNamed(AppRouter.accueil);
     });
   }
 

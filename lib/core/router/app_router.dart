@@ -5,6 +5,7 @@ import '../../features/demo/orb_preview_screen.dart';
 import '../../features/demo/refraction_demo_screen.dart';
 import '../../features/dev/dev_menu_screen.dart';
 import '../../features/dev/edge_decisive_demo_screen.dart';
+import '../../features/guest/screens/accueil_screen.dart';
 import '../../features/guest/screens/discover_screen.dart';
 import '../../features/guest/screens/intention_screen.dart';
 import '../../features/guest/screens/profile_ready_screen.dart';
@@ -22,6 +23,7 @@ class AppRouter {
 
   // Guest loop.
   static const String splash = '/';
+  static const String accueil = '/accueil';
   static const String welcome = '/welcome';
   static const String discover = '/discover';
   static const String intention = '/intention';
@@ -41,6 +43,8 @@ class AppRouter {
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     Widget page;
     switch (settings.name) {
+      case accueil:
+        page = const AccueilScreen();
       case welcome:
         page = const WelcomeScreen();
       case discover:
