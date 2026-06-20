@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_colors.dart' show OrbDirection;
 import '../../../shared/edge_action.dart';
+import '../../guest/widgets/reflection_transition.dart';
 import '../../guest/widgets/scene_scaffold.dart';
 import '../../reco/data/activity_catalog.dart';
 import '../../reco/model/activity.dart';
@@ -45,7 +46,7 @@ class PlanifierScreen extends StatefulWidget {
   State<PlanifierScreen> createState() => _PlanifierScreenState();
 }
 
-enum _Step { moment, companions, confirm }
+enum _Step { moment, companions, reflecting, confirm }
 
 class _PlanifierScreenState extends State<PlanifierScreen> {
   _Step _step = _Step.moment;
@@ -102,8 +103,21 @@ class _PlanifierScreenState extends State<PlanifierScreen> {
     };
     setState(() {
       _companions = companions;
-      _step = _Step.confirm;
+      // S8.1E: a brief reflection bridges the choices into the confirm step.
+      _step = _Step.reflecting;
     });
+  }
+
+  /// Plan reflection slides: the activity plus the chosen moment + companions,
+  /// so the guest sees their plan being composed before confirming.
+  List<ReflectionSlide> _planSlides() {
+    final a = widget.activity;
+    return [
+      ReflectionSlide(image: a.image, label: 'Pour « ${a.titleFr} »'),
+      if (_moment != null) ReflectionSlide(image: a.image, label: _moment!.labelFr),
+      if (_companions != null)
+        ReflectionSlide(image: a.image, label: _companions!.labelFr),
+    ];
   }
 
   void _onConfirm(OrbDirection d) {
@@ -162,6 +176,15 @@ class _PlanifierScreenState extends State<PlanifierScreen> {
           up: 'Entre amis',
           down: 'En famille',
           onDirection: _onCompanions,
+        );
+      case _Step.reflecting:
+        return ReflectionTransition(
+          key: const ValueKey('plan_reflecting'),
+          title: 'Vybia prépare ton plan',
+          slides: _planSlides(),
+          onDone: () {
+            if (mounted) setState(() => _step = _Step.confirm);
+          },
         );
       case _Step.confirm:
         return SceneScaffold(

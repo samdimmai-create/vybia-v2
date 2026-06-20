@@ -8,6 +8,8 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../shared/edge_action.dart';
 import '../../guest/model/dimension.dart';
 import '../../guest/state/guest_controller.dart';
+import '../../guest/widgets/reflection_slides.dart';
+import '../../guest/widgets/reflection_transition.dart';
 import '../../guest/widgets/scene_scaffold.dart';
 import '../../plans/screens/planifier_screen.dart';
 import '../model/activity.dart';
@@ -65,6 +67,14 @@ class _RecoScreenState extends State<RecoScreen> {
   RecoController? _reco;
   bool _showDetail = false;
 
+  // S8.1E: a brief "Vybia réfléchit" reflection plays first (exploration entry),
+  // replaying the just-captured preferences, then reveals the recommendations.
+  // Skipped for the deterministic proof/autodrive captures.
+  bool _reflecting = !(bool.fromEnvironment('VYBIA_AUTODRIVE') ||
+      bool.fromEnvironment('VYBIA_DETAIL') ||
+      bool.fromEnvironment('VYBIA_SKIP_REFLECTION'));
+  List<ReflectionSlide> _reflectSlides = const [];
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -73,6 +83,7 @@ class _RecoScreenState extends State<RecoScreen> {
     final guest = GuestScope.of(context);
     if (_reco == null) {
       _reco = RecoController(profile: guest.profile, store: guest.store);
+      _reflectSlides = exploreReflectionSlides(guest.profile);
       _resolveLocation(); // guest-friendly: requested now, never a hard gate
       // Debug-only: open Plus d'infos on load for the visible proof capture.
       if (const bool.fromEnvironment('VYBIA_DETAIL')) {
@@ -139,6 +150,14 @@ class _RecoScreenState extends State<RecoScreen> {
   @override
   Widget build(BuildContext context) {
     final reco = _reco!;
+    if (_reflecting) {
+      return ReflectionTransition(
+        slides: _reflectSlides,
+        onDone: () {
+          if (mounted) setState(() => _reflecting = false);
+        },
+      );
+    }
     return AnimatedBuilder(
       animation: reco,
       builder: (context, _) {
