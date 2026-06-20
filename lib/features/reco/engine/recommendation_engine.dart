@@ -1,3 +1,4 @@
+import '../../../core/geo/geo.dart';
 import '../../guest/model/activity_axes.dart';
 import '../../guest/model/dimension.dart';
 import '../../guest/model/guest_profile.dart';
@@ -14,6 +15,15 @@ import 'reco_context.dart';
 /// generates a one-line French "pourquoi ça te va" from the axes that matched
 /// most. Same inputs → same outputs (pure), which is what makes the revealed-
 /// preference learning and the unit tests well-behaved.
+///
+/// S9E score blend (weights below):
+///   score = wPref·prefMatch + wMotive·lmsMatch(LMS+mood) + wContext·contextFit
+///         + wSocial·socialFit + wNovelty·(noveltyPref·novelty) + wProximity·(1−farness)
+///         − categoryRepeatPenalty
+/// then: life-context + feasibility filter → diversity-aware ranking (category
+/// spread + near-duplicate-venue guard) → DOSED serendipity (one guaranteed
+/// discovery unless novelty-averse) → best pick first, then 4–6 alternatives one
+/// at a time at the orb, each with its real distance and a tailored "pourquoi".
 class RecommendationEngine {
   const RecommendationEngine({this.catalog});
 
@@ -28,6 +38,15 @@ class RecommendationEngine {
   static const double _wNovelty = 0.10;
   static const double _wProximity = 0.12; // S7C: nearer real places rank up
   static const double _categoryRepeatPenalty = 0.06;
+
+  // S9E diversity / serendipity tuning.
+  /// Two same-category venues closer than this read as duplicates → keep one.
+  static const double _nearDuplicateKm = 0.4;
+  /// Novelty tag at/above which an activity counts as a genuine "discovery".
+  static const double _discoveryNovelty = 0.7;
+  /// Below this novelty preference the guest is treated as novelty-averse and no
+  /// serendipity is forced.
+  static const double _serendipityFloor = 0.3;
 
   /// Distance (km) at which a place reads as fully "far" (farness → 1). About
   /// across-town in Montréal. Used to normalise the real haversine distance.
@@ -102,7 +121,7 @@ class RecommendationEngine {
     }).toList();
 
     scored.sort((x, y) => y.score.compareTo(x.score));
-    final out = _diversify(scored, max);
+    final out = _diversify(scored, max, profile.valueOf(Dimension.novelty));
     if (out.isEmpty) return out;
     // Re-stamp the leader as the best pick.
     final lead = out.first;
@@ -117,15 +136,26 @@ class RecommendationEngine {
     return out;
   }
 
-  /// Greedy category spread: take the best of each category first (so the
-  /// visible queue isn't five near-identical venues in a row), then backfill the
-  /// remaining slots by score. The global best pick still leads. With real OSM
-  /// data — hundreds of cafés/restaurants — this is what keeps the batch varied.
-  List<Recommendation> _diversify(List<Recommendation> scored, int max) {
+  /// Diversity-aware ranking + dosed serendipity (S9E).
+  ///
+  /// 1. Category spread: best of each category first, so the visible queue isn't
+  ///    five near-identical venues in a row.
+  /// 2. Near-duplicate guard: never place two venues of the SAME category within
+  ///    [_nearDuplicateKm] of each other (with real OSM data that's two cafés on
+  ///    the same block) — pick the better, skip the clone.
+  /// 3. Backfill the rest by score, same guard.
+  /// 4. Dosed serendipity: unless the guest is novelty-averse, guarantee at least
+  ///    one NON-lead pick is a genuine discovery (high-novelty), so the batch
+  ///    always carries a controlled surprise — never only the safe picks.
+  ///
+  /// The global best pick always leads (it's never swapped out).
+  List<Recommendation> _diversify(
+      List<Recommendation> scored, int max, double noveltyPref) {
     final out = <Recommendation>[];
     final usedCategories = <ActivityCategory>{};
     for (final r in scored) {
       if (out.length >= max) break;
+      if (_isNearDuplicate(r, out)) continue;
       if (usedCategories.add(r.activity.category)) out.add(r);
     }
     if (out.length < max) {
@@ -133,10 +163,47 @@ class RecommendationEngine {
       for (final r in scored) {
         if (out.length >= max) break;
         if (taken.contains(r)) continue;
+        if (_isNearDuplicate(r, out)) continue;
         out.add(r);
       }
     }
+    _doseSerendipity(out, scored, noveltyPref);
     return out;
+  }
+
+  /// True if [r] is the same category AND within [_nearDuplicateKm] of an
+  /// already-chosen pick (a near-duplicate venue).
+  bool _isNearDuplicate(Recommendation r, List<Recommendation> chosen) {
+    for (final c in chosen) {
+      if (c.activity.category != r.activity.category) continue;
+      final km = haversineKm(
+          c.activity.lat, c.activity.lng, r.activity.lat, r.activity.lng);
+      if (km <= _nearDuplicateKm) return true;
+    }
+    return false;
+  }
+
+  /// Ensure one non-lead pick is a genuine discovery, swapping in the best-scoring
+  /// high-novelty option for the weakest alternative when the batch is all "safe"
+  /// — but only when the guest isn't novelty-averse, so it never overrides a
+  /// confident preference for the familiar.
+  void _doseSerendipity(
+      List<Recommendation> out, List<Recommendation> scored, double noveltyPref) {
+    if (noveltyPref < _serendipityFloor || out.length <= 1) return;
+    final alts = out.skip(1);
+    final hasDiscovery =
+        alts.any((r) => r.activity.tag(Dimension.novelty) >= _discoveryNovelty);
+    if (hasDiscovery) return;
+    final chosen = out.toSet();
+    for (final r in scored) {
+      if (chosen.contains(r)) continue;
+      if (r.activity.tag(Dimension.novelty) < _discoveryNovelty) continue;
+      // Don't reintroduce a near-duplicate; swap for the weakest alternative.
+      final without = out.sublist(0, out.length - 1);
+      if (_isNearDuplicate(r, without)) continue;
+      out[out.length - 1] = r;
+      return;
+    }
   }
 
   // ---- Feasibility ---------------------------------------------------------
