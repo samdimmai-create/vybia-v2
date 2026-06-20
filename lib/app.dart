@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'core/persistence/app_store.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'features/dev/s8_proof_tour.dart';
 import 'features/guest/state/guest_controller.dart';
 import 'features/plans/state/plan_controller.dart';
 
@@ -42,6 +43,10 @@ class _VybiaAppState extends State<VybiaApp> {
   // scene's own orb autodrive still runs. This makes single-route proof
   // captures deterministic (no 42s scene-hop racing the screenshot).
   static const String _kStart = String.fromEnvironment('VYBIA_START');
+
+  // Debug-only S8 visual-proof tour (calm accueil + hold portal + throw +
+  // category-accurate reco images). `--dart-define=VYBIA_PROOF=true`.
+  static const bool _kProof = bool.fromEnvironment('VYBIA_PROOF');
 
   @override
   void initState() {
@@ -84,6 +89,20 @@ class _VybiaAppState extends State<VybiaApp> {
 
   @override
   Widget build(BuildContext context) {
+    if (_kProof) {
+      return MaterialApp(
+        title: 'Vybia',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.dark,
+        home: GuestScope(
+          controller: _guest,
+          child: PlanScope(
+            controller: _plans,
+            child: const S8ProofTour(),
+          ),
+        ),
+      );
+    }
     return MaterialApp(
       title: 'Vybia',
       navigatorKey: VybiaApp.navigatorKey,
