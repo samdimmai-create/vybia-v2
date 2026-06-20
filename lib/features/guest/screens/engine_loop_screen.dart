@@ -24,11 +24,28 @@ import '../widgets/scene_scaffold.dart';
 /// profile, so each round visibly sharpens the next — the loop only ends when
 /// the guest hits Planifier (which selects an activity) or everything is spent.
 class EngineLoopScreen extends StatefulWidget {
-  const EngineLoopScreen({super.key, this.skipReflection = false});
+  const EngineLoopScreen({
+    super.key,
+    this.skipReflection = false,
+    this.controller,
+    this.proof = false,
+  });
 
   /// Test/proof seam: collapse the reflection bridge to a single frame so a
   /// widget test can step the loop deterministically.
   final bool skipReflection;
+
+  /// Test/proof seam: drive an externally-owned [LoopController] instead of
+  /// building one from the guest profile. When supplied the caller owns its
+  /// lifecycle (the S9.1 proof tour steps it deterministically); the screen
+  /// neither resolves geolocation nor disposes it.
+  final LoopController? controller;
+
+  /// Proof seam (S9.1): render question/reco scenes with the orb + edge labels
+  /// AND the bottom bubble both visible, so a single Chrome screenshot shows the
+  /// options / reaction edges together with the place + "pourquoi"; also holds
+  /// the reflection bridge open for capture.
+  final bool proof;
 
   @override
   State<EngineLoopScreen> createState() => _EngineLoopScreenState();
@@ -36,6 +53,7 @@ class EngineLoopScreen extends StatefulWidget {
 
 class _EngineLoopScreenState extends State<EngineLoopScreen> {
   LoopController? _loop;
+  bool _ownsLoop = false;
   bool _showDetail = false;
   bool _navigated = false;
 
@@ -43,9 +61,16 @@ class _EngineLoopScreenState extends State<EngineLoopScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_loop == null) {
-      final guest = GuestScope.of(context);
-      _loop = LoopController(profile: guest.profile, store: guest.store);
-      _resolveLocation();
+      final injected = widget.controller;
+      if (injected != null) {
+        _loop = injected; // caller-owned (proof tour / tests)
+        _ownsLoop = false;
+      } else {
+        final guest = GuestScope.of(context);
+        _loop = LoopController(profile: guest.profile, store: guest.store);
+        _ownsLoop = true;
+        _resolveLocation();
+      }
     }
   }
 
@@ -74,7 +99,7 @@ class _EngineLoopScreenState extends State<EngineLoopScreen> {
 
   @override
   void dispose() {
-    _loop?.dispose();
+    if (_ownsLoop) _loop?.dispose();
     super.dispose();
   }
 
@@ -113,6 +138,7 @@ class _EngineLoopScreenState extends State<EngineLoopScreen> {
       headline: q.prompt,
       prompt: 'On affine ton profil au fil de tes choix.',
       bottomBubble: true,
+      debugProofFull: widget.proof,
       left: q.optionFor(OrbDirection.left)?.label,
       right: q.optionFor(OrbDirection.right)?.label,
       up: q.optionFor(OrbDirection.up)?.label,
@@ -138,6 +164,11 @@ class _EngineLoopScreenState extends State<EngineLoopScreen> {
       key: ValueKey('reflect_${loop.round}'),
       slides: exploreReflectionSlides(loop.profile),
       onDone: loop.reflectionDone,
+      // Proof: hold the bridge open so the capture lands a stable frame; the
+      // tour advances it explicitly via reflectionDone().
+      perSlide: widget.proof
+          ? const Duration(seconds: 60)
+          : const Duration(milliseconds: 850),
     );
   }
 
@@ -155,6 +186,7 @@ class _EngineLoopScreenState extends State<EngineLoopScreen> {
           headline: rec.activity.titleFr,
           prompt: rec.why,
           bottomBubble: true,
+          debugProofFull: widget.proof,
           infoLine: _infoLine(rec),
           tags: _vibeTags(rec),
           left: 'Intéressant',

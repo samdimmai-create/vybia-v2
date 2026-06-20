@@ -61,7 +61,14 @@ class SceneScaffold extends StatefulWidget {
     this.debugAimProof,
     this.debugContactProof = false,
     this.debugWarnProof = false,
+    this.debugProofFull = false,
   });
+
+  /// Debug/proof-only (S9.1): pin the orb at centre with the edge labels AND the
+  /// bottom description bubble BOTH at full opacity (the normal UX fades one out
+  /// as the other comes in). Lets a single Chrome screenshot show the
+  /// options / reaction edges together with the place + "pourquoi". No edge aim.
+  final bool debugProofFull;
 
   /// Debug-only: pin the clean on-contact state (orb born at centre, edges
   /// visible, bubble receded) with no edge aim, for the card-contact proof.
@@ -228,7 +235,7 @@ class _SceneScaffoldState extends State<SceneScaffold>
     final holdProof = _kHoldProof || widget.debugHoldProof;
     final throwProof = _kThrowProof || widget.debugThrowProof;
     final aimProof = widget.debugAimProof;
-    final contactProof = widget.debugContactProof;
+    final contactProof = widget.debugContactProof || widget.debugProofFull;
     final warnProof = widget.debugWarnProof;
     if (holdProof ||
         throwProof ||
@@ -358,6 +365,12 @@ class _SceneScaffoldState extends State<SceneScaffold>
                 // at rest and fades IN together with the orb on contact. Use the
                 // presence (or the autodrive hold) as the single fade signal.
                 final ui = _presence.clamp(0.0, 1.0).toDouble();
+                // Proof override: keep BOTH the edges and the bottom bubble fully
+                // visible in one frame (normal UX cross-fades between them).
+                final edgesUi = widget.debugProofFull ? 1.0 : ui;
+                final bubbleOpacity = widget.debugProofFull
+                    ? 1.0
+                    : (1 - ui).clamp(0.0, 1.0).toDouble();
                 // S8: the hold-to-home grow no longer swirls the ACTIVITY image
                 // into a vortex. The refraction bubble keeps its calm contact
                 // size; instead a CalmHomeField *portal* (the neutral home
@@ -409,7 +422,7 @@ class _SceneScaffoldState extends State<SceneScaffold>
                       // Fades out as the orb is born (ui → 1) and back on
                       // release. The image itself stays clear behind it.
                       _BottomBubble(
-                        opacity: (1 - ui).clamp(0.0, 1.0).toDouble(),
+                        opacity: bubbleOpacity,
                         badge: widget.badge,
                         title: widget.headline,
                         subtitle: widget.prompt,
@@ -423,9 +436,9 @@ class _SceneScaffoldState extends State<SceneScaffold>
                         badge: widget.badge,
                       ),
                     // Edge labels + guidance chip: born/gone with the orb.
-                    if (ui > 0.001)
+                    if (edgesUi > 0.001)
                       Opacity(
-                        opacity: ui,
+                        opacity: edgesUi,
                         child: Stack(
                           fit: StackFit.expand,
                           children: [

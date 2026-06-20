@@ -124,12 +124,17 @@ async function runOnce(file) {
 async function runTour(expect, maxMs) {
   const { cdp, ws } = await connect();
   const wanted = new Set(expect);
-  const got = new Set();
+  const claimed = new Set(); // marker seen (capture scheduled)
+  const shot = new Set(); // capture written to disk
   console.log(`tour: waiting for markers: ${[...wanted].join(', ')}`);
 
   let resolveDone;
   const done = new Promise((r) => (resolveDone = r));
-  let busy = Promise.resolve();
+  // Serialize only the shoot() calls (so two never race the protocol) WITHOUT
+  // serializing the settle delays — each capture fires exactly SETTLE after ITS
+  // marker, never lagging behind the previous capture's settle (that lag drifted
+  // every frame one phase ahead).
+  let shootLock = Promise.resolve();
 
   cdp.on((msg) => {
     if (msg.method !== 'Runtime.consoleAPICalled') return;
@@ -141,24 +146,27 @@ async function runTour(expect, maxMs) {
       resolveDone();
       return;
     }
-    if (!wanted.has(name) || got.has(name)) return;
-    got.add(name);
-    // Serialize captures so two markers can't race the protocol.
-    busy = busy.then(async () => {
-      console.log(`marker ${name} → settle ${SETTLE}ms`);
-      await sleep(SETTLE);
-      await shoot(cdp, name);
-      if ([...wanted].every((w) => got.has(w))) resolveDone();
-    });
+    if (!wanted.has(name) || claimed.has(name)) return;
+    claimed.add(name);
+    console.log(`marker ${name} → capturing in ${SETTLE}ms`);
+    setTimeout(() => {
+      shootLock = shootLock
+        .then(async () => {
+          await shoot(cdp, name);
+          shot.add(name);
+          if ([...wanted].every((w) => shot.has(w))) resolveDone();
+        })
+        .catch((e) => console.error(`shoot ${name} failed:`, e.message));
+    }, SETTLE);
   });
 
   const timeout = sleep(maxMs).then(() => 'timeout');
   const result = await Promise.race([done.then(() => 'done'), timeout]);
-  await busy; // flush any in-flight capture
+  await shootLock; // flush any in-flight capture
   ws.close();
-  const missing = [...wanted].filter((w) => !got.has(w));
+  const missing = [...wanted].filter((w) => !shot.has(w));
   console.log(
-    `tour ${result}: captured ${got.size}/${wanted.size}` +
+    `tour ${result}: captured ${shot.size}/${wanted.size}` +
       (missing.length ? ` — MISSING: ${missing.join(', ')}` : ''),
   );
   if (missing.length) process.exitCode = 2;

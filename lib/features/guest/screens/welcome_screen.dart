@@ -11,7 +11,11 @@ import '../widgets/scene_scaffold.dart';
 /// capture: the four orb directions are four moods, each seeding the engine
 /// with correlated priors before the adaptive questions begin.
 class WelcomeScreen extends StatelessWidget {
-  const WelcomeScreen({super.key});
+  const WelcomeScreen({super.key, this.proofFull = false});
+
+  /// Proof-only (S9.1): show the orb at centre with the four mood edge labels
+  /// AND the description bubble both visible, for a single Chrome screenshot.
+  final bool proofFull;
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +56,7 @@ class WelcomeScreen extends StatelessWidget {
       headline: 'Comment veux-tu te sentir ?',
       prompt: 'Sans compte, sans détour. Choisis avec l’orbe.',
       bottomBubble: true,
+      debugProofFull: proofFull,
       onDirection: choose,
       left: 'Posé',
       up: 'Curieux',

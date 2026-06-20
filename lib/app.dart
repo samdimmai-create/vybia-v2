@@ -5,6 +5,7 @@ import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/dev/s8_1_proof_tour.dart';
 import 'features/dev/s8_proof_tour.dart';
+import 'features/dev/s9_1_engine_proof_tour.dart';
 import 'features/guest/state/guest_controller.dart';
 import 'features/plans/state/plan_controller.dart';
 
@@ -53,6 +54,11 @@ class _VybiaAppState extends State<VybiaApp> {
   // bubble + reflection transition + hold states). `--dart-define=VYBIA_PROOF81=true`.
   static const bool _kProof81 = bool.fromEnvironment('VYBIA_PROOF81');
 
+  // S9.1: VISIBLE-IN-CHROME proof tour of the adaptive engine LOOP
+  // (`--dart-define=VYBIA_PROOF91=true`). Keeps the router so the loop's
+  // Planifier handoff to /plan works.
+  static const bool _kProof91 = bool.fromEnvironment('VYBIA_PROOF91');
+
   @override
   void initState() {
     super.initState();
@@ -94,6 +100,22 @@ class _VybiaAppState extends State<VybiaApp> {
 
   @override
   Widget build(BuildContext context) {
+    if (_kProof91) {
+      return MaterialApp(
+        title: 'Vybia',
+        navigatorKey: VybiaApp.navigatorKey,
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.dark,
+        onGenerateRoute: AppRouter.onGenerateRoute,
+        home: GuestScope(
+          controller: _guest,
+          child: PlanScope(
+            controller: _plans,
+            child: const S91EngineProofTour(),
+          ),
+        ),
+      );
+    }
     if (_kProof || _kProof81) {
       return MaterialApp(
         title: 'Vybia',
