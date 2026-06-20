@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/geo/geo.dart';
+import '../../../core/geo/location_service.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -35,7 +37,38 @@ class _RecoScreenState extends State<RecoScreen> {
     // Build once, from the shared guest profile captured during discovery.
     // Threads the same store so likes/dislikes persist across relaunches.
     final guest = GuestScope.of(context);
-    _reco ??= RecoController(profile: guest.profile, store: guest.store);
+    if (_reco == null) {
+      _reco = RecoController(profile: guest.profile, store: guest.store);
+      _resolveLocation(); // guest-friendly: requested now, never a hard gate
+    }
+  }
+
+  // Debug-only location injection for the visible reranking proof:
+  // `--dart-define=VYBIA_GEO=45.55,-73.62`. Empty in real builds.
+  static const String _kGeoOverride = String.fromEnvironment('VYBIA_GEO');
+
+  /// Ask for the guest's location AFTER they've reached the recommendations
+  /// (value first). Resolves to a real fix or the Montréal-centre fallback —
+  /// either way the reco loop re-ranks so nearer places move up.
+  Future<void> _resolveLocation() async {
+    final override = _parseGeoOverride();
+    if (override != null) {
+      _reco?.setLocation(override);
+      return;
+    }
+    final result = await const LocationService().locate();
+    if (!mounted) return;
+    _reco?.setLocation(result);
+  }
+
+  GeoResult? _parseGeoOverride() {
+    if (_kGeoOverride.isEmpty) return null;
+    final parts = _kGeoOverride.split(',');
+    if (parts.length != 2) return null;
+    final lat = double.tryParse(parts[0].trim());
+    final lng = double.tryParse(parts[1].trim());
+    if (lat == null || lng == null) return null;
+    return GeoResult(lat, lng, GeoStatus.granted);
   }
 
   @override
@@ -80,7 +113,9 @@ class _RecoScreenState extends State<RecoScreen> {
               image: rec.activity.image,
               badge: rec.isBestPick ? '★ Meilleur choix pour toi' : null,
               headline: rec.activity.titleFr,
-              prompt: rec.why,
+              prompt: rec.distanceKm != null
+                  ? '${rec.why}\n${formatDistanceEta(rec.distanceKm!)}'
+                  : rec.why,
               left: 'J’aime',
               right: 'Pas pour moi',
               up: 'Plus d’infos',

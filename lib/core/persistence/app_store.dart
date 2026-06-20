@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/guest/model/guest_profile.dart';
 import '../../features/guest/state/guest_controller.dart';
+import '../geo/geo.dart';
 import '../../features/plans/model/plan.dart';
 import '../../features/reco/data/activity_catalog.dart';
 import '../../features/reco/data/osm_place_repository.dart';
@@ -29,6 +30,7 @@ class AppStore {
   static const _kPlans = 'vybia.plans.v1';
   static const _kIntention = 'vybia.intention.v1';
   static const _kSeeded = 'vybia.seeded.v1'; // first-run seed guard
+  static const _kGeo = 'vybia.geo.v1'; // last resolved location + status
 
   /// Open the store, loading the backing prefs. Call once before first paint.
   static Future<AppStore> open() async =>
@@ -73,6 +75,18 @@ class AppStore {
   Future<void> saveIntention(Intention? intention) => intention == null
       ? _prefs.remove(_kIntention)
       : _prefs.setString(_kIntention, intention.name);
+
+  // ---- Geolocation (last resolved location + permission status) -------------
+
+  GeoResult? readGeo() {
+    final raw = _prefs.getString(_kGeo);
+    if (raw == null) return null;
+    final decoded = jsonDecode(raw);
+    return decoded is Map<String, dynamic> ? GeoResult.fromJson(decoded) : null;
+  }
+
+  Future<void> saveGeo(GeoResult geo) =>
+      _prefs.setString(_kGeo, jsonEncode(geo.toJson()));
 
   // ---- Plans ---------------------------------------------------------------
 
@@ -155,5 +169,6 @@ class AppStore {
     await _prefs.remove(_kPlans);
     await _prefs.remove(_kIntention);
     await _prefs.remove(_kSeeded);
+    await _prefs.remove(_kGeo);
   }
 }

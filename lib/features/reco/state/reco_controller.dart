@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../core/geo/geo.dart';
 import '../../../core/persistence/app_store.dart';
 import '../../guest/model/activity_axes.dart';
 import '../../guest/model/guest_profile.dart';
@@ -26,18 +27,39 @@ class RecoController extends ChangeNotifier {
     required this.profile,
     RecommendationEngine? engine,
     RecoContext? context,
+    GeoResult? location,
     this.store,
   })  : engine =
             engine ?? RecommendationEngine(catalog: liveActivityCatalog()),
-        context = context ?? RecoContext.now() {
+        _location = location ?? store?.readGeo() ?? GeoResult.fallback,
+        context = context ??
+            RecoContext.now(
+              userLat: (location ?? store?.readGeo() ?? GeoResult.fallback).lat,
+              userLng: (location ?? store?.readGeo() ?? GeoResult.fallback).lng,
+            ) {
     _hydrate();
     _rank();
   }
 
   final GuestProfile profile;
   final RecommendationEngine engine;
-  final RecoContext context;
+  RecoContext context;
   final AppStore? store;
+
+  GeoResult _location;
+
+  /// The location currently driving distances (a real fix, or Montréal centre).
+  GeoResult get location => _location;
+
+  /// Update the guest's location once geolocation resolves, then re-rank so the
+  /// nearer real places move up. Persists the status for next launch.
+  void setLocation(GeoResult result) {
+    _location = result;
+    context = context.withUser(result.lat, result.lng);
+    store?.saveGeo(result);
+    _rank();
+    notifyListeners();
+  }
 
   final Set<String> _decided = {}; // liked or disliked → never re-shown
   final Set<ActivityCategory> _likedCategories = {};

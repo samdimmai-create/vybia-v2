@@ -9,9 +9,14 @@ class Recommendation {
     required this.isBestPick,
     required this.why,
     required this.topDimensions,
+    this.distanceKm,
   });
 
   final Activity activity;
+
+  /// Real haversine distance (km) from the guest to this place, or null when the
+  /// location is unknown (S7C).
+  final double? distanceKm;
 
   /// Final blended score (roughly 0..1, higher is better).
   final double score;

@@ -54,6 +54,8 @@ class WelcomeScreen extends StatelessWidget {
       up: 'Curieux',
       right: 'Sociable',
       down: 'Plein d’énergie',
+      // This IS the accueil — hold-to-home would be a no-op here.
+      enableHoldHome: false,
     );
   }
 }

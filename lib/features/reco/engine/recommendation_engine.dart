@@ -25,7 +25,12 @@ class RecommendationEngine {
   static const double _wContext = 0.14;
   static const double _wSocial = 0.09;
   static const double _wNovelty = 0.10;
+  static const double _wProximity = 0.12; // S7C: nearer real places rank up
   static const double _categoryRepeatPenalty = 0.06;
+
+  /// Distance (km) at which a place reads as fully "far" (farness → 1). About
+  /// across-town in Montréal. Used to normalise the real haversine distance.
+  static const double _farKm = 8.0;
 
   /// The eight taste axes scored against an activity — see [kActivityAxes]
   /// (mood is folded into the motive weights, not matched directly).
@@ -49,13 +54,20 @@ class RecommendationEngine {
     if (pool.isEmpty) return const [];
 
     // Hard feasibility filter, with a guard so we never starve the scene.
-    final feasible = pool.where((a) => _isFeasible(profile, a)).toList();
+    final feasible = pool
+        .where((a) => _isFeasible(profile, a, ctx.distanceKmTo(a.lat, a.lng)))
+        .toList();
     final ranked = feasible.length >= 4 ? feasible : pool;
 
     final motives = _motiveWeights(profile);
 
     final scored = ranked.map((a) {
-      final match = _prefMatch(profile, a);
+      // S7C: real haversine distance → 0 (here) … 1 (across town).
+      final distanceKm = ctx.distanceKmTo(a.lat, a.lng);
+      final farness =
+          distanceKm == null ? null : (distanceKm / _farKm).clamp(0.0, 1.0).toDouble();
+
+      final match = _prefMatch(profile, a, farness);
       final motive = _motiveMatch(motives, a.motives);
       final context = _contextFit(ctx, a);
       final social =
@@ -69,6 +81,9 @@ class RecommendationEngine {
           _wSocial * social +
           _wNovelty * novelty;
 
+      // Always reward proximity a little so changing location visibly reranks.
+      if (farness != null) score += _wProximity * (1 - farness);
+
       if (likedCategories.contains(a.category)) {
         score -= _categoryRepeatPenalty;
       }
@@ -79,6 +94,7 @@ class RecommendationEngine {
         isBestPick: false,
         why: _why(match.topDims, a),
         topDimensions: match.topDims,
+        distanceKm: distanceKm,
       );
     }).toList();
 
@@ -93,6 +109,7 @@ class RecommendationEngine {
       isBestPick: true,
       why: lead.why,
       topDimensions: lead.topDimensions,
+      distanceKm: lead.distanceKm,
     );
     return out;
   }
@@ -121,7 +138,7 @@ class RecommendationEngine {
 
   // ---- Feasibility ---------------------------------------------------------
 
-  bool _isFeasible(GuestProfile p, Activity a) {
+  bool _isFeasible(GuestProfile p, Activity a, double? distanceKm) {
     // Tight budget rules out a splurge.
     if (p.isConfident(Dimension.budget) &&
         p.valueOf(Dimension.budget) < 0.3 &&
@@ -134,6 +151,16 @@ class RecommendationEngine {
       if (pi > 0.8 && a.tag(Dimension.indoor) < 0.2) return false;
       if (pi < 0.2 && a.tag(Dimension.indoor) > 0.85) return false;
     }
+    // S7C: drop too-far places. Anything well out of the region is never shown;
+    // a guest who confidently prefers nearby also won't see far-flung options.
+    if (distanceKm != null) {
+      if (distanceKm > 25) return false;
+      if (p.isConfident(Dimension.distance) &&
+          p.valueOf(Dimension.distance) < 0.35 &&
+          distanceKm > 6) {
+        return false;
+      }
+    }
     return true;
   }
 
@@ -145,11 +172,15 @@ class RecommendationEngine {
   /// confidence` (unknown axes barely count) and `similarity = 1 − |p − a|`.
   /// The score is the confidence-weighted average similarity.
   ({double score, List<Dimension> topDims}) _prefMatch(
-      GuestProfile p, Activity a) {
+      GuestProfile p, Activity a, double? farness) {
     var sumC = 0.0, sumW = 0.0;
     final sims = <Dimension, double>{};
     for (final d in _prefDims) {
-      final sim = 1 - (p.valueOf(d) - a.tag(d)).abs();
+      // S7C: for the distance axis prefer the REAL normalised distance when the
+      // guest's location is known, instead of the activity's static tag.
+      final aTag =
+          (d == Dimension.distance && farness != null) ? farness : a.tag(d);
+      final sim = 1 - (p.valueOf(d) - aTag).abs();
       final weight = 0.2 + p.confidenceOf(d);
       sims[d] = sim;
       sumC += weight * sim;
@@ -203,10 +234,13 @@ class RecommendationEngine {
   // ---- Explanation ---------------------------------------------------------
 
   String _why(List<Dimension> top, Activity a) {
-    if (top.isEmpty) {
+    // Distance is shown explicitly on the card ("à X km"), so keep it out of the
+    // prose to avoid a vague "à deux pas" contradicting a precise "à 4,4 km".
+    final dims = top.where((d) => d != Dimension.distance).toList();
+    if (dims.isEmpty) {
       return 'Un choix équilibré, dans l’esprit de ton moment.';
     }
-    final frags = top.take(2).map((d) => _fragment(d, a.tag(d))).toList();
+    final frags = dims.take(2).map((d) => _fragment(d, a.tag(d))).toList();
     return '${_capitalize(frags.join(', '))}.';
   }
 

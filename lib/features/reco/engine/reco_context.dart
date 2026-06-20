@@ -1,3 +1,5 @@
+import '../../../core/geo/geo.dart';
+
 /// Ambient context the engine folds into scoring: time of day and season.
 ///
 /// Injected (rather than read from the clock inside the engine) so tests are
@@ -5,7 +7,12 @@
 /// needs today; more (weather, day-of-week) can join later without touching
 /// call sites that use [RecoContext.now].
 class RecoContext {
-  const RecoContext({required this.hourOfDay, required this.month});
+  const RecoContext({
+    required this.hourOfDay,
+    required this.month,
+    this.userLat,
+    this.userLng,
+  });
 
   /// 0..23 local hour.
   final int hourOfDay;
@@ -13,10 +20,33 @@ class RecoContext {
   /// 1..12 calendar month.
   final int month;
 
-  factory RecoContext.now([DateTime? clock]) {
+  /// The guest's location (S7C). Null until resolved; the reco loop defaults it
+  /// to the Montréal-centre fallback so distances always render.
+  final double? userLat;
+  final double? userLng;
+
+  factory RecoContext.now({DateTime? clock, double? userLat, double? userLng}) {
     final t = clock ?? DateTime.now();
-    return RecoContext(hourOfDay: t.hour, month: t.month);
+    return RecoContext(
+      hourOfDay: t.hour,
+      month: t.month,
+      userLat: userLat,
+      userLng: userLng,
+    );
   }
+
+  RecoContext withUser(double lat, double lng) => RecoContext(
+        hourOfDay: hourOfDay,
+        month: month,
+        userLat: lat,
+        userLng: lng,
+      );
+
+  bool get hasUser => userLat != null && userLng != null;
+
+  /// Haversine distance (km) from the user to a place, or null if unknown.
+  double? distanceKmTo(double lat, double lng) =>
+      hasUser ? haversineKm(userLat!, userLng!, lat, lng) : null;
 
   /// Evening starts at 18:00 — drives the timing-fit term.
   bool get evening => hourOfDay >= 18 || hourOfDay < 5;

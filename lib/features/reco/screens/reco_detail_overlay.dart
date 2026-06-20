@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/geo/geo.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../model/recommendation.dart';
@@ -59,6 +60,8 @@ class RecoDetailOverlay extends StatelessWidget {
                     spacing: AppSpacing.xs,
                     runSpacing: AppSpacing.xs,
                     children: [
+                      if (recommendation.distanceKm != null)
+                        _chip(t, formatDistanceEta(recommendation.distanceKm!)),
                       _chip(t, budgetLabel),
                       _chip(t, a.indoor ? 'Intérieur' : 'Plein air'),
                       for (final d in recommendation.topDimensions)

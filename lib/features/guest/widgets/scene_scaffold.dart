@@ -444,7 +444,7 @@ class _TopScrim extends StatelessWidget {
                   const SizedBox(height: AppSpacing.xs),
                   Text(
                     prompt!,
-                    maxLines: 3,
+                    maxLines: 4,
                     overflow: TextOverflow.ellipsis,
                     style: t.bodyLarge?.copyWith(
                       color: AppColors.textSecondary,
