@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
@@ -168,8 +167,10 @@ class _SceneScaffoldState extends State<SceneScaffold>
 
   // (dxFrac, dyFrac, dir, reach, presence, name, hold). presence 0 ⇒ lens off.
   // hold > 0 ⇒ hold-to-home warning (bubble grows, warning hint shows).
-  static const List<(double, double, OrbDirection?, double, double, String, double)>
-      _driveScript = [
+  static const List<
+    (double, double, OrbDirection?, double, double, String, double)
+  >
+  _driveScript = [
     (0.0, 0.0, null, 0.0, 0.0, 'rest', 0.0), // image + description only
     (0.0, 0.0, null, 0.0, 1.0, 'centre', 0.0), // on-contact: orb + edges appear
     (-0.20, 0.0, OrbDirection.left, 1.0, 1.0, 'left', 0.0),
@@ -177,7 +178,15 @@ class _SceneScaffoldState extends State<SceneScaffold>
     (0.0, 0.18, OrbDirection.down, 1.0, 1.0, 'down', 0.0),
     (0.0, -0.18, OrbDirection.up, 1.0, 1.0, 'up', 0.0),
     (0.0, 0.0, null, 0.0, 1.0, 'hold', 0.55), // ≥3s immobile: warning + grow
-    (0.0, 0.0, null, 0.0, 0.35, 'shrink', 0.0), // release before complete: cancel
+    (
+      0.0,
+      0.0,
+      null,
+      0.0,
+      0.35,
+      'shrink',
+      0.0,
+    ), // release before complete: cancel
   ];
   Timer? _driveTimer;
   int _driveStep = 0;
@@ -191,8 +200,10 @@ class _SceneScaffoldState extends State<SceneScaffold>
       // Same framing for every state: the lens sits at the scripted point. The
       // 'rest' frame forces the lens OFF so the compare is identical-framing,
       // lens-off vs lens-on (proves geometry, not a brightness change).
-      _orb = Offset(_lastSize.width / 2 + s.$1 * _lastSize.width,
-          _lastSize.height / 2 + s.$2 * _lastSize.height);
+      _orb = Offset(
+        _lastSize.width / 2 + s.$1 * _lastSize.width,
+        _lastSize.height / 2 + s.$2 * _lastSize.height,
+      );
       if (s.$6 == 'rest') {
         _forceActive = 0.0;
         _presence = 0;
@@ -228,8 +239,10 @@ class _SceneScaffoldState extends State<SceneScaffold>
     if (_kAutoDrive) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _autoTick();
-        _driveTimer =
-            Timer.periodic(const Duration(milliseconds: 5000), (_) => _autoTick());
+        _driveTimer = Timer.periodic(
+          const Duration(milliseconds: 5000),
+          (_) => _autoTick(),
+        );
       });
     }
     final holdProof = _kHoldProof || widget.debugHoldProof;
@@ -345,9 +358,11 @@ class _SceneScaffoldState extends State<SceneScaffold>
             onDirection: widget.onDirection,
             onDoubleTap:
                 widget.onDoubleTap ?? () => Navigator.of(context).maybePop(),
-            onHoldHome: widget.onHoldHome ??
-                () => Navigator.of(context).pushNamedAndRemoveUntil(
-                    AppRouter.accueil, (_) => false),
+            onHoldHome:
+                widget.onHoldHome ??
+                () => Navigator.of(
+                  context,
+                ).pushNamedAndRemoveUntil(AppRouter.accueil, (_) => false),
             child: AnimatedBuilder(
               animation: _drift,
               builder: (context, _) {
@@ -355,11 +370,12 @@ class _SceneScaffoldState extends State<SceneScaffold>
                 final center = _orb ?? _idle(size);
                 // Continuous floor (every image stays a bubble) lifted to full
                 // strength on contact — no flicker on release.
-                final active = _forceActive ??
+                final active =
+                    _forceActive ??
                     (pressing
                         ? (_ambient + (1 - _ambient) * _presence)
-                            .clamp(0.0, 1.0)
-                            .toDouble()
+                              .clamp(0.0, 1.0)
+                              .toDouble()
                         : _ambient);
                 // S7-A: the orb-driven UI (edge labels + guidance chip) is hidden
                 // at rest and fades IN together with the orb on contact. Use the
@@ -453,7 +469,9 @@ class _SceneScaffoldState extends State<SceneScaffold>
                             // only shown on the plain (structural) scenes.
                             if (!widget.bottomBubble && widget.prompt != null)
                               _hintChip(
-                                  t, 'Touche, glisse, et choisis ta direction'),
+                                t,
+                                'Touche, glisse, et choisis ta direction',
+                              ),
                           ],
                         ),
                       ),
@@ -492,7 +510,8 @@ class _SceneScaffoldState extends State<SceneScaffold>
                 color: AppColors.surface.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(AppRadius.pill),
                 border: Border.all(
-                    color: AppColors.pearl.withValues(alpha: 0.25)),
+                  color: AppColors.pearl.withValues(alpha: 0.25),
+                ),
               ),
               child: Text(
                 label,
@@ -522,8 +541,7 @@ class _SceneScaffoldState extends State<SceneScaffold>
             decoration: BoxDecoration(
               color: AppColors.bg.withValues(alpha: 0.62),
               borderRadius: BorderRadius.circular(AppRadius.lg),
-              border:
-                  Border.all(color: AppColors.pearl.withValues(alpha: 0.3)),
+              border: Border.all(color: AppColors.pearl.withValues(alpha: 0.3)),
             ),
             child: Text(
               'Continue de maintenir pour revenir à l’accueil',
@@ -554,12 +572,25 @@ class _CircleReveal extends CustomClipper<Path> {
       old.center != center || old.radius != radius;
 }
 
-/// S8.1D: the V1-style description bubble — a rounded-rect glass card pinned
-/// near the bottom holding the badge, title, the "pourquoi" line, an info line
-/// and tag chips, with a small "touche et décide" hint below it. A subtle scrim
-/// + blur is LOCAL to the bubble only, so the rest of the hero image stays
-/// clear. Its [opacity] is driven by the scene: full at rest, fading to 0 as
-/// the orb is born on contact (and back on release).
+/// Soft legibility shadow worn by the bottom-bubble text so it reads cleanly
+/// over ANY photo WITHOUT an opaque background (S9.2). A tight dark glow hugs
+/// each glyph; a wider, softer one lifts it off bright/busy regions. This —
+/// plus weight/colour and a barely-there bottom gradient veil — replaces the
+/// old frosted card so the hero image is never hidden.
+const List<Shadow> _kBubbleTextShadow = [
+  Shadow(color: Colors.black, blurRadius: 4),
+  Shadow(color: Colors.black87, blurRadius: 14),
+];
+
+/// S9.2: the V1-style description — badge, title, the "pourquoi" line, an info
+/// line and tag chips, with a small "touche et décide" hint below it — pinned
+/// near the BOTTOM and floating DIRECTLY over the hero image. There is NO
+/// opaque card and NO backdrop blur: the illustrative image shows through
+/// fully, exactly like the V1 "Columbus Café & Co" card. Text stays legible
+/// purely via [_kBubbleTextShadow] + weight, with at most a very faint
+/// bottom-anchored gradient veil for contrast on bright photos. Its [opacity]
+/// is driven by the scene: full at rest, fading to 0 as the orb is born on
+/// contact (and back on release).
 class _BottomBubble extends StatelessWidget {
   const _BottomBubble({
     required this.opacity,
@@ -589,117 +620,140 @@ class _BottomBubble extends StatelessWidget {
             alignment: Alignment.bottomCenter,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.lg),
+                AppSpacing.lg,
+                0,
+                AppSpacing.lg,
+                AppSpacing.lg,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(AppRadius.lg),
-                    child: BackdropFilter(
-                      filter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(AppSpacing.md),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface.withValues(alpha: 0.46),
-                          borderRadius: BorderRadius.circular(AppRadius.lg),
-                          border: Border.all(
-                              color: AppColors.pearl.withValues(alpha: 0.16)),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (badge != null) ...[
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: AppSpacing.sm, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color:
-                                      AppColors.primary.withValues(alpha: 0.9),
-                                  borderRadius:
-                                      BorderRadius.circular(AppRadius.pill),
-                                ),
-                                child: Text(
-                                  badge!,
-                                  style: t.labelMedium?.copyWith(
-                                    color: AppColors.bg,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: AppSpacing.sm),
-                            ],
-                            Text(
-                              title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: t.titleLarge?.copyWith(
-                                color: AppColors.pearl,
-                                fontWeight: FontWeight.w600,
+                  Container(
+                    width: double.infinity,
+                    // S9.2: NO opaque card, NO backdrop blur — the hero image
+                    // shows through FULLY. The only background aid is a very
+                    // faint bottom-anchored gradient veil (transparent at the
+                    // top of the text → barely tinted at the very bottom) so a
+                    // bright photo never washes the smallest text out.
+                    // Legibility otherwise rides entirely on the text's own
+                    // shadow/glow + weight (_kBubbleTextShadow), V1-card style.
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          AppColors.bg.withValues(alpha: 0.0),
+                          AppColors.bg.withValues(alpha: 0.30),
+                        ],
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (badge != null) ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.sm,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.92),
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.pill,
                               ),
                             ),
-                            if (subtitle != null) ...[
-                              const SizedBox(height: AppSpacing.xxs),
-                              Text(
-                                subtitle!,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: t.bodyMedium
-                                    ?.copyWith(color: AppColors.textSecondary),
+                            child: Text(
+                              badge!,
+                              style: t.labelMedium?.copyWith(
+                                color: AppColors.bg,
+                                fontWeight: FontWeight.w700,
                               ),
-                            ],
-                            if (infoLine != null) ...[
-                              const SizedBox(height: AppSpacing.xs),
-                              Text(
-                                infoLine!,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: t.labelMedium?.copyWith(
-                                  color: AppColors.accent,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                            if (tags.isNotEmpty) ...[
-                              const SizedBox(height: AppSpacing.sm),
-                              Wrap(
-                                spacing: AppSpacing.xs,
-                                runSpacing: AppSpacing.xs,
-                                children: [
-                                  for (final tag in tags)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: AppSpacing.sm,
-                                          vertical: 3),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.surfaceRaised
-                                            .withValues(alpha: 0.7),
-                                        borderRadius: BorderRadius.circular(
-                                            AppRadius.pill),
-                                        border: Border.all(
-                                            color: AppColors.accent
-                                                .withValues(alpha: 0.4)),
-                                      ),
-                                      child: Text(
-                                        '• $tag',
-                                        style: t.labelSmall?.copyWith(
-                                            color: AppColors.textSecondary),
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                        ],
+                        Text(
+                          title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: t.titleLarge?.copyWith(
+                            color: AppColors.pearl,
+                            fontWeight: FontWeight.w700,
+                            shadows: _kBubbleTextShadow,
+                          ),
+                        ),
+                        if (subtitle != null) ...[
+                          const SizedBox(height: AppSpacing.xxs),
+                          Text(
+                            subtitle!,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: t.bodyMedium?.copyWith(
+                              color: AppColors.pearl.withValues(alpha: 0.92),
+                              shadows: _kBubbleTextShadow,
+                            ),
+                          ),
+                        ],
+                        if (infoLine != null) ...[
+                          const SizedBox(height: AppSpacing.xs),
+                          Text(
+                            infoLine!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: t.labelMedium?.copyWith(
+                              color: AppColors.accent,
+                              fontWeight: FontWeight.w700,
+                              shadows: _kBubbleTextShadow,
+                            ),
+                          ),
+                        ],
+                        if (tags.isNotEmpty) ...[
+                          const SizedBox(height: AppSpacing.sm),
+                          Wrap(
+                            spacing: AppSpacing.xs,
+                            runSpacing: AppSpacing.xs,
+                            children: [
+                              for (final tag in tags)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.sm,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surfaceRaised.withValues(
+                                      alpha: 0.55,
+                                    ),
+                                    borderRadius: BorderRadius.circular(
+                                      AppRadius.pill,
+                                    ),
+                                    border: Border.all(
+                                      color: AppColors.accent.withValues(
+                                        alpha: 0.55,
                                       ),
                                     ),
-                                ],
-                              ),
+                                  ),
+                                  child: Text(
+                                    '• $tag',
+                                    style: t.labelSmall?.copyWith(
+                                      color: AppColors.pearl,
+                                      shadows: _kBubbleTextShadow,
+                                    ),
+                                  ),
+                                ),
                             ],
-                          ],
-                        ),
-                      ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
                     'touche et décide',
                     style: t.labelSmall?.copyWith(
-                      color: AppColors.textMuted,
+                      color: AppColors.pearl.withValues(alpha: 0.85),
                       letterSpacing: 0.4,
+                      shadows: _kBubbleTextShadow,
                     ),
                   ),
                 ],
@@ -732,7 +786,11 @@ class _TopScrim extends StatelessWidget {
           // (pinned just under the status bar by EdgeLabels) so the badge and
           // headline always start clearly below it — never overlapping.
           padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg, AppSpacing.huge, AppSpacing.lg, AppSpacing.xl),
+            AppSpacing.lg,
+            AppSpacing.huge,
+            AppSpacing.lg,
+            AppSpacing.xl,
+          ),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
@@ -754,7 +812,9 @@ class _TopScrim extends StatelessWidget {
                 if (badge != null) ...[
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.sm, vertical: 3),
+                      horizontal: AppSpacing.sm,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.85),
                       borderRadius: BorderRadius.circular(AppRadius.pill),
@@ -776,7 +836,7 @@ class _TopScrim extends StatelessWidget {
                   style: t.displayMedium?.copyWith(
                     color: AppColors.pearl,
                     shadows: const [
-                      Shadow(color: Colors.black54, blurRadius: 14)
+                      Shadow(color: Colors.black54, blurRadius: 14),
                     ],
                   ),
                 ),
@@ -789,7 +849,7 @@ class _TopScrim extends StatelessWidget {
                     style: t.bodyLarge?.copyWith(
                       color: AppColors.textSecondary,
                       shadows: const [
-                        Shadow(color: Colors.black45, blurRadius: 8)
+                        Shadow(color: Colors.black45, blurRadius: 8),
                       ],
                     ),
                   ),

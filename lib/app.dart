@@ -6,6 +6,7 @@ import 'core/theme/app_theme.dart';
 import 'features/dev/s8_1_proof_tour.dart';
 import 'features/dev/s8_proof_tour.dart';
 import 'features/dev/s9_1_engine_proof_tour.dart';
+import 'features/dev/s9_2_proof_tour.dart';
 import 'features/guest/state/guest_controller.dart';
 import 'features/plans/state/plan_controller.dart';
 
@@ -58,6 +59,11 @@ class _VybiaAppState extends State<VybiaApp> {
   // (`--dart-define=VYBIA_PROOF91=true`). Keeps the router so the loop's
   // Planifier handoff to /plan works.
   static const bool _kProof91 = bool.fromEnvironment('VYBIA_PROOF91');
+
+  // S9.2: VISIBLE-IN-CHROME proof of the now-TRANSPARENT bottom description
+  // bubble (`--dart-define=VYBIA_PROOF92=true`): image stays fully visible
+  // behind the floating text at rest, gone on contact.
+  static const bool _kProof92 = bool.fromEnvironment('VYBIA_PROOF92');
 
   @override
   void initState() {
@@ -116,7 +122,7 @@ class _VybiaAppState extends State<VybiaApp> {
         ),
       );
     }
-    if (_kProof || _kProof81) {
+    if (_kProof || _kProof81 || _kProof92) {
       return MaterialApp(
         title: 'Vybia',
         debugShowCheckedModeBanner: false,
@@ -125,7 +131,11 @@ class _VybiaAppState extends State<VybiaApp> {
           controller: _guest,
           child: PlanScope(
             controller: _plans,
-            child: _kProof81 ? const S81ProofTour() : const S8ProofTour(),
+            child: _kProof92
+                ? const S92ProofTour()
+                : _kProof81
+                ? const S81ProofTour()
+                : const S8ProofTour(),
           ),
         ),
       );
@@ -143,19 +153,19 @@ class _VybiaAppState extends State<VybiaApp> {
       // splash via onGenerateRoute's default case.
       // Debug-only launch deep-link for visual proofs:
       // `--dart-define=VYBIA_START=/reco` lands straight on a scene.
-      initialRoute: const String.fromEnvironment('VYBIA_START',
-          defaultValue: AppRouter.splash),
-      onGenerateInitialRoutes: (initialRoute) =>
-          [AppRouter.onGenerateRoute(RouteSettings(name: initialRoute))],
+      initialRoute: const String.fromEnvironment(
+        'VYBIA_START',
+        defaultValue: AppRouter.splash,
+      ),
+      onGenerateInitialRoutes: (initialRoute) => [
+        AppRouter.onGenerateRoute(RouteSettings(name: initialRoute)),
+      ],
       onGenerateRoute: AppRouter.onGenerateRoute,
       // GuestScope + PlanScope sit above the navigator so session state
       // survives route changes.
       builder: (context, child) => GuestScope(
         controller: _guest,
-        child: PlanScope(
-          controller: _plans,
-          child: child ?? const SizedBox(),
-        ),
+        child: PlanScope(controller: _plans, child: child ?? const SizedBox()),
       ),
     );
   }

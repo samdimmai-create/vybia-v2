@@ -29,13 +29,13 @@ void main() {
     );
   }
 
-  testWidgets('double-tap fires onDoubleTap (back), no direction committed',
-      (tester) async {
+  testWidgets('double-tap fires onDoubleTap (back), no direction committed', (
+    tester,
+  ) async {
     var taps = 0, dirs = 0;
-    await tester.pumpWidget(orbHost(
-      onDoubleTap: () => taps++,
-      onDirection: (_) => dirs++,
-    ));
+    await tester.pumpWidget(
+      orbHost(onDoubleTap: () => taps++, onDirection: (_) => dirs++),
+    );
     const c = Offset(200, 300);
 
     final g1 = await tester.startGesture(c);
@@ -52,10 +52,9 @@ void main() {
   testWidgets('double-tap still reads as back when the two taps are slightly '
       'offset (within the forgiving slop)', (tester) async {
     var taps = 0, dirs = 0;
-    await tester.pumpWidget(orbHost(
-      onDoubleTap: () => taps++,
-      onDirection: (_) => dirs++,
-    ));
+    await tester.pumpWidget(
+      orbHost(onDoubleTap: () => taps++, onDirection: (_) => dirs++),
+    );
 
     final g1 = await tester.startGesture(const Offset(200, 300));
     await g1.up();
@@ -69,8 +68,9 @@ void main() {
     expect(dirs, 0);
   });
 
-  testWidgets('two taps far apart are NOT a double-tap (beyond slop)',
-      (tester) async {
+  testWidgets('two taps far apart are NOT a double-tap (beyond slop)', (
+    tester,
+  ) async {
     var taps = 0;
     await tester.pumpWidget(orbHost(onDoubleTap: () => taps++));
 
@@ -86,10 +86,9 @@ void main() {
 
   testWidgets('immobile hold ≥ threshold navigates home', (tester) async {
     var home = 0, dirs = 0;
-    await tester.pumpWidget(orbHost(
-      onHoldHome: () => home++,
-      onDirection: (_) => dirs++,
-    ));
+    await tester.pumpWidget(
+      orbHost(onHoldHome: () => home++, onDirection: (_) => dirs++),
+    );
 
     final g = await tester.startGesture(const Offset(200, 300));
     // Past holdStill → warning + grow begins.
@@ -103,13 +102,13 @@ void main() {
     await tester.pump(const Duration(milliseconds: 200));
   });
 
-  testWidgets('release before hold completes cancels — no nav, no edge',
-      (tester) async {
+  testWidgets('release before hold completes cancels — no nav, no edge', (
+    tester,
+  ) async {
     var home = 0, dirs = 0;
-    await tester.pumpWidget(orbHost(
-      onHoldHome: () => home++,
-      onDirection: (_) => dirs++,
-    ));
+    await tester.pumpWidget(
+      orbHost(onHoldHome: () => home++, onDirection: (_) => dirs++),
+    );
 
     final g = await tester.startGesture(const Offset(200, 300));
     await tester.pump(const Duration(milliseconds: 120)); // warning started
@@ -120,25 +119,28 @@ void main() {
     expect(dirs, 0);
   });
 
-  testWidgets('moving to aim an edge cancels hold-to-home and commits the edge',
-      (tester) async {
-    var home = 0;
-    OrbDirection? dir;
-    await tester.pumpWidget(orbHost(
-      onHoldHome: () => home++,
-      onDirection: (d) => dir = d,
-    ));
+  testWidgets(
+    'moving to aim an edge cancels hold-to-home and commits the edge',
+    (tester) async {
+      var home = 0;
+      OrbDirection? dir;
+      await tester.pumpWidget(
+        orbHost(onHoldHome: () => home++, onDirection: (d) => dir = d),
+      );
 
-    final g = await tester.startGesture(const Offset(200, 300));
-    await tester.pump(const Duration(milliseconds: 40));
-    await g.moveBy(const Offset(-120, 0)); // aim LEFT, well past threshold
-    await tester.pump(const Duration(milliseconds: 200)); // would-be hold window
-    await g.up();
-    await tester.pump(const Duration(milliseconds: 200));
+      final g = await tester.startGesture(const Offset(200, 300));
+      await tester.pump(const Duration(milliseconds: 40));
+      await g.moveBy(const Offset(-120, 0)); // aim LEFT, well past threshold
+      await tester.pump(
+        const Duration(milliseconds: 200),
+      ); // would-be hold window
+      await g.up();
+      await tester.pump(const Duration(milliseconds: 200));
 
-    expect(home, 0); // hold-to-home cancelled by movement
-    expect(dir, OrbDirection.left); // the edge is committed normally
-  });
+      expect(home, 0); // hold-to-home cancelled by movement
+      expect(dir, OrbDirection.left); // the edge is committed normally
+    },
+  );
 
   testWidgets('S9.0: orb position tracks the finger 1:1 — no easing/lerp '
       'on any move', (tester) async {
@@ -178,16 +180,20 @@ void main() {
       await g.moveBy(step);
       await tester.pump();
       p = p + step;
-      expect(reported.last, p,
-          reason: 'orb sits ON the finger after move $step, not behind it');
+      expect(
+        reported.last,
+        p,
+        reason: 'orb sits ON the finger after move $step, not behind it',
+      );
     }
 
     await g.up();
     await tester.pump(const Duration(milliseconds: 200));
   });
 
-  testWidgets('SceneScaffold: edges hidden at rest, shown on contact',
-      (tester) async {
+  testWidgets('SceneScaffold: edges hidden at rest, shown on contact', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: SceneScaffold(
@@ -247,6 +253,11 @@ void main() {
     expect(find.text('à 1,4 km · Café'), findsOneWidget);
     expect(find.text('touche et décide'), findsOneWidget);
     expect(find.text('J’aime'), findsNothing);
+
+    // S9.2: the description is TRANSPARENT — it no longer frosts the hero image,
+    // so there is NO BackdropFilter behind the text (at rest, no edge filter is
+    // engaged either). The image must read as the hero behind the floating text.
+    expect(find.byType(BackdropFilter), findsNothing);
 
     // On contact the bubble recedes (opacity → 0 ⇒ removed) and the edges fade
     // in with the orb.
