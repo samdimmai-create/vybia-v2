@@ -140,6 +140,52 @@ void main() {
     expect(dir, OrbDirection.left); // the edge is committed normally
   });
 
+  testWidgets('S9.0: orb position tracks the finger 1:1 — no easing/lerp '
+      'on any move', (tester) async {
+    // Capture the live position stream and prove it equals the *exact* pointer
+    // position on every move (the orb is centred on the contact point, never a
+    // smoothed/trailing point behind it).
+    final reported = <Offset>[];
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: VybiaOrb(
+            onDirection: (_) {},
+            onPositionChanged: (p) {
+              if (p != null) reported.add(p);
+            },
+            child: const SizedBox.expand(),
+          ),
+        ),
+      ),
+    );
+
+    const start = Offset(120, 200);
+    final g = await tester.startGesture(start);
+    await tester.pump();
+    expect(reported.last, start, reason: 'born exactly at the contact point');
+
+    // Walk an irregular path; after each move the reported point must be the
+    // new pointer position itself (1:1), not an interpolation toward it.
+    var p = start;
+    for (final step in const [
+      Offset(7, 0),
+      Offset(13, -4),
+      Offset(-5, 9),
+      Offset(21, 3),
+      Offset(-2, -11),
+    ]) {
+      await g.moveBy(step);
+      await tester.pump();
+      p = p + step;
+      expect(reported.last, p,
+          reason: 'orb sits ON the finger after move $step, not behind it');
+    }
+
+    await g.up();
+    await tester.pump(const Duration(milliseconds: 200));
+  });
+
   testWidgets('SceneScaffold: edges hidden at rest, shown on contact',
       (tester) async {
     await tester.pumpWidget(

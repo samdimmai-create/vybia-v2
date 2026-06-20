@@ -214,8 +214,14 @@ class _LensPainter extends CustomPainter {
   final double magnification;
   final double active;
 
-  /// Number of concentric refraction annuli. More = smoother droplet curve.
-  static const int _rings = 14;
+  /// Number of concentric refraction annuli. More = smoother droplet curve, but
+  /// each ring is a full-image resample, so the per-frame cost is ~linear in
+  /// this count. S9.0: trimmed 14→9 to protect the frame rate on web/CanvasKit
+  /// (the painter path) — at 14 rings + 2 chromatic passes the lens dropped
+  /// frames under a fast drag and *visually* trailed the finger; 9 keeps the
+  /// droplet curve smooth while letting the lens stay glued to the contact point
+  /// at 60fps. (Native/iOS uses the GLSL shader and is unaffected.)
+  static const int _rings = 9;
 
   /// Source rect of [image] that covers [dst] (BoxFit.cover).
   Rect _coverSrc(Size dst) {

@@ -304,6 +304,11 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
   void _onMove(PointerMoveEvent e) {
     if (!_active) return;
     _tracker?.addPosition(e.timeStamp, e.localPosition);
+    // S9.0: 1:1 INSTANT tracking — the orb is placed at the *exact* contact
+    // point, never an eased/lerped point trailing behind it. The only animation
+    // on the orb is presence (birth/dissolve opacity+scale); position is hard
+    // assigned every frame so it feels reactive and precise. Do NOT introduce
+    // positional smoothing here.
     setState(() => _current = e.localPosition);
     // Real movement = aiming → cancel any hold-to-home and stop the still timer.
     if (_delta.distance > _holdJitter) {
