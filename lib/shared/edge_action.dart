@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 /// than a fixed per-direction hue. As the orb nears an edge, that edge's colour
 /// progressively filters the image and recolours the orb (see [EdgeDecisive]).
 enum EdgeAction {
-  /// Positive / "J'aime" / Oui → joy: warm yellow-gold.
+  /// Positive / "Intéressant" / Oui → joy: warm yellow-gold.
   joy,
 
-  /// Negative / "Pas pour moi" / Supprimer → drain colour to B&W + darken.
+  /// Negative / "Pas intéressant" / Supprimer → drain colour to B&W + darken.
   reject,
 
   /// Detail / "Plus d'infos" → curiosity: blue / indigo.

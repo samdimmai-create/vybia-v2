@@ -19,9 +19,11 @@ List<Activity> liveActivityCatalog() =>
 /// Drives the immersive reco loop with live revealed-preference learning.
 ///
 /// Wraps the shared [GuestProfile]: it shows the current best recommendation,
-/// and each J'aime / Pas pour moi nudges the profile toward (or away from) that
-/// activity's axes, records an anti-repeat decision, and re-ranks immediately —
-/// so the next scene already reflects what was just learned.
+/// and each Intéressant / Pas intéressant *reaction* (S9A) nudges the profile
+/// toward (or away from) that activity's axes, records an anti-repeat decision,
+/// and re-ranks immediately — so the next scene already reflects what was just
+/// learned. Reactions FEED the profile; they never end the loop (only Planifier,
+/// handled by the screen, selects an activity).
 class RecoController extends ChangeNotifier {
   RecoController({
     required this.profile,
@@ -116,8 +118,9 @@ class RecoController extends ChangeNotifier {
     );
   }
 
-  /// J'aime: pull the profile toward this activity and re-rank.
-  void like() {
+  /// Intéressant (S9A): pull the profile toward this activity and re-rank. A
+  /// revealed-preference reaction, not a selection — the loop continues.
+  void markInteresting() {
     final rec = current;
     if (rec == null) return;
     _applyAxes(rec.activity, toward: true);
@@ -129,8 +132,9 @@ class RecoController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Pas pour moi: push the profile away from this activity, anti-repeat, re-rank.
-  void dislike() {
+  /// Pas intéressant (S9A): push the profile away from this activity, anti-repeat,
+  /// re-rank. A reaction, not a rejection of the whole loop.
+  void markNotInteresting() {
     final rec = current;
     if (rec == null) return;
     _applyAxes(rec.activity, toward: false);

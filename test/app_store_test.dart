@@ -74,13 +74,14 @@ void main() {
       expect(guest2.profile.confidenceOf(Dimension.budget), greaterThan(0));
     });
 
-    test('a J\'aime persists the learned profile + liked history', () async {
+    test('an Intéressant reaction persists the learned profile + liked history',
+        () async {
       final store = await AppStore.open();
       final guest = GuestController(store: store)
         ..setMood(0.9, nudges: {Dimension.energy: 0.9});
       final reco = RecoController(profile: guest.profile, store: store);
       final likedTitle = reco.current!.activity.titleFr;
-      reco.like();
+      reco.markInteresting();
 
       final reopened = await AppStore.open();
       expect(reopened.readLikedIds(), isNotEmpty);

@@ -52,12 +52,21 @@ List<String> _vibeTags(Activity a) {
 /// preference learning.
 ///
 /// Each scene is a full-bleed activity image under the universal bubble with the
-/// best pick first and its "pourquoi ça te va" line. Orb directions:
-///   left  = J'aime        right = Pas pour moi
-///   up    = Plus d'infos  down  = Planifier (S4 stub)
-/// A like/dislike re-ranks immediately, so the very next scene reflects it.
+/// best pick first and its "pourquoi ça te va" line. Orb directions (S9A):
+///   left  = Intéressant       right = Pas intéressant
+///   up    = Plus d'infos      down  = Planifier
+///
+/// S9A reaction model: LEFT/RIGHT are *revealed-preference reactions* that feed
+/// the profile (they re-rank the very next scene), NOT a final selection. Only
+/// DOWN/Planifier *selects* an activity and ends the loop. So a guest can react
+/// to many recommendations — each sharpening the profile — before committing to
+/// one.
 class RecoScreen extends StatefulWidget {
-  const RecoScreen({super.key});
+  const RecoScreen({super.key, this.skipIntro = false});
+
+  /// Test/proof seam: skip the entry reflection so a widget test (or a
+  /// deterministic capture) lands straight on the first recommendation.
+  final bool skipIntro;
 
   @override
   State<RecoScreen> createState() => _RecoScreenState();
@@ -69,11 +78,18 @@ class _RecoScreenState extends State<RecoScreen> {
 
   // S8.1E: a brief "Vybia réfléchit" reflection plays first (exploration entry),
   // replaying the just-captured preferences, then reveals the recommendations.
-  // Skipped for the deterministic proof/autodrive captures.
-  bool _reflecting = !(bool.fromEnvironment('VYBIA_AUTODRIVE') ||
-      bool.fromEnvironment('VYBIA_DETAIL') ||
-      bool.fromEnvironment('VYBIA_SKIP_REFLECTION'));
+  // Skipped for the deterministic proof/autodrive captures and widget tests.
+  late bool _reflecting;
   List<ReflectionSlide> _reflectSlides = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _reflecting = !(widget.skipIntro ||
+        bool.fromEnvironment('VYBIA_AUTODRIVE') ||
+        bool.fromEnvironment('VYBIA_DETAIL') ||
+        bool.fromEnvironment('VYBIA_SKIP_REFLECTION'));
+  }
 
   @override
   void didChangeDependencies() {
@@ -133,12 +149,15 @@ class _RecoScreenState extends State<RecoScreen> {
     final rec = reco.current;
     if (rec == null) return;
     switch (d) {
+      // S9A: Intéressant / Pas intéressant are reactions that *feed the profile*
+      // (revealed preference) and re-rank — they do NOT end the loop.
       case OrbDirection.left:
-        reco.like();
+        reco.markInteresting();
       case OrbDirection.right:
-        reco.dislike();
+        reco.markNotInteresting();
       case OrbDirection.up:
         setState(() => _showDetail = true);
+      // Only Planifier selects an activity and ends the loop.
       case OrbDirection.down:
         Navigator.of(context).pushNamed(
           AppRouter.plan,
@@ -178,8 +197,8 @@ class _RecoScreenState extends State<RecoScreen> {
               bottomBubble: true,
               infoLine: _infoLine(rec),
               tags: _vibeTags(rec.activity),
-              left: 'J’aime',
-              right: 'Pas pour moi',
+              left: 'Intéressant',
+              right: 'Pas intéressant',
               up: 'Plus d’infos',
               down: 'Planifier',
               leftAction: EdgeAction.joy,
@@ -227,9 +246,9 @@ class _ExhaustedView extends StatelessWidget {
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   likedCount > 0
-                      ? 'Vybia a noté tes $likedCount coup${likedCount > 1 ? 's' : ''} de cœur. '
-                          'À chaque choix, le profil s’est affiné.'
-                      : 'Vybia a affiné ton profil au fil de tes choix.',
+                      ? 'Vybia a retenu les $likedCount activité${likedCount > 1 ? 's' : ''} qui t’ont intéressé${likedCount > 1 ? 'es' : 'e'}. '
+                          'À chaque réaction, ton profil s’est affiné.'
+                      : 'Vybia a affiné ton profil au fil de tes réactions.',
                   style: t.bodyLarge?.copyWith(color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: AppSpacing.xl),

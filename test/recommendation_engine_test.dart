@@ -97,34 +97,37 @@ void main() {
     });
   });
 
-  group('revealed preference (controller)', () {
-    test('a Pas-pour-moi removes the pick and re-ranks to a new one', () {
+  group('revealed preference (controller) — S9A reactions', () {
+    test('a Pas-intéressant reaction removes the pick and re-ranks', () {
       final reco = RecoController(
         profile: _calmSoloIndoor(),
         engine: _engine,
         context: _ctx,
       );
       final before = reco.current!.activity.id;
-      reco.dislike();
+      reco.markNotInteresting();
       final after = reco.current!.activity.id;
       expect(after, isNot(before));
       // The disliked activity must not resurface.
       expect(reco.ranked.every((r) => r.activity.id != before), isTrue);
     });
 
-    test("a J'aime records the like and moves on", () {
+    test('an Intéressant reaction records it and moves on (loop continues)', () {
       final reco = RecoController(
         profile: _calmSoloIndoor(),
         engine: _engine,
         context: _ctx,
       );
       final liked = reco.current!.activity.id;
-      reco.like();
+      reco.markInteresting();
       expect(reco.liked.map((a) => a.id), contains(liked));
+      // Still a live recommendation to react to — the reaction did NOT end the
+      // loop (only Planifier selects).
+      expect(reco.current, isNotNull);
       expect(reco.current?.activity.id, isNot(liked));
     });
 
-    test('repeated likes eventually exhaust the session', () {
+    test('repeated Intéressant reactions eventually exhaust the session', () {
       final reco = RecoController(
         profile: _livelySocialOutdoor(),
         engine: _engine,
@@ -132,21 +135,22 @@ void main() {
       );
       var guard = 0;
       while (!reco.isExhausted && guard < 100) {
-        reco.like();
+        reco.markInteresting();
         guard++;
       }
       expect(reco.isExhausted, isTrue);
       expect(reco.current, isNull);
     });
 
-    test('likes nudge the profile toward the liked activity axes', () {
+    test('Intéressant nudges the profile toward the activity axes (feeds it)',
+        () {
       final profile = _calmSoloIndoor();
       final reco =
           RecoController(profile: profile, engine: _engine, context: _ctx);
       final pick = reco.current!.activity;
       final dim = Dimension.energy;
       final before = profile.valueOf(dim);
-      reco.like();
+      reco.markInteresting();
       // Profile value should move toward the picked activity's energy tag.
       final moved = (profile.valueOf(dim) - pick.tag(dim)).abs() <
           (before - pick.tag(dim)).abs() + 1e-9;
