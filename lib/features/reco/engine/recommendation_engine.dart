@@ -4,6 +4,7 @@ import '../../guest/model/guest_profile.dart';
 import '../model/activity.dart';
 import '../model/recommendation.dart';
 import 'leisure_motivation.dart';
+import 'life_context_rules.dart';
 import 'reco_context.dart';
 
 /// Deterministic, explainable recommendation engine — no LLM, on-device, free.
@@ -141,6 +142,11 @@ class RecommendationEngine {
   // ---- Feasibility ---------------------------------------------------------
 
   bool _isFeasible(GuestProfile p, Activity a, double? distanceKm) {
+    // S9D: durable life-contexts are hard feasibility filters (kids, sans
+    // alcool, budget serré, mobilité réduite, sans voiture, animal).
+    if (!LifeContextRules.feasible(p.contexts, a, distanceKm: distanceKm)) {
+      return false;
+    }
     // Tight budget rules out a splurge.
     if (p.isConfident(Dimension.budget) &&
         p.valueOf(Dimension.budget) < 0.3 &&

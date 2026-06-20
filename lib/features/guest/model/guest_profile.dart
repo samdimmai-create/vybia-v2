@@ -1,4 +1,5 @@
 import 'dimension.dart';
+import 'life_context.dart';
 
 /// The guest's evolving taste profile — pure data, no Flutter.
 ///
@@ -12,15 +13,35 @@ class GuestProfile {
   final Map<Dimension, double> _value = {};
   final Map<Dimension, double> _confidence = {};
 
+  /// Active life-contexts (S9D) — durable real-world situations that act as
+  /// feasibility filters. Captured implicitly at the orb, persisted with the
+  /// profile.
+  final Set<LifeContext> _contexts = {};
+
   double valueOf(Dimension d) => _value[d] ?? 0.5;
   double confidenceOf(Dimension d) => _confidence[d] ?? 0.0;
 
   bool get isEmpty => _value.isEmpty;
 
+  /// The currently active life-contexts (unmodifiable).
+  Set<LifeContext> get contexts => Set.unmodifiable(_contexts);
+
+  bool hasContext(LifeContext c) => _contexts.contains(c);
+
+  /// Turn a life-context on or off.
+  void setContext(LifeContext c, bool active) {
+    if (active) {
+      _contexts.add(c);
+    } else {
+      _contexts.remove(c);
+    }
+  }
+
   /// Resets to a blank profile (used on /dev landings and replays).
   void clear() {
     _value.clear();
     _confidence.clear();
+    _contexts.clear();
   }
 
   /// Dimensions we treat as "known" (confident enough to stop probing them).
@@ -58,6 +79,7 @@ class GuestProfile {
   Map<String, dynamic> toJson() => {
         'values': {for (final e in _value.entries) e.key.name: e.value},
         'confidence': {for (final e in _confidence.entries) e.key.name: e.value},
+        'contexts': [for (final c in _contexts) c.name],
       };
 
   /// Restore a profile previously written by [toJson]. Tolerant of missing or
@@ -71,6 +93,11 @@ class GuestProfile {
       final c = confidence[d.name];
       if (v is num) _value[d] = v.toDouble();
       if (c is num) _confidence[d] = c.toDouble();
+    }
+    final contexts = (json['contexts'] as List?) ?? const [];
+    for (final name in contexts) {
+      final c = name is String ? LifeContext.byName(name) : null;
+      if (c != null) _contexts.add(c);
     }
   }
 

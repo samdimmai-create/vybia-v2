@@ -5,6 +5,7 @@ import '../data/question_bank.dart';
 import '../engine/adaptive_engine.dart';
 import '../model/dimension.dart';
 import '../model/guest_profile.dart';
+import '../model/life_context.dart';
 import '../model/question.dart';
 
 /// What the guest wants to do once their taste is captured.
@@ -49,6 +50,14 @@ class GuestController extends ChangeNotifier {
   /// Manually adjust one taste dimension from the Profil screen, persisting it.
   void adjustDimension(Dimension d, double delta) {
     profile.adjust(d, delta);
+    _persistProfile();
+    notifyListeners();
+  }
+
+  /// Turn a life-context (S9D) on/off — captured implicitly at the orb — and
+  /// persist it so the feasibility filter holds across relaunches.
+  void setLifeContext(LifeContext c, bool active) {
+    profile.setContext(c, active);
     _persistProfile();
     notifyListeners();
   }
