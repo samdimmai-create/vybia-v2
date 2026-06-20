@@ -2,8 +2,8 @@ import '../../guest/model/activity_axes.dart';
 import '../../guest/model/dimension.dart';
 import '../../guest/model/guest_profile.dart';
 import '../model/activity.dart';
-import '../model/motive.dart';
 import '../model/recommendation.dart';
+import 'leisure_motivation.dart';
 import 'reco_context.dart';
 
 /// Deterministic, explainable recommendation engine — no LLM, on-device, free.
@@ -59,7 +59,9 @@ class RecommendationEngine {
         .toList();
     final ranked = feasible.length >= 4 ? feasible : pool;
 
-    final motives = _motiveWeights(profile);
+    // S9C: leisure-motivation weights over the four Beard & Ragheb LMS
+    // components, derived once from the latent profile + mood.
+    final lms = LeisureMotivation.weightsFor(profile);
 
     final scored = ranked.map((a) {
       // S7C: real haversine distance → 0 (here) … 1 (across town).
@@ -68,7 +70,7 @@ class RecommendationEngine {
           distanceKm == null ? null : (distanceKm / _farKm).clamp(0.0, 1.0).toDouble();
 
       final match = _prefMatch(profile, a, farness);
-      final motive = _motiveMatch(motives, a.motives);
+      final motive = LeisureMotivation.match(lms, LeisureMotivation.affinityFor(a));
       final context = _contextFit(ctx, a);
       final social =
           1 - (profile.valueOf(Dimension.social) - a.tag(Dimension.social)).abs();
@@ -196,31 +198,9 @@ class RecommendationEngine {
     return (score: score, topDims: topDims);
   }
 
-  // ---- Motive match --------------------------------------------------------
-
-  MotiveWeights _motiveWeights(GuestProfile p) {
-    final mood = p.valueOf(Dimension.mood); // 0 calm → 1 energetic
-    final energy = p.valueOf(Dimension.energy);
-    final social = p.valueOf(Dimension.social);
-    final vibe = p.valueOf(Dimension.vibe);
-    final novelty = p.valueOf(Dimension.novelty);
-
-    final hed = social * 0.4 + vibe * 0.3 + mood * 0.3;
-    final rel = (1 - energy) * 0.5 + (1 - mood) * 0.5;
-    // Eudaimonia peaks with novelty and a "curious" (mid) mood.
-    final eud =
-        novelty * 0.7 + 0.3 * (1 - (mood - 0.5).abs() * 2).clamp(0.0, 1.0);
-
-    final sum = hed + rel + eud;
-    if (sum == 0) return (hedonic: 1 / 3, relaxation: 1 / 3, eudaimonic: 1 / 3);
-    return (hedonic: hed / sum, relaxation: rel / sum, eudaimonic: eud / sum);
-  }
-
-  double _motiveMatch(MotiveWeights w, MotiveAffinity a) => (w.hedonic *
-              a.hedonic +
-          w.relaxation * a.relaxation +
-          w.eudaimonic * a.eudaimonic)
-      .clamp(0.0, 1.0);
+  // S9C: motive matching now runs over the four Beard & Ragheb LMS components
+  // (see [LeisureMotivation]). The activity's legacy (hedonic/relaxation/
+  // eudaimonic) affinities are folded into that derivation, not matched directly.
 
   // ---- Context -------------------------------------------------------------
 
