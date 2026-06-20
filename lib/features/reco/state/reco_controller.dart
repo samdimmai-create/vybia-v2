@@ -4,10 +4,16 @@ import '../../../core/persistence/app_store.dart';
 import '../../guest/model/activity_axes.dart';
 import '../../guest/model/guest_profile.dart';
 import '../data/activity_catalog.dart';
+import '../data/osm_place_repository.dart';
 import '../engine/recommendation_engine.dart';
 import '../engine/reco_context.dart';
 import '../model/activity.dart';
 import '../model/recommendation.dart';
+
+/// The live recommendation catalog: real OSM-backed Montréal activities when the
+/// snapshot loaded, otherwise the hand-authored seed catalog as a safe fallback.
+List<Activity> liveActivityCatalog() =>
+    OsmPlaceRepository.isLoaded ? OsmPlaceRepository.activities : kActivityCatalog;
 
 /// Drives the immersive reco loop with live revealed-preference learning.
 ///
@@ -21,7 +27,8 @@ class RecoController extends ChangeNotifier {
     RecommendationEngine? engine,
     RecoContext? context,
     this.store,
-  })  : engine = engine ?? const RecommendationEngine(catalog: kActivityCatalog),
+  })  : engine =
+            engine ?? RecommendationEngine(catalog: liveActivityCatalog()),
         context = context ?? RecoContext.now() {
     _hydrate();
     _rank();
@@ -52,7 +59,7 @@ class RecoController extends ChangeNotifier {
   }
 
   Activity? _activityById(String id) {
-    for (final a in kActivityCatalog) {
+    for (final a in liveActivityCatalog()) {
       if (a.id == id) return a;
     }
     return null;

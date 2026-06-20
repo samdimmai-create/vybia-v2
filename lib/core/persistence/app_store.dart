@@ -6,6 +6,7 @@ import '../../features/guest/model/guest_profile.dart';
 import '../../features/guest/state/guest_controller.dart';
 import '../../features/plans/model/plan.dart';
 import '../../features/reco/data/activity_catalog.dart';
+import '../../features/reco/data/osm_place_repository.dart';
 import '../../features/reco/model/activity.dart';
 
 /// The single local persistence repository for the whole guest model.
@@ -124,6 +125,9 @@ class AppStore {
 
   Activity? _activityById(String? id) {
     if (id == null) return null;
+    // Real OSM-backed activities first, then the hand-authored seed catalog.
+    final osm = OsmPlaceRepository.activityById(id);
+    if (osm != null) return osm;
     for (final a in kActivityCatalog) {
       if (a.id == id) return a;
     }

@@ -83,7 +83,7 @@ class RecommendationEngine {
     }).toList();
 
     scored.sort((x, y) => y.score.compareTo(x.score));
-    final out = scored.take(max).toList();
+    final out = _diversify(scored, max);
     if (out.isEmpty) return out;
     // Re-stamp the leader as the best pick.
     final lead = out.first;
@@ -94,6 +94,28 @@ class RecommendationEngine {
       why: lead.why,
       topDimensions: lead.topDimensions,
     );
+    return out;
+  }
+
+  /// Greedy category spread: take the best of each category first (so the
+  /// visible queue isn't five near-identical venues in a row), then backfill the
+  /// remaining slots by score. The global best pick still leads. With real OSM
+  /// data — hundreds of cafés/restaurants — this is what keeps the batch varied.
+  List<Recommendation> _diversify(List<Recommendation> scored, int max) {
+    final out = <Recommendation>[];
+    final usedCategories = <ActivityCategory>{};
+    for (final r in scored) {
+      if (out.length >= max) break;
+      if (usedCategories.add(r.activity.category)) out.add(r);
+    }
+    if (out.length < max) {
+      final taken = out.toSet();
+      for (final r in scored) {
+        if (out.length >= max) break;
+        if (taken.contains(r)) continue;
+        out.add(r);
+      }
+    }
     return out;
   }
 
