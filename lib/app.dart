@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'core/persistence/app_store.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'features/dev/s8_1_proof_tour.dart';
 import 'features/dev/s8_proof_tour.dart';
 import 'features/guest/state/guest_controller.dart';
 import 'features/plans/state/plan_controller.dart';
@@ -48,6 +49,10 @@ class _VybiaAppState extends State<VybiaApp> {
   // category-accurate reco images). `--dart-define=VYBIA_PROOF=true`.
   static const bool _kProof = bool.fromEnvironment('VYBIA_PROOF');
 
+  // Debug-only S8.1 visual-proof tour (smaller orb + radial edge-wave + bottom
+  // bubble + reflection transition + hold states). `--dart-define=VYBIA_PROOF81=true`.
+  static const bool _kProof81 = bool.fromEnvironment('VYBIA_PROOF81');
+
   @override
   void initState() {
     super.initState();
@@ -89,7 +94,7 @@ class _VybiaAppState extends State<VybiaApp> {
 
   @override
   Widget build(BuildContext context) {
-    if (_kProof) {
+    if (_kProof || _kProof81) {
       return MaterialApp(
         title: 'Vybia',
         debugShowCheckedModeBanner: false,
@@ -98,7 +103,7 @@ class _VybiaAppState extends State<VybiaApp> {
           controller: _guest,
           child: PlanScope(
             controller: _plans,
-            child: const S8ProofTour(),
+            child: _kProof81 ? const S81ProofTour() : const S8ProofTour(),
           ),
         ),
       );

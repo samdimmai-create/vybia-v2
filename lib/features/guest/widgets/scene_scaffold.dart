@@ -59,7 +59,17 @@ class SceneScaffold extends StatefulWidget {
     this.debugHoldProof = false,
     this.debugThrowProof = false,
     this.debugAimProof,
+    this.debugContactProof = false,
+    this.debugWarnProof = false,
   });
+
+  /// Debug-only: pin the clean on-contact state (orb born at centre, edges
+  /// visible, bubble receded) with no edge aim, for the card-contact proof.
+  final bool debugContactProof;
+
+  /// Debug-only: pin the early hold-to-home WARNING (small portal, warning hint
+  /// prominent) — distinct from [debugHoldProof]'s half-open portal.
+  final bool debugWarnProof;
 
   /// S8.1D: present the description as a rounded-rect glass BUBBLE pinned near
   /// the BOTTOM (V1 style) instead of the top scrim. Used by the image/activity
@@ -218,15 +228,25 @@ class _SceneScaffoldState extends State<SceneScaffold>
     final holdProof = _kHoldProof || widget.debugHoldProof;
     final throwProof = _kThrowProof || widget.debugThrowProof;
     final aimProof = widget.debugAimProof;
-    if (holdProof || throwProof || aimProof != null) {
+    final contactProof = widget.debugContactProof;
+    final warnProof = widget.debugWarnProof;
+    if (holdProof ||
+        throwProof ||
+        aimProof != null ||
+        contactProof ||
+        warnProof) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted || _lastSize == Size.zero) return;
         setState(() {
           _forceActive = null;
           _presence = 1.0;
-          if (holdProof) {
-            _orb = Offset(_lastSize.width / 2, _lastSize.height / 2);
+          _orb = Offset(_lastSize.width / 2, _lastSize.height / 2);
+          if (warnProof) {
+            _hold = 0.18; // early warning: portal still tiny, hint prominent
+          } else if (holdProof) {
             _hold = 0.62; // portal half-open, filled with calm
+          } else if (contactProof) {
+            // Clean contact: orb + edges visible, bubble receded, no aim wave.
           } else if (aimProof != null) {
             // On-contact aim toward [aimProof]: orb sits ~70% toward that edge
             // with a high reach so the decisive radial wave is in full bloom.
