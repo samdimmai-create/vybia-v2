@@ -67,8 +67,8 @@ class VybiaOrb extends StatefulWidget {
     // S8.1A: the painted orb (Accueil) is shrunk to match the smaller scene
     // bubble — a tighter ~ø72 body instead of the old ~ø88.
     this.orbSize = 72,
-    this.holdStill = const Duration(seconds: 3),
-    this.holdGrow = const Duration(milliseconds: 1000),
+    this.holdStill = const Duration(milliseconds: 1800),
+    this.holdGrow = const Duration(milliseconds: 1300),
     this.throwVelocity = 720,
   });
 
@@ -118,7 +118,10 @@ class VybiaOrb extends StatefulWidget {
   final double orbSize;
 
   /// How long the contact must stay essentially STILL before the hold-to-home
-  /// warning begins.
+  /// warning begins. S8.1C: shortened from a fully-silent 3s (which felt
+  /// unresponsive — no feedback for 3 whole seconds) to 1.8s, so the building
+  /// portal gives feedback sooner; a deliberate 1.3s grow still gates the
+  /// actual navigation (≈3.1s total), so it can't fire by accident.
   final Duration holdStill;
 
   /// How long the warning/grow runs before it navigates home if held.
@@ -157,12 +160,17 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
   // Double-tap tracking.
   DateTime? _lastTapUp;
   Offset _lastTapPos = Offset.zero;
-  static const Duration _doubleTapWindow = Duration(milliseconds: 320);
-  static const double _doubleTapSlop = 26;
+  // S8.1C: a slightly wider window + a much more forgiving travel slop so a
+  // natural quick double-tap (two taps rarely land on the exact same pixel on a
+  // 3× phone screen) reliably reads as "back" rather than two dead single taps.
+  static const Duration _doubleTapWindow = Duration(milliseconds: 340);
+  static const double _doubleTapSlop = 44;
 
   // Movement past this (px from origin) counts as "aiming", not "still": it
   // cancels the hold-to-home timer/warning and is the normal edge gesture.
-  static const double _holdJitter = 16;
+  // S8.1C: 16→22 so a resting finger's micro-drift doesn't keep cancelling the
+  // hold-to-home before it can begin.
+  static const double _holdJitter = 22;
 
   // How big the orb grows at the peak of the hold-to-home warning.
   static const double _holdGrowFactor = 9;

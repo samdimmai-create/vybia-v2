@@ -49,6 +49,41 @@ void main() {
     expect(dirs, 0);
   });
 
+  testWidgets('double-tap still reads as back when the two taps are slightly '
+      'offset (within the forgiving slop)', (tester) async {
+    var taps = 0, dirs = 0;
+    await tester.pumpWidget(orbHost(
+      onDoubleTap: () => taps++,
+      onDirection: (_) => dirs++,
+    ));
+
+    final g1 = await tester.startGesture(const Offset(200, 300));
+    await g1.up();
+    await tester.pump(const Duration(milliseconds: 40));
+    // Second tap lands ~30px away — natural finger imprecision, inside slop.
+    final g2 = await tester.startGesture(const Offset(224, 318));
+    await g2.up();
+    await tester.pump(const Duration(milliseconds: 200));
+
+    expect(taps, 1);
+    expect(dirs, 0);
+  });
+
+  testWidgets('two taps far apart are NOT a double-tap (beyond slop)',
+      (tester) async {
+    var taps = 0;
+    await tester.pumpWidget(orbHost(onDoubleTap: () => taps++));
+
+    final g1 = await tester.startGesture(const Offset(120, 200));
+    await g1.up();
+    await tester.pump(const Duration(milliseconds: 40));
+    final g2 = await tester.startGesture(const Offset(320, 600)); // far away
+    await g2.up();
+    await tester.pump(const Duration(milliseconds: 200));
+
+    expect(taps, 0);
+  });
+
   testWidgets('immobile hold ≥ threshold navigates home', (tester) async {
     var home = 0, dirs = 0;
     await tester.pumpWidget(orbHost(

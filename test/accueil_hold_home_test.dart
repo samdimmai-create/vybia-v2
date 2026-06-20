@@ -28,8 +28,8 @@ void main() {
     // Press and hold perfectly still: past the immobile threshold, then through
     // the grow, the calm portal opens and we navigate home.
     final gesture = await tester.startGesture(const Offset(200, 400));
-    await tester.pump(const Duration(seconds: 3, milliseconds: 50)); // immobile fires
-    await tester.pump(const Duration(seconds: 1, milliseconds: 200)); // grow completes
+    await tester.pump(const Duration(milliseconds: 1850)); // immobile fires (1.8s)
+    await tester.pump(const Duration(milliseconds: 1350)); // grow completes (1.3s)
     await tester.pump();
     await gesture.up();
     await tester.pump();
