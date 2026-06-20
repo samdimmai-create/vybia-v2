@@ -53,6 +53,8 @@ class OrbPainter extends CustomPainter {
     }
 
     // ---- Outer atmospheric glow ----------------------------------------
+    // S8.1A: tighter halo (1.55× vs the old 1.9×) so the smaller orb stays a
+    // crisp jewel rather than a soft, oversized cloud.
     final glowCenter = center + bias;
     final glowPaint = Paint()
       ..shader = RadialGradient(
@@ -62,13 +64,14 @@ class OrbPainter extends CustomPainter {
           AppColors.primary.withValues(alpha: 0.0),
         ],
         stops: const [0.0, 0.55, 1.0],
-      ).createShader(Rect.fromCircle(center: glowCenter, radius: r * 1.9));
-    canvas.drawCircle(glowCenter, r * 1.9, glowPaint);
+      ).createShader(Rect.fromCircle(center: glowCenter, radius: r * 1.55));
+    canvas.drawCircle(glowCenter, r * 1.55, glowPaint);
 
     // ---- Orbiting rings -------------------------------------------------
     for (var i = 0; i < 3; i++) {
       final t = (pulse + i / 3) % 1.0;
-      final ringR = r * (1.05 + 0.32 * t);
+      // Tighter ring spread (0.26 vs 0.32) keeps the footprint compact.
+      final ringR = r * (1.05 + 0.26 * t);
       final ringOpacity = (1.0 - t) * 0.5 * opacity;
       final ringPaint = Paint()
         ..style = PaintingStyle.stroke

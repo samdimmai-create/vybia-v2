@@ -64,7 +64,9 @@ class VybiaOrb extends StatefulWidget {
     this.enableHoldHome = true,
     this.showOrb = true,
     this.threshold = 72,
-    this.orbSize = 88,
+    // S8.1A: the painted orb (Accueil) is shrunk to match the smaller scene
+    // bubble — a tighter ~ø72 body instead of the old ~ø88.
+    this.orbSize = 72,
     this.holdStill = const Duration(seconds: 3),
     this.holdGrow = const Duration(milliseconds: 1000),
     this.throwVelocity = 720,

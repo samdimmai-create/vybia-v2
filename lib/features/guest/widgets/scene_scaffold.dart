@@ -45,7 +45,10 @@ class SceneScaffold extends StatefulWidget {
     this.rightAction = EdgeAction.neutral,
     this.upAction = EdgeAction.neutral,
     this.downAction = EdgeAction.neutral,
-    this.lensRadius = 60,
+    // S8.1A: the bubble lens is now clearly SMALLER than V1 (whose ring was
+    // ~ø80). At rest-on-contact the painter draws r ≈ lensRadius, so 44 ⇒ a
+    // ~ø88 jewel — a smaller, crisper droplet than the old r=60 (~ø120).
+    this.lensRadius = 44,
     this.onDoubleTap,
     this.onHoldHome,
     this.enableHoldHome = true,
