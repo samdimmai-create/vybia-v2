@@ -143,6 +143,7 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
 
   bool _active = false;
   bool _warning = false; // hold-to-home warning/grow in progress
+  bool _settling = false; // S9.1C: a stopped throw is fading out in place
   Offset _origin = Offset.zero;
   Offset _current = Offset.zero;
   Timer? _dissolveTimer;
@@ -175,6 +176,16 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
   // How big the orb grows at the peak of the hold-to-home warning.
   static const double _holdGrowFactor = 9;
 
+  // Dissolve durations. A tap/commit dissolves quickly; a thrown orb that runs
+  // out of momentum before reaching an edge SETTLES a touch more slowly (S9.1C)
+  // — quick but graceful — and recedes deeper as it fades.
+  static const Duration _quickDissolve = Duration(milliseconds: 150);
+  static const Duration _settleDissolve = Duration(milliseconds: 260);
+
+  // S9.1C proof: pin the orb mid-settle (a stopped throw fading + shrinking in
+  // place) for a deterministic Chrome screenshot. `--dart-define=VYBIA_THROWFADE=true`.
+  static const bool _kThrowFadeProof = bool.fromEnvironment('VYBIA_THROWFADE');
+
   @override
   void initState() {
     super.initState();
@@ -189,7 +200,7 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
     )..addListener(_emitPresence);
     _dissolve = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 150),
+      duration: _quickDissolve,
       value: 1.0,
     )..addListener(_emitPresence);
     _hold = AnimationController(
@@ -200,6 +211,25 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
       ..addListener(_emitHold)
       ..addStatusListener(_onHoldStatus);
     _flightTicker = createTicker(_onFlightTick);
+
+    if (_kThrowFadeProof) {
+      // Freeze the orb part-way through a throw-stop settle: present but fading
+      // (presence ≈ 0.5) and shrunk, resting a bit off-centre where it ran out
+      // of momentum (never at an edge).
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || _bounds == Size.zero) return;
+        // An empty region (not over any label) so the fading orb reads clearly.
+        final rest = Offset(_bounds.width * 0.30, _bounds.height * 0.66);
+        setState(() {
+          _active = true;
+          _settling = true;
+          _origin = rest; // delta 0 → no edge aim
+          _current = rest;
+        });
+        _appear.value = 1.0;
+        _dissolve.value = 0.55; // mid-fade (faded + scaled down, in place)
+      });
+    }
   }
 
   @override
@@ -285,10 +315,12 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
   void _onDown(PointerDownEvent e) {
     _dissolveTimer?.cancel();
     _stopFlight(); // a fresh touch interrupts any in-flight throw cleanly
+    _dissolve.duration = _quickDissolve; // a fresh gesture dissolves quickly
     _dissolve.value = 1.0;
     setState(() {
       _active = true;
       _warning = false;
+      _settling = false;
       _origin = e.localPosition;
       _current = e.localPosition;
     });
@@ -416,15 +448,26 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
   /// End a flight in COMMIT (an edge was reached) or DISSOLVE (ran out of
   /// momentum) — never a freeze.
   void _endThrow(OrbDirection? committed) {
+    // Where the orb actually came to rest (before _stopFlight clears the sim).
+    final restPos = _sim?.position ?? _flightPos;
     _stopFlight();
     if (committed != null) {
       widget.onDirection(committed);
       _reset();
-    } else {
-      // Decelerated mid-scene: dissolve in place, no commit.
-      _dissolve.reverse(from: 1.0);
-      _dissolveTimer = Timer(const Duration(milliseconds: 160), _reset);
+      return;
     }
+    // S9.1C: it decelerated below stopSpeed mid-scene. Come to rest GRACEFULLY:
+    // fade + scale-down IN PLACE, right where it stopped — not an abrupt vanish,
+    // and never teleported back to the release point (the build falls back to
+    // [_current] once flying, so pin it to the rest position first).
+    setState(() {
+      _settling = true;
+      _current = restPos;
+    });
+    _dissolve.duration = _settleDissolve;
+    _dissolve.reverse(from: 1.0);
+    _dissolveTimer =
+        Timer(_settleDissolve + const Duration(milliseconds: 20), _reset);
   }
 
   void _reset() {
@@ -435,10 +478,12 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
     setState(() {
       _active = false;
       _warning = false;
+      _settling = false;
       _origin = Offset.zero;
       _current = Offset.zero;
     });
     _appear.value = 0.0;
+    _dissolve.duration = _quickDissolve; // restore the quick dissolve
     _dissolve.value = 1.0;
     _hold.value = 0.0;
     _emitPresence(); // presence == 0 now
@@ -473,8 +518,12 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
                     final pos = _flying ? _flightPos : _current;
                     final dir = _flying ? _sim?.headingEdge : _direction;
                     final reach = _flying ? (_sim?.reach ?? 0.0) : _reach;
+                    // S9.1C: while settling from a stopped throw, recede deeper
+                    // (toward a small point) as it fades — a graceful exit.
+                    final settle = _settling ? (0.30 + 0.70 * presence) : 1.0;
                     final scale = (0.62 + 0.38 * presence) *
-                        (1 + _hold.value * _holdGrowFactor);
+                        (1 + _hold.value * _holdGrowFactor) *
+                        settle;
                     return Positioned(
                       left: pos.dx - widget.orbSize / 2,
                       top: pos.dy - widget.orbSize / 2,
