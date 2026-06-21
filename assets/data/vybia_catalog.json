@@ -11035,7 +11035,7 @@
    "category": "culture",
    "subcategory": "science-fiction",
    "descFr": "Inception (2010) — science-fiction. film de Christopher Nolan, sorti en 2010",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/film_q25188.jpg",
    "tags": {
     "energy": 0.35,
     "social": 0.45,
@@ -11080,7 +11080,7 @@
    "winterFriendly": true,
    "source": "wikidata",
    "sourceId": "Q25188",
-   "confidence": 0.8,
+   "confidence": 0.9,
    "lat": null,
    "lng": null,
    "neighbourhood": null,
@@ -11096,8 +11096,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Craig Grobler at http://www.theestablishingshot.com/ — CC BY-SA 2.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 2.0"
   },
   {
    "id": "film_q484048",
@@ -11816,7 +11816,7 @@
    "category": "culture",
    "subcategory": "festival",
    "descFr": "Festival international de jazz de Montréal — festival de jazz. Édition de juin.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/event_q614639.jpg",
    "tags": {
     "energy": 0.4,
     "social": 0.8,
@@ -11859,7 +11859,7 @@
    "winterFriendly": false,
    "source": "wikidata",
    "sourceId": "Q614639",
-   "confidence": 0.65,
+   "confidence": 0.75,
    "lat": 45.5,
    "lng": -73.56666666666666,
    "neighbourhood": "Montréal",
@@ -11875,8 +11875,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Jocelynhade — CC BY-SA 3.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 3.0"
   },
   {
    "id": "event_q1362509",
@@ -11885,7 +11885,7 @@
    "category": "culture",
    "subcategory": "festival",
    "descFr": "Juste pour rire — festival d’humour. Édition de juillet.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/event_q1362509.jpg",
    "tags": {
     "energy": 0.4,
     "social": 0.8,
@@ -11928,7 +11928,7 @@
    "winterFriendly": false,
    "source": "wikidata",
    "sourceId": "Q1362509",
-   "confidence": 0.65,
+   "confidence": 0.75,
    "lat": 45.5102,
    "lng": -73.564,
    "neighbourhood": "Montréal",
@@ -11944,8 +11944,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Noël, Béatrice — CC BY 3.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY 3.0"
   },
   {
    "id": "event_q2033298",
@@ -11954,7 +11954,7 @@
    "category": "nightlife",
    "subcategory": "festival",
    "descFr": "Osheaga — festival de musique. Édition de juillet.",
-   "imageRef": "assets/images/places/bar.jpg",
+   "imageRef": "assets/images/catalog/event_q2033298.jpg",
    "tags": {
     "energy": 0.6,
     "social": 0.8,
@@ -11997,7 +11997,7 @@
    "winterFriendly": false,
    "source": "wikidata",
    "sourceId": "Q2033298",
-   "confidence": 0.65,
+   "confidence": 0.75,
    "lat": 45.50944444444445,
    "lng": -73.5275,
    "neighbourhood": "Montréal",
@@ -12013,8 +12013,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "velkr0 from Vancouver, Canada — CC BY 2.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY 2.0"
   },
   {
    "id": "event_q3148148",
@@ -12023,7 +12023,7 @@
    "category": "nightlife",
    "subcategory": "festival",
    "descFr": "Igloofest — festival de musique. Édition de janvier.",
-   "imageRef": "assets/images/places/bar.jpg",
+   "imageRef": "assets/images/catalog/event_q3148148.jpg",
    "tags": {
     "energy": 0.6,
     "social": 0.8,
@@ -12066,7 +12066,7 @@
    "winterFriendly": true,
    "source": "wikidata",
    "sourceId": "Q3148148",
-   "confidence": 0.65,
+   "confidence": 0.75,
    "lat": 45.5019,
    "lng": -73.5674,
    "neighbourhood": "Montréal",
@@ -12082,8 +12082,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Francis Bourgouin — CC BY 2.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY 2.0"
   },
   {
    "id": "event_q20992419",
@@ -12437,7 +12437,7 @@
    "category": "nightlife",
    "subcategory": "festival",
    "descFr": "Fierté Montréal — annual LGBT event in Montreal, Quebec. Édition de août.",
-   "imageRef": "assets/images/places/bar.jpg",
+   "imageRef": "assets/images/catalog/event_q5447283.jpg",
    "tags": {
     "energy": 0.6,
     "social": 0.8,
@@ -12480,7 +12480,7 @@
    "winterFriendly": false,
    "source": "wikidata",
    "sourceId": "Q5447283",
-   "confidence": 0.65,
+   "confidence": 0.75,
    "lat": 45.5019,
    "lng": -73.5674,
    "neighbourhood": "Montréal",
@@ -12496,8 +12496,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Simon Legner (User:simon04) — CC BY-SA 4.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 4.0"
   },
   {
    "id": "event_q3070011",
@@ -12575,7 +12575,7 @@
    "category": "culture",
    "subcategory": "escapade",
    "descFr": "Québec — ville et capitale du Québec (Canada). À ~232.2 km, week-end.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/travel_q2145.jpg",
    "tags": {
     "energy": 0.3,
     "social": 0.4,
@@ -12620,7 +12620,7 @@
    "winterFriendly": true,
    "source": "wikidata",
    "sourceId": "Q2145",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 46.816111,
    "lng": -71.224167,
    "neighbourhood": null,
@@ -12636,8 +12636,8 @@
    "destination": "Québec",
    "distanceKm": 232.2,
    "duration": "week-end",
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Fabian Roudra Baroi — CC BY-SA 4.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 4.0"
   },
   {
    "id": "travel_q142082",
@@ -12646,7 +12646,7 @@
    "category": "nature",
    "subcategory": "escapade",
    "descFr": "Mont-Tremblant — ville au Québec (Canada). À ~105.3 km, journée ou nuitée.",
-   "imageRef": "assets/images/places/park.jpg",
+   "imageRef": "assets/images/catalog/travel_q142082.jpg",
    "tags": {
     "energy": 0.45,
     "social": 0.5,
@@ -12691,7 +12691,7 @@
    "winterFriendly": false,
    "source": "wikidata",
    "sourceId": "Q142082",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 46.1167,
    "lng": -74.6,
    "neighbourhood": null,
@@ -12707,8 +12707,8 @@
    "destination": "Mont-Tremblant",
    "distanceKm": 105.3,
    "duration": "journée ou nuitée",
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Wikimedia Commons — CC BY-SA 2.5 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 2.5"
   },
   {
    "id": "travel_q1930",
@@ -12717,7 +12717,7 @@
    "category": "culture",
    "subcategory": "escapade",
    "descFr": "Ottawa — capitale du Canada. À ~166.1 km, journée ou nuitée.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/travel_q1930.jpg",
    "tags": {
     "energy": 0.3,
     "social": 0.4,
@@ -12762,7 +12762,7 @@
    "winterFriendly": true,
    "source": "wikidata",
    "sourceId": "Q1930",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.424722222222,
    "lng": -75.695,
    "neighbourhood": null,
@@ -12778,8 +12778,8 @@
    "destination": "Ottawa",
    "distanceKm": 166.1,
    "duration": "journée ou nuitée",
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Allice Hunter — CC BY-SA 4.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 4.0"
   },
   {
    "id": "travel_q141844",
@@ -12788,7 +12788,7 @@
    "category": "nature",
    "subcategory": "escapade",
    "descFr": "Gatineau — ville au Québec (Canada). À ~162.3 km, journée ou nuitée.",
-   "imageRef": "assets/images/places/park.jpg",
+   "imageRef": "assets/images/catalog/travel_q141844.jpg",
    "tags": {
     "energy": 0.45,
     "social": 0.5,
@@ -12833,7 +12833,7 @@
    "winterFriendly": false,
    "source": "wikidata",
    "sourceId": "Q141844",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.483333,
    "lng": -75.65,
    "neighbourhood": null,
@@ -12849,8 +12849,8 @@
    "destination": "Gatineau",
    "distanceKm": 162.3,
    "duration": "journée ou nuitée",
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "No machine-readable author provided. Adam the atom assumed (based on copyright claims). — CC BY-SA 3.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 3.0"
   },
   {
    "id": "travel_q139473",
@@ -12859,7 +12859,7 @@
    "category": "culture",
    "subcategory": "escapade",
    "descFr": "Sherbrooke — ville en Estrie au Québec (Canada). À ~130.6 km, journée ou nuitée.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/travel_q139473.jpg",
    "tags": {
     "energy": 0.3,
     "social": 0.4,
@@ -12904,7 +12904,7 @@
    "winterFriendly": true,
    "source": "wikidata",
    "sourceId": "Q139473",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.4,
    "lng": -71.9,
    "neighbourhood": null,
@@ -12920,8 +12920,8 @@
    "destination": "Sherbrooke",
    "distanceKm": 130.6,
    "duration": "journée ou nuitée",
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Lëa-Kim Châteauneuf — CC BY-SA 4.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 4.0"
   },
   {
    "id": "travel_q44012",
@@ -12930,7 +12930,7 @@
    "category": "culture",
    "subcategory": "escapade",
    "descFr": "Trois-Rivières — ville au Québec (Canada). À ~122.8 km, journée ou nuitée.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/travel_q44012.jpg",
    "tags": {
     "energy": 0.3,
     "social": 0.4,
@@ -12975,7 +12975,7 @@
    "winterFriendly": true,
    "source": "wikidata",
    "sourceId": "Q44012",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 46.35,
    "lng": -72.55,
    "neighbourhood": null,
@@ -12991,8 +12991,8 @@
    "destination": "Trois-Rivières",
    "distanceKm": 122.8,
    "duration": "journée ou nuitée",
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Fralambert — CC BY-SA 3.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 3.0"
   },
   {
    "id": "travel_q139406",
@@ -13001,7 +13001,7 @@
    "category": "nature",
    "subcategory": "escapade",
    "descFr": "Mont-Saint-Hilaire — ville au Québec (Canada). À ~30 km, journée.",
-   "imageRef": "assets/images/places/park.jpg",
+   "imageRef": "assets/images/catalog/travel_q139406.jpg",
    "tags": {
     "energy": 0.45,
     "social": 0.5,
@@ -13046,7 +13046,7 @@
    "winterFriendly": false,
    "source": "wikidata",
    "sourceId": "Q139406",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.562222222222,
    "lng": -73.191666666667,
    "neighbourhood": null,
@@ -13062,8 +13062,8 @@
    "destination": "Mont-Saint-Hilaire",
    "distanceKm": 30,
    "duration": "journée",
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Hayden Soloviev — CC BY 4.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY 4.0"
   },
   {
    "id": "travel_q1857392",
@@ -13072,7 +13072,7 @@
    "category": "nature",
    "subcategory": "escapade",
    "descFr": "Tadoussac — municipalité de village au Québec (Canada). À ~415.3 km, week-end.",
-   "imageRef": "assets/images/places/park.jpg",
+   "imageRef": "assets/images/catalog/travel_q1857392.jpg",
    "tags": {
     "energy": 0.45,
     "social": 0.5,
@@ -13117,7 +13117,7 @@
    "winterFriendly": false,
    "source": "wikidata",
    "sourceId": "Q1857392",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 48.15,
    "lng": -69.7167,
    "neighbourhood": null,
@@ -13133,8 +13133,8 @@
    "destination": "Tadoussac",
    "distanceKm": 415.3,
    "duration": "week-end",
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Selbymay — CC BY-SA 3.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 3.0"
   },
   {
    "id": "travel_q142004",
@@ -13143,7 +13143,7 @@
    "category": "nature",
    "subcategory": "escapade",
    "descFr": "Magog — ville en Estrie au Québec (Canada). À ~113.7 km, journée ou nuitée.",
-   "imageRef": "assets/images/places/park.jpg",
+   "imageRef": "assets/images/catalog/travel_q142004.jpg",
    "tags": {
     "energy": 0.45,
     "social": 0.5,
@@ -13188,7 +13188,7 @@
    "winterFriendly": false,
    "source": "wikidata",
    "sourceId": "Q142004",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.266666666667,
    "lng": -72.15,
    "neighbourhood": null,
@@ -13204,8 +13204,8 @@
    "destination": "Magog",
    "distanceKm": 113.7,
    "duration": "journée ou nuitée",
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Jean-Philippe Boulet — CC BY 3.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY 3.0"
   },
   {
    "id": "travel_q2052005",
@@ -13214,7 +13214,7 @@
    "category": "nature",
    "subcategory": "escapade",
    "descFr": "parc national d'Oka — parc national du Québec (Canada). À ~36.3 km, journée.",
-   "imageRef": "assets/images/places/park.jpg",
+   "imageRef": "assets/images/catalog/travel_q2052005.jpg",
    "tags": {
     "energy": 0.45,
     "social": 0.5,
@@ -13259,7 +13259,7 @@
    "winterFriendly": false,
    "source": "wikidata",
    "sourceId": "Q2052005",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.468055555556,
    "lng": -74.030555555556,
    "neighbourhood": null,
@@ -13275,8 +13275,8 @@
    "destination": "parc national d'Oka",
    "distanceKm": 36.3,
    "duration": "journée",
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Yvan leduc — CC BY 3.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY 3.0"
   },
   {
    "id": "travel_q141983",
@@ -13285,7 +13285,7 @@
    "category": "active",
    "subcategory": "escapade",
    "descFr": "Bromont — ville en Estrie au Québec (Canada). À ~74.5 km, journée.",
-   "imageRef": "assets/images/places/sports.jpg",
+   "imageRef": "assets/images/catalog/travel_q141983.jpg",
    "tags": {
     "energy": 0.8,
     "social": 0.55,
@@ -13330,7 +13330,7 @@
    "winterFriendly": true,
    "source": "wikidata",
    "sourceId": "Q141983",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.3167,
    "lng": -72.65,
    "neighbourhood": null,
@@ -13346,8 +13346,8 @@
    "destination": "Bromont",
    "distanceKm": 74.5,
    "duration": "journée",
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Gabriel Picard — CC BY-SA 4.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 4.0"
   },
   {
    "id": "travel_q2114279",
