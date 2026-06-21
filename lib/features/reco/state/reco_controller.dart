@@ -11,6 +11,7 @@ import '../engine/recommendation_engine.dart';
 import '../engine/reco_context.dart';
 import '../live/live_availability_service.dart';
 import '../live/live_source.dart';
+import '../live/weather_service.dart';
 import '../model/activity.dart';
 import '../model/recommendation.dart';
 
@@ -59,6 +60,7 @@ class RecoController extends ChangeNotifier {
     GeoResult? location,
     this.store,
     this.liveService,
+    this.weatherService,
   })  : engine =
             engine ?? RecommendationEngine(catalog: liveActivityCatalog()),
         _location = location ?? store?.readGeo() ?? GeoResult.fallback,
@@ -73,6 +75,11 @@ class RecoController extends ChangeNotifier {
     // service never throws, and on failure/empty the static + snapshot fallback
     // already ranked above stays exactly as-is.
     if (liveService != null) _loadLive();
+    // S12B: fetch live weather in the background and fold the signal into the
+    // context so S11's feasibility flips ON (rain/snow → drop open-air; deep
+    // cold → drop non-winter-friendly outdoors). Offline → null → filter stays
+    // skipped, ranking already shown is untouched.
+    if (weatherService != null) _loadWeather();
   }
 
   final GuestProfile profile;
@@ -83,6 +90,10 @@ class RecoController extends ChangeNotifier {
   /// The LIVE availability layer (S10.1B). Null in tests / pure-offline mode →
   /// no runtime network, recommendations come from the static pool + fallback.
   final LiveAvailabilityService? liveService;
+
+  /// The keyless live weather source (S12B). Null in tests / pure-offline mode →
+  /// no weather signal, so the weather feasibility filter stays skipped.
+  final WeatherService? weatherService;
 
   bool _disposed = false;
 
@@ -115,6 +126,21 @@ class RecoController extends ChangeNotifier {
     } catch (_) {/* keep the static + fallback ranking already shown */}
   }
 
+  /// Fetch the current weather for the active location, fold the signal into the
+  /// context and re-rank so feasibility reflects the real sky. Never throws; a
+  /// null signal (offline) leaves the weather filter skipped.
+  Future<void> _loadWeather() async {
+    final svc = weatherService;
+    if (svc == null) return;
+    try {
+      final signal = await svc.currentSignal(_location.lat, _location.lng);
+      if (signal == context.weather) return; // no change → no churn
+      context = context.withWeather(signal);
+      _rank();
+      if (!_disposed) notifyListeners();
+    } catch (_) {/* keep the ranking already shown */}
+  }
+
   GeoResult _location;
 
   /// The location currently driving distances (a real fix, or Montréal centre).
@@ -128,6 +154,8 @@ class RecoController extends ChangeNotifier {
     store?.saveGeo(result);
     _rank();
     notifyListeners();
+    // S12B: a new (real) location warrants a fresh weather read.
+    if (weatherService != null) _loadWeather();
   }
 
   final Set<String> _decided = {}; // liked or disliked → never re-shown

@@ -5,6 +5,7 @@ import '../../../core/persistence/app_store.dart';
 import '../../reco/engine/recommendation_engine.dart';
 import '../../reco/engine/reco_context.dart';
 import '../../reco/live/live_availability_service.dart';
+import '../../reco/live/weather_service.dart';
 import '../../reco/model/recommendation.dart';
 import '../../reco/state/reco_controller.dart';
 import '../data/question_bank.dart';
@@ -60,6 +61,7 @@ class LoopController extends ChangeNotifier {
     GeoResult? location,
     this.store,
     this.liveService,
+    this.weatherService,
     this.questionsPerBatch = 3,
     this.recosPerRound = 4,
     this.maxRounds = 4,
@@ -81,6 +83,10 @@ class LoopController extends ChangeNotifier {
   /// the reco round blends fresh events/films with the static pool. Null in
   /// tests → fully offline.
   final LiveAvailabilityService? liveService;
+
+  /// The keyless live weather source (S12B), threaded into the [RecoController]
+  /// so reco rounds reflect the real sky. Null in tests → no weather signal.
+  final WeatherService? weatherService;
 
   /// How many questions a single batch may ask before yielding to a reco round.
   final int questionsPerBatch;
@@ -194,6 +200,7 @@ class LoopController extends ChangeNotifier {
       location: _location,
       store: store,
       liveService: liveService,
+      weatherService: weatherService,
     );
     // Re-rank against the freshly sharpened profile (no-op on the first round,
     // where the constructor already ranked).

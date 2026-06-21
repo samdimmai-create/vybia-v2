@@ -16,6 +16,7 @@ import '../../features/plans/screens/mes_plans_screen.dart';
 import '../../features/plans/screens/planifier_screen.dart';
 import '../../features/profile/screens/profil_screen.dart';
 import '../../features/reco/live/live_availability_service.dart';
+import '../../features/reco/live/weather_service.dart';
 import '../../features/reco/screens/reco_screen.dart';
 
 /// Central route table. Kept tiny; every screen is reachable directly (handy
@@ -25,6 +26,10 @@ import '../../features/reco/screens/reco_screen.dart';
 /// the real app touches this (via the router); widget tests build screens
 /// directly with `liveService: null` → fully offline.
 final LiveAvailabilityService _liveService = LiveAvailabilityService.standard();
+
+/// One shared keyless weather source (S12B): fetched once per coarse location and
+/// reused across the session so the reco rounds reflect the real sky.
+final WeatherService _weatherService = WeatherService();
 
 class AppRouter {
   AppRouter._();
@@ -59,13 +64,19 @@ class AppRouter {
       case discover:
         page = const DiscoverScreen();
       case engine:
-        page = EngineLoopScreen(liveService: _liveService);
+        page = EngineLoopScreen(
+          liveService: _liveService,
+          weatherService: _weatherService,
+        );
       case intention:
         page = const IntentionScreen();
       case profileReady:
         page = const ProfileReadyScreen();
       case reco:
-        page = RecoScreen(liveService: _liveService);
+        page = RecoScreen(
+          liveService: _liveService,
+          weatherService: _weatherService,
+        );
       case plan:
         page = PlanifierScreen.fromRoute(settings);
       case mesPlans:

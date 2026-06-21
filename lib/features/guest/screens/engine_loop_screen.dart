@@ -8,6 +8,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../shared/edge_action.dart';
 import '../../plans/screens/planifier_screen.dart';
 import '../../reco/live/live_availability_service.dart';
+import '../../reco/live/weather_service.dart';
 import '../../reco/model/recommendation.dart';
 import '../../reco/screens/reco_detail_overlay.dart';
 import '../engine/loop_controller.dart';
@@ -31,11 +32,16 @@ class EngineLoopScreen extends StatefulWidget {
     this.controller,
     this.proof = false,
     this.liveService,
+    this.weatherService,
   });
 
   /// The LIVE availability layer (S10.1B), supplied by the router in the real
   /// app and left null in widget tests so they run fully offline.
   final LiveAvailabilityService? liveService;
+
+  /// The keyless live weather source (S12B), supplied by the router; null in
+  /// widget tests so they run with no weather signal.
+  final WeatherService? weatherService;
 
   /// Test/proof seam: collapse the reflection bridge to a single frame so a
   /// widget test can step the loop deterministically.
@@ -77,6 +83,7 @@ class _EngineLoopScreenState extends State<EngineLoopScreen> {
           profile: guest.profile,
           store: guest.store,
           liveService: widget.liveService,
+          weatherService: widget.weatherService,
         );
         _ownsLoop = true;
         _resolveLocation();

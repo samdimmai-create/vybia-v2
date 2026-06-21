@@ -69,6 +69,16 @@ class RecoContext {
         weather: weather,
       );
 
+  /// Fold in a freshly fetched weather signal (S12B) — null clears it, which
+  /// leaves the weather feasibility filter skipped exactly as before.
+  RecoContext withWeather(WeatherSignal? signal) => RecoContext(
+        hourOfDay: hourOfDay,
+        month: month,
+        userLat: userLat,
+        userLng: userLng,
+        weather: signal,
+      );
+
   bool get hasUser => userLat != null && userLng != null;
 
   /// Haversine distance (km) from the user to a place, or null if unknown.
