@@ -32,6 +32,11 @@ Future<void> main() async {
   try {
     await PreferenceTaxonomy.load();
   } catch (_) {/* labels fall back to ids */}
+  // S10E: layer the persisted write-back overlay (enriched/upserted records) over
+  // the bundled catalog, and wire the persist hook so future enrichments survive
+  // a relaunch.
+  ActivityRepository.hydrateOverlay(store.readOverlay());
+  ActivityRepository.persist = store.saveOverlay;
   // Debug-only persistence proof: with `--dart-define=VYBIA_SEED_DEMO=true` we
   // write an adjusted taste + a future plan + a granted location THROUGH the
   // real store, then a normal relaunch reads them back (s7_09_after_relaunch).

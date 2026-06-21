@@ -9,6 +9,7 @@ import '../../features/plans/model/plan.dart';
 import '../../features/reco/data/activity_catalog.dart';
 import '../../features/reco/data/osm_place_repository.dart';
 import '../../features/reco/db/activity_repository.dart';
+import '../../features/reco/db/catalog_entry.dart';
 import '../../features/reco/model/activity.dart';
 
 /// The single local persistence repository for the whole guest model.
@@ -32,6 +33,7 @@ class AppStore {
   static const _kIntention = 'vybia.intention.v1';
   static const _kSeeded = 'vybia.seeded.v1'; // first-run seed guard
   static const _kGeo = 'vybia.geo.v1'; // last resolved location + status
+  static const _kOverlay = 'vybia.db.overlay.v1'; // S10E enriched/upserted records
 
   /// Open the store, loading the backing prefs. Call once before first paint.
   static Future<AppStore> open() async =>
@@ -159,6 +161,29 @@ class AppStore {
     return null;
   }
 
+  // ---- DB write-back overlay (S10E) ----------------------------------------
+
+  /// The enriched / upserted records the engine layers over the bundled catalog.
+  List<CatalogEntry> readOverlay() {
+    final raw = _prefs.getString(_kOverlay);
+    if (raw == null) return const [];
+    final decoded = jsonDecode(raw);
+    if (decoded is! List) return const [];
+    final out = <CatalogEntry>[];
+    for (final item in decoded) {
+      if (item is Map<String, dynamic>) {
+        final e = CatalogEntry.tryFromJson(item);
+        if (e != null) out.add(e);
+      }
+    }
+    return out;
+  }
+
+  Future<void> saveOverlay(Iterable<CatalogEntry> overlay) => _prefs.setString(
+        _kOverlay,
+        jsonEncode([for (final e in overlay) e.toJson()]),
+      );
+
   // ---- First-run seed guard ------------------------------------------------
 
   bool get hasSeeded => _prefs.getBool(_kSeeded) ?? false;
@@ -173,5 +198,6 @@ class AppStore {
     await _prefs.remove(_kIntention);
     await _prefs.remove(_kSeeded);
     await _prefs.remove(_kGeo);
+    await _prefs.remove(_kOverlay);
   }
 }

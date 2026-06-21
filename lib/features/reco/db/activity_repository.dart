@@ -10,6 +10,7 @@ import '../engine/reco_context.dart';
 import '../model/activity.dart';
 import '../model/activity_kind.dart';
 import 'catalog_entry.dart';
+import 'enrichment_service.dart';
 
 /// OUR multi-source activity database, loaded from `assets/data/vybia_catalog.json`
 /// (S10D). The single catalog the engine + planner read across ALL kinds
@@ -28,6 +29,10 @@ class ActivityRepository {
   static final Map<String, CatalogEntry> _overlay = {}; // S10E write-back wins
 
   static List<Activity>? _activitiesCache;
+
+  /// Persistence hook (S10E): wired by `main` to the local store so every
+  /// overlay change survives a relaunch. Null in tests = in-memory only.
+  static Future<void> Function(List<CatalogEntry> overlay)? persist;
 
   static bool get isLoaded => _base.isNotEmpty || _overlay.isNotEmpty;
 
@@ -84,9 +89,54 @@ class ActivityRepository {
 
   // ---- Write path (S10E) ---------------------------------------------------
 
-  /// Insert or replace a record in the writable overlay.
-  static void upsert(CatalogEntry e) {
+  /// Insert or replace a record in the writable overlay + persist (if wired).
+  static Future<void> upsert(CatalogEntry e) async {
     _overlay[e.id] = e;
+    _activitiesCache = null;
+    await persist?.call(overlayEntries);
+  }
+
+  /// Read a record (base or overlay), apply [patch] with provenance, write the
+  /// merged record to the overlay and persist it. Returns the new record, or
+  /// null if [id] is unknown / the patch is empty. This is the single write-back
+  /// entry point an enrichment provider (stub today, Claude tomorrow) calls.
+  static Future<CatalogEntry?> enrichActivity(
+    String id,
+    Map<String, dynamic> patch, {
+    String source = 'claude',
+    String? enrichedAt,
+  }) async {
+    if (patch.isEmpty) return entryById(id);
+    final current = entryById(id);
+    if (current == null) return null;
+    final merged = current.copyWith({
+      ...patch,
+      'source': source,
+      'enrichedAt': enrichedAt ?? DateTime.now().toIso8601String(),
+    });
+    await upsert(merged);
+    return merged;
+  }
+
+  /// read → propose → enrich → save, end to end. The same call works unchanged
+  /// when the stub is swapped for a Claude-backed [EnrichmentService].
+  static Future<CatalogEntry?> enrichWith(
+    EnrichmentService service,
+    String id,
+  ) async {
+    final current = entryById(id);
+    if (current == null) return null;
+    final patch = await service.proposeEnrichment(current);
+    if (patch.isEmpty) return current;
+    return enrichActivity(id, patch, source: 'claude');
+  }
+
+  /// Hydrate the overlay from persisted records (call once at startup, after
+  /// [load], BEFORE first paint). Does not re-persist.
+  static void hydrateOverlay(Iterable<CatalogEntry> saved) {
+    for (final e in saved) {
+      _overlay[e.id] = e;
+    }
     _activitiesCache = null;
   }
 
