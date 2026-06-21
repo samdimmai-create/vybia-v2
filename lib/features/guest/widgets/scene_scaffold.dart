@@ -13,6 +13,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../shared/edge_action.dart';
 import '../../../shared/edge_decisive.dart';
 import '../../../shared/edge_labels.dart';
+import '../../../shared/edge_palette.dart';
 import '../../../shared/glass.dart';
 
 /// One-time, app-launch-scoped coach mark guard: a brand-new guest sees a single
@@ -54,6 +55,9 @@ class SceneScaffold extends StatefulWidget {
     this.onDoubleTap,
     this.onHoldHome,
     this.enableHoldHome = true,
+    this.showPaletteSwitcher = false,
+    this.journeyStep,
+    this.journeyLabel,
     this.bottomBubble = false,
     this.infoLine,
     this.tags = const [],
@@ -117,6 +121,20 @@ class SceneScaffold extends StatefulWidget {
 
   /// Disables the hold-to-home gesture (e.g. on the accueil scene itself).
   final bool enableHoldHome;
+
+  /// S14B: show the discreet palette-switcher chip (bottom-left) on this scene,
+  /// so the founder can flip the edge-colour palette A/B/C live on his phone.
+  /// Enabled on the decisive (reco / question) scenes where edge colours matter.
+  final bool showPaletteSwitcher;
+
+  /// S14C wayfinding: which journey step this scene belongs to (0-based into
+  /// [JourneyStep.values]), drawing a calm progress indicator at the top. Null
+  /// hides the indicator (e.g. structural sub-scenes).
+  final int? journeyStep;
+
+  /// S14C wayfinding: a short "where am I" label shown with the step dots, e.g.
+  /// "Tes goûts" / "Pour toi" / "On planifie". Defaults to the step's own label.
+  final String? journeyLabel;
 
   final String image;
   final String headline;
@@ -344,7 +362,7 @@ class _SceneScaffoldState extends State<SceneScaffold>
         builder: (context, constraints) {
           final size = Size(constraints.maxWidth, constraints.maxHeight);
           _lastSize = size;
-          return VybiaOrb(
+          final orb = VybiaOrb(
             showOrb: false, // the refraction bubble IS the orb here
             enableHoldHome: widget.enableHoldHome,
             onPositionChanged: (p) => setState(() => _orb = p),
@@ -481,6 +499,17 @@ class _SceneScaffoldState extends State<SceneScaffold>
                               right: widget.right,
                               up: widget.up,
                               down: widget.down,
+                              // Tint each label with the active palette's colour
+                              // for that edge's action, so the label previews the
+                              // decisive filter it triggers.
+                              leftColor:
+                                  activeEdgePalette.colorFor(widget.leftAction),
+                              rightColor:
+                                  activeEdgePalette.colorFor(widget.rightAction),
+                              upColor:
+                                  activeEdgePalette.colorFor(widget.upAction),
+                              downColor:
+                                  activeEdgePalette.colorFor(widget.downAction),
                             ),
                             // The bottom bubble carries its own "touche et
                             // décide" hint, so the redundant guidance chip is
@@ -493,19 +522,42 @@ class _SceneScaffoldState extends State<SceneScaffold>
                           ],
                         ),
                       ),
-                    // First-run-only coach mark (structural scenes only — the
-                    // bubble scenes show their own hint under the bubble).
-                    if (!widget.bottomBubble &&
-                        !_Coach.shown &&
-                        ui <= 0.001 &&
-                        _hold <= 0.001)
-                      _hintChip(t, 'Touche l’image pour explorer'),
+                    // S14C wayfinding: a calm "where am I" indicator (step dots
+                    // + scene label) pinned at the very top. It rides the rest
+                    // state (bubbleOpacity) so it cross-fades OUT on contact —
+                    // never colliding with the top edge label.
+                    if (widget.journeyStep != null && bubbleOpacity > 0.001)
+                      _JourneyIndicator(
+                        step: widget.journeyStep!,
+                        label: widget.journeyLabel,
+                        opacity: bubbleOpacity,
+                      ),
+                    // First-run-only coach mark. Shown once per launch on the
+                    // very first resting scene (now on bubble scenes too), and it
+                    // spells out the orb's whole grammar so the guest is never
+                    // lost: explore, then back, then home.
+                    if (!_Coach.shown && ui <= 0.001 && _hold <= 0.001)
+                      _firstRunCoach(t),
                     // Hold-to-home warning hint.
                     if (_hold > 0.001) _holdWarning(t),
                   ],
                 );
               },
             ),
+          );
+          // The palette switcher (S14B) sits ABOVE the orb's pointer Listener so
+          // a tap on it flips the palette instead of starting an orb gesture.
+          if (!widget.showPaletteSwitcher) return orb;
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              orb,
+              Positioned(
+                left: AppSpacing.md,
+                bottom: AppSpacing.md,
+                child: SafeArea(child: const _PaletteSwitcher()),
+              ),
+            ],
           );
         },
       ),
@@ -534,6 +586,58 @@ class _SceneScaffoldState extends State<SceneScaffold>
               child: Text(
                 label,
                 style: t.labelSmall?.copyWith(color: AppColors.textSecondary),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// S14C: the once-per-launch coach mark. Beyond "touch to explore", it now
+  /// names the two escape gestures up front — double-tap to go back, hold to
+  /// return home — so a first-time guest always knows the way forward AND back.
+  Widget _firstRunCoach(TextTheme t) {
+    return IgnorePointer(
+      child: SafeArea(
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.huge),
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 320),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.md,
+                vertical: AppSpacing.sm,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.surface.withValues(alpha: 0.55),
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+                border: Border.all(
+                  color: AppColors.pearl.withValues(alpha: 0.25),
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Touche l’image, glisse vers un choix',
+                    textAlign: TextAlign.center,
+                    style: t.labelMedium?.copyWith(
+                      color: AppColors.pearl,
+                      fontWeight: FontWeight.w700,
+                      shadows: kGlassTextShadow,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Double-tap : revenir · maintiens : accueil',
+                    textAlign: TextAlign.center,
+                    style: t.labelSmall?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -853,6 +957,158 @@ class _TopScrim extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// S14C: the four legible phases of the guest journey, used by the
+/// [_JourneyIndicator] so every scene tells the guest where they are.
+enum JourneyStep {
+  welcome('Bienvenue'),
+  taste('Tes goûts'),
+  forYou('Pour toi'),
+  plan('On planifie');
+
+  const JourneyStep(this.label);
+  final String label;
+}
+
+/// A calm top-of-scene wayfinder: a short phase label over a row of step dots
+/// (the current one lit). Low-clutter and on-brand (sea-glass), it rides the
+/// scene's rest opacity so it fades out the moment the orb is born — leaving the
+/// image clean while you act — and fades back on release.
+class _JourneyIndicator extends StatelessWidget {
+  const _JourneyIndicator({
+    required this.step,
+    required this.opacity,
+    this.label,
+  });
+
+  final int step;
+  final double opacity;
+  final String? label;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context).textTheme;
+    final steps = JourneyStep.values;
+    final i = step.clamp(0, steps.length - 1);
+    final text = label ?? steps[i].label;
+    return IgnorePointer(
+      child: Opacity(
+        opacity: opacity.clamp(0.0, 1.0),
+        child: SafeArea(
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.xs),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    text,
+                    style: t.labelMedium?.copyWith(
+                      color: AppColors.pearl,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.4,
+                      shadows: kGlassTextShadow,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (var s = 0; s < steps.length; s++)
+                        Container(
+                          width: s == i ? 16 : 6,
+                          height: 6,
+                          margin:
+                              const EdgeInsets.symmetric(horizontal: 3),
+                          decoration: BoxDecoration(
+                            color: s == i
+                                ? AppColors.accent
+                                : AppColors.pearl.withValues(alpha: 0.30),
+                            borderRadius: BorderRadius.circular(AppRadius.pill),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// S14B: a discreet, always-tappable chip that cycles the edge-colour palette
+/// A → B → C live, so the founder can compare them on his phone. Deliberately
+/// small and low-contrast so it never competes with the scene; it sits above
+/// the orb's pointer Listener so a tap flips the palette (it does NOT start an
+/// orb gesture). Rebuilds itself on each flip via [activeEdgePaletteIndex].
+class _PaletteSwitcher extends StatelessWidget {
+  const _PaletteSwitcher();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context).textTheme;
+    return ValueListenableBuilder<int>(
+      valueListenable: activeEdgePaletteIndex,
+      builder: (context, _, _) {
+        final p = activeEdgePalette;
+        return Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(AppRadius.pill),
+            onTap: cycleEdgePalette,
+            child: Opacity(
+              opacity: 0.85,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.surface.withValues(alpha: 0.55),
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
+                  border: Border.all(
+                    color: AppColors.pearl.withValues(alpha: 0.22),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Four dots previewing this palette's action colours.
+                    for (final c in [p.joy, p.curious, p.go, p.reject])
+                      Container(
+                        width: 9,
+                        height: 9,
+                        margin: const EdgeInsets.only(right: 4),
+                        decoration: BoxDecoration(
+                          color: c,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppColors.pearl.withValues(alpha: 0.25),
+                          ),
+                        ),
+                      ),
+                    const SizedBox(width: 2),
+                    Text(
+                      'Palette ${p.id}',
+                      style: t.labelSmall?.copyWith(
+                        color: AppColors.pearl,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

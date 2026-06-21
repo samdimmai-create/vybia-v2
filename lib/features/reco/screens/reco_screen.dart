@@ -215,6 +215,8 @@ class _RecoScreenState extends State<RecoScreen> {
               // S8.1D: description lives in the V1-style bottom glass bubble;
               // the distance/category/vibe become its single info line + tags.
               bottomBubble: true,
+              showPaletteSwitcher: true,
+              journeyStep: JourneyStep.forYou.index,
               infoLine: _infoLine(rec),
               tags: _vibeTags(rec.activity),
               left: 'Intéressant',
