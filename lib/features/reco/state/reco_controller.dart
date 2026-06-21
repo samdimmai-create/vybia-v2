@@ -6,15 +6,20 @@ import '../../guest/model/activity_axes.dart';
 import '../../guest/model/guest_profile.dart';
 import '../data/activity_catalog.dart';
 import '../data/osm_place_repository.dart';
+import '../db/activity_repository.dart';
 import '../engine/recommendation_engine.dart';
 import '../engine/reco_context.dart';
 import '../model/activity.dart';
 import '../model/recommendation.dart';
 
-/// The live recommendation catalog: real OSM-backed Montréal activities when the
-/// snapshot loaded, otherwise the hand-authored seed catalog as a safe fallback.
-List<Activity> liveActivityCatalog() =>
-    OsmPlaceRepository.isLoaded ? OsmPlaceRepository.activities : kActivityCatalog;
+/// The live recommendation catalog (S10D): OUR multi-source database (all kinds)
+/// when loaded, then the thin OSM snapshot, then the hand-authored seed catalog —
+/// each a safe fallback for the next so the loop never starves.
+List<Activity> liveActivityCatalog() {
+  if (ActivityRepository.isLoaded) return ActivityRepository.activities;
+  if (OsmPlaceRepository.isLoaded) return OsmPlaceRepository.activities;
+  return kActivityCatalog;
+}
 
 /// Drives the immersive reco loop with live revealed-preference learning.
 ///

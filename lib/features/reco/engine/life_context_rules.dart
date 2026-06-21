@@ -35,14 +35,24 @@ class LifeContextRules {
   static bool _ok(LifeContext c, Activity a, double? distanceKm) {
     switch (c) {
       case LifeContext.avecEnfants:
-        if (a.category == ActivityCategory.nightlife) return false;
+        // S10: prefer the explicit flag; fall back to category inference.
+        if (a.kidFriendly == false) return false;
+        if (a.kidFriendly == null && a.category == ActivityCategory.nightlife) {
+          return false;
+        }
         if (a.tag(Dimension.timing) > 0.85) return false; // strictly late-night
         return true;
       case LifeContext.sansAlcool:
-        return a.category != ActivityCategory.nightlife;
+        if (a.servesAlcohol == true) return false;
+        if (a.servesAlcohol == null) {
+          return a.category != ActivityCategory.nightlife;
+        }
+        return true;
       case LifeContext.budgetSerre:
         return a.budget < 3; // no splurge
       case LifeContext.mobiliteReduite:
+        if (a.wheelchairAccessible == false) return false;
+        if (a.effortLevel > 0.6) return false; // explicit effort gate (S10)
         if (a.category == ActivityCategory.active) return false;
         if (a.category == ActivityCategory.nature &&
             a.tag(Dimension.energy) > 0.6) {
@@ -54,8 +64,11 @@ class LifeContextRules {
         if (distanceKm != null && distanceKm > _noCarKm) return false;
         return true;
       case LifeContext.avecAnimal:
-        // Pet-unfriendly indoor venues only.
+        // Outdoor is always fine; indoors needs a pet welcome.
         if (!a.indoor) return true;
+        if (a.petFriendly == true) return true;
+        if (a.petFriendly == false) return false;
+        // Unknown → fall back to category inference.
         return a.category != ActivityCategory.culture &&
             a.category != ActivityCategory.nightlife;
     }

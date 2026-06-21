@@ -7,6 +7,8 @@ import 'features/guest/model/dimension.dart';
 import 'features/guest/model/guest_profile.dart';
 import 'features/plans/model/plan.dart';
 import 'features/reco/data/osm_place_repository.dart';
+import 'features/reco/db/activity_repository.dart';
+import 'features/reco/db/preference_taxonomy.dart';
 
 Future<void> main() async {
   // Hydrate the local store BEFORE first paint so the guest's persisted profile,
@@ -21,6 +23,15 @@ Future<void> main() async {
   } catch (_) {
     // Non-fatal — keep the seed catalog as the fallback.
   }
+  // S10: load OUR multi-source database (all kinds) + the preference taxonomy.
+  // The engine prefers this catalog over the thin OSM snapshot; both fall back
+  // to the seed catalog, so a missing asset is never fatal.
+  try {
+    await ActivityRepository.load();
+  } catch (_) {/* keep the OSM/seed fallback */}
+  try {
+    await PreferenceTaxonomy.load();
+  } catch (_) {/* labels fall back to ids */}
   // Debug-only persistence proof: with `--dart-define=VYBIA_SEED_DEMO=true` we
   // write an adjusted taste + a future plan + a granted location THROUGH the
   // real store, then a normal relaunch reads them back (s7_09_after_relaunch).

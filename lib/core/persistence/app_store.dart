@@ -8,6 +8,7 @@ import '../geo/geo.dart';
 import '../../features/plans/model/plan.dart';
 import '../../features/reco/data/activity_catalog.dart';
 import '../../features/reco/data/osm_place_repository.dart';
+import '../../features/reco/db/activity_repository.dart';
 import '../../features/reco/model/activity.dart';
 
 /// The single local persistence repository for the whole guest model.
@@ -139,7 +140,9 @@ class AppStore {
 
   Activity? _activityById(String? id) {
     if (id == null) return null;
-    // Real OSM-backed activities first, then the hand-authored seed catalog.
+    // S10: OUR multi-source DB first, then the OSM snapshot, then the seed.
+    final db = ActivityRepository.activityById(id);
+    if (db != null) return db;
     final osm = OsmPlaceRepository.activityById(id);
     if (osm != null) return osm;
     for (final a in kActivityCatalog) {

@@ -83,7 +83,7 @@ class RecommendationEngine {
 
     // Hard feasibility filter, with a guard so we never starve the scene.
     final feasible = pool
-        .where((a) => _isFeasible(profile, a, ctx.distanceKmTo(a.lat, a.lng)))
+        .where((a) => _isFeasible(profile, a, _distanceOf(ctx, a)))
         .toList();
     final ranked = feasible.length >= 4 ? feasible : pool;
 
@@ -92,8 +92,10 @@ class RecommendationEngine {
     final lms = LeisureMotivation.weightsFor(profile);
 
     final scored = ranked.map((a) {
-      // S7C: real haversine distance → 0 (here) … 1 (across town).
-      final distanceKm = ctx.distanceKmTo(a.lat, a.lng);
+      // S7C: real haversine distance → 0 (here) … 1 (across town). S10: null
+      // for non-geo kinds (films/online), so they aren't distance-filtered nor
+      // falsely rewarded as "right here".
+      final distanceKm = _distanceOf(ctx, a);
       final farness =
           distanceKm == null ? null : (distanceKm / _farKm).clamp(0.0, 1.0).toDouble();
 
@@ -218,6 +220,11 @@ class RecommendationEngine {
   }
 
   // ---- Feasibility ---------------------------------------------------------
+
+  /// Real distance to [a], or null for activities with no geography (S10) so the
+  /// distance filter + proximity reward simply don't apply to them.
+  double? _distanceOf(RecoContext ctx, Activity a) =>
+      a.hasLocation ? ctx.distanceKmTo(a.lat, a.lng) : null;
 
   bool _isFeasible(GuestProfile p, Activity a, double? distanceKm) {
     // S9D: durable life-contexts are hard feasibility filters (kids, sans
