@@ -3,6 +3,7 @@ import '../model/activity.dart';
 import '../model/activity_kind.dart';
 import '../model/availability.dart';
 import '../model/motive.dart';
+import '../model/wellbeing.dart';
 
 /// One record in OUR multi-source activity database (S10).
 ///
@@ -35,6 +36,7 @@ class CatalogEntry {
     required this.indoor,
     this.subcategory,
     this.lms,
+    this.wellbeing,
     this.tagList = const [],
     this.kidFriendly,
     this.servesAlcohol,
@@ -96,6 +98,12 @@ class CatalogEntry {
     double competence,
     double stimulusAvoidance,
   })? lms;
+
+  /// S11A: persisted research-grounded wellbeing tags (hedonic↔eudaimonic axis +
+  /// the three happiness-raising traits). Optional: when null the engine derives
+  /// them deterministically via `WellbeingTagger` — this field only OVERRIDES
+  /// the derivation for a specific row (e.g. a future Claude enrichment).
+  final WellbeingTags? wellbeing;
 
   /// Free-form descriptive tags (genres, themes) — searchable, LLM-friendly.
   final List<String> tagList;
@@ -202,6 +210,7 @@ class CatalogEntry {
       effortLevel: effortLevel,
       source: source,
       availability: availability,
+      wellbeing: wellbeing,
     );
   }
 
@@ -230,6 +239,7 @@ class CatalogEntry {
             'competence': lms!.competence,
             'stimulusAvoidance': lms!.stimulusAvoidance,
           },
+        if (wellbeing != null) 'wellbeing': wellbeing!.toJson(),
         if (tagList.isNotEmpty) 'tagList': tagList,
         if (kidFriendly != null) 'kidFriendly': kidFriendly,
         if (servesAlcohol != null) 'servesAlcohol': servesAlcohol,
@@ -318,6 +328,7 @@ class CatalogEntry {
       tags: tags,
       motives: motives,
       lms: lms,
+      wellbeing: WellbeingTags.tryFromJson(j['wellbeing']),
       tagList: _strList(j['tagList']),
       kidFriendly: j['kidFriendly'] as bool?,
       servesAlcohol: j['servesAlcohol'] as bool?,
@@ -371,6 +382,11 @@ class CatalogEntry {
         if (tagList.isNotEmpty) 'tags': tagList,
         'price': priceTier,
         'indoor': indoor,
+        if (wellbeing != null)
+          'wellbeing': {
+            'he': wellbeing!.hedoniaEudaimonia,
+            'happiness': wellbeing!.happinessTrait,
+          },
         if (timeOfDay.isNotEmpty) 'time': timeOfDay,
         if (seasons.isNotEmpty) 'season': seasons,
         if (neighbourhood != null) 'hood': neighbourhood,

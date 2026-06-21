@@ -2,6 +2,7 @@ import '../../guest/model/dimension.dart';
 import 'activity_kind.dart';
 import 'availability.dart';
 import 'motive.dart';
+import 'wellbeing.dart';
 
 /// Broad activity families — used for light diversification and labelling.
 enum ActivityCategory {
@@ -65,6 +66,7 @@ class Activity {
     this.effortLevel = 0.4,
     this.source = 'seed',
     this.availability = Availability.fixed,
+    this.wellbeing,
   });
 
   final String id;
@@ -117,6 +119,13 @@ class Activity {
   final Map<Dimension, double> tags;
 
   final MotiveAffinity motives;
+
+  /// S11A: an optional PERSISTED override of the research-grounded wellbeing tags
+  /// (hedonic↔eudaimonic axis + happiness traits). Normally null — the engine
+  /// derives them deterministically via `WellbeingTagger.of(this)`. A
+  /// [CatalogEntry] (or a future Claude enrichment) may persist a value here to
+  /// override the derivation for a specific row.
+  final WellbeingTags? wellbeing;
 
   /// 0 = free, 1 = cheap, 2 = mid, 3 = splurge.
   final int budget;
