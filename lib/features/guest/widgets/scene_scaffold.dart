@@ -398,17 +398,33 @@ class _SceneScaffoldState extends State<SceneScaffold>
                 final radius = widget.lensRadius;
                 final portalRadius = widget.lensRadius * (1 + _hold * 16);
                 final portalFill = (_hold * 1.4).clamp(0.0, 1.0).toDouble();
+                // Web-safe reject drain: when the orb aims at a "Pas intéressant"
+                // edge, actually desaturate + darken the hero image proportionally
+                // to the reach (the radial slate wave on top adds the from-edge
+                // feel). ColorFiltered renders identically on Flutter web —
+                // unlike the old BackdropFilter, which is why the drain had
+                // stopped showing.
+                final rejectAmount =
+                    _activeAction == EdgeAction.reject ? _aimReach : 0.0;
+                Widget hero = RefractionBubble(
+                  image: imageProviderFor(widget.image),
+                  orbCenter: center,
+                  radius: radius,
+                  magnification: 0.8,
+                  // As the portal opens, let the activity refraction recede.
+                  active: active * (1 - 0.7 * _hold),
+                );
+                if (rejectAmount > 0.001) {
+                  hero = ColorFiltered(
+                    colorFilter:
+                        ColorFilter.matrix(rejectColorMatrix(rejectAmount)),
+                    child: hero,
+                  );
+                }
                 return Stack(
                   fit: StackFit.expand,
                   children: [
-                    RefractionBubble(
-                      image: imageProviderFor(widget.image),
-                      orbCenter: center,
-                      radius: radius,
-                      magnification: 0.8,
-                      // As the portal opens, let the activity refraction recede.
-                      active: active * (1 - 0.7 * _hold),
-                    ),
+                    hero,
                     // Decisive-edge colour feedback: filters the image toward the
                     // aimed edge's action colour and recolours the orb.
                     EdgeDecisiveOverlay(

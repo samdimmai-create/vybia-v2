@@ -51,14 +51,50 @@ void main() {
       expect(find.byType(CustomPaint), findsWidgets);
     });
 
-    testWidgets('reject edge engages its desaturate filter', (t) async {
+    testWidgets('reject edge paints its slate drain wave (web-safe, no '
+        'BackdropFilter)', (t) async {
       await _pump(t,
           action: EdgeAction.reject,
           direction: OrbDirection.right,
           reach: 0.8,
           orbCenter: const Offset(200, 300));
       expect(find.byType(IgnorePointer), findsOneWidget);
-      expect(find.byType(BackdropFilter), findsOneWidget);
+      expect(find.byType(CustomPaint), findsWidgets);
+      // The reject path must NOT use BackdropFilter — it is unreliable on web,
+      // which is why the drain stopped showing. The grayscale itself is applied
+      // by the scene's ColorFiltered hero wrapper (see rejectColorMatrix).
+      expect(find.byType(BackdropFilter), findsNothing);
+    });
+  });
+
+  group('rejectColorMatrix (web-safe drain)', () {
+    test('amount 0 is the identity matrix (image untouched)', () {
+      expect(rejectColorMatrix(0), <double>[
+        1, 0, 0, 0, 0, //
+        0, 1, 0, 0, 0, //
+        0, 0, 1, 0, 0, //
+        0, 0, 0, 1, 0,
+      ]);
+    });
+
+    test('amount 1 fully desaturates: each RGB row collapses to the same luma '
+        'weights (grey) and darkens', () {
+      final m = rejectColorMatrix(1);
+      expect(m[0], closeTo(0.2126 * 0.6, 1e-9));
+      expect(m[1], closeTo(0.7152 * 0.6, 1e-9));
+      expect(m[2], closeTo(0.0722 * 0.6, 1e-9));
+      // All three colour rows share the SAME weights → output is grey.
+      for (var col = 0; col < 3; col++) {
+        expect(m[5 + col], closeTo(m[col], 1e-9));
+        expect(m[10 + col], closeTo(m[col], 1e-9));
+      }
+      // Alpha row is preserved.
+      expect(m[18], 1);
+    });
+
+    test('amount is clamped to [0,1]', () {
+      expect(rejectColorMatrix(2), rejectColorMatrix(1));
+      expect(rejectColorMatrix(-1), rejectColorMatrix(0));
     });
   });
 

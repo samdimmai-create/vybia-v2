@@ -17,11 +17,18 @@ import 'edge_action.dart';
 ///   2. both the peak intensity and the wave's reach scale with `reach`
 ///      (proximity): far = a subtle halo at the aim point; very close to the
 ///      edge = the image is almost fully filtered yet still recognisable;
-///   3. `reject` instead drains colour to grayscale + darkens — that drain also
-///      radiates from the contact point (a real [BackdropFilter] desaturation
-///      masked by the same radial wave);
+///   3. `reject` instead drains colour to grayscale + darkens. The grayscale
+///      itself is applied web-safely by the scene, which wraps its hero image in
+///      a [ColorFiltered] using [rejectColorMatrix] (scaled by `reach`); this
+///      overlay then adds the radiating slate darken from the contact point so
+///      the drain still reads as a wave. (We deliberately do NOT use
+///      [BackdropFilter] here — it is unreliable/clipped under Flutter web /
+///      CanvasKit, which was why the filter stopped showing on the web build.)
 ///   4. the ORB's aura leans toward the same colour (a tinted glow at
 ///      [orbCenter], or a darkening for `reject`).
+///
+/// Implemented entirely with a [CustomPaint] (radial gradients) — every part is
+/// a plain canvas draw, so it renders identically on mobile AND Flutter web.
 ///
 /// It paints nothing when idle, so it costs ~nothing until the user engages.
 class EdgeDecisiveOverlay extends StatelessWidget {
@@ -56,43 +63,16 @@ class EdgeDecisiveOverlay extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final desat = a.desaturates
-        ? Positioned.fill(
-            child: ShaderMask(
-              blendMode: BlendMode.dstIn,
-              shaderCallback: (rect) => _waveShader(
-                rect.size,
-                d,
-                orbCenter,
-                reach,
-                [
-                  Colors.white.withValues(alpha: (0.92 * reach).clamp(0, 1)),
-                  Colors.white.withValues(alpha: 0.0),
-                ],
-              ),
-              child: BackdropFilter(
-                filter: ui.ColorFilter.matrix(_desaturateDarken),
-                child: const SizedBox.expand(),
-              ),
-            ),
-          )
-        : null;
-
     return IgnorePointer(
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          ?desat,
-          CustomPaint(
-            painter: _EdgeDecisivePainter(
-              action: a,
-              direction: d,
-              reach: reach,
-              orbCenter: orbCenter,
-              lensRadius: lensRadius,
-            ),
-          ),
-        ],
+      child: CustomPaint(
+        size: Size.infinite,
+        painter: _EdgeDecisivePainter(
+          action: a,
+          direction: d,
+          reach: reach,
+          orbCenter: orbCenter,
+          lensRadius: lensRadius,
+        ),
       ),
     );
   }
@@ -152,6 +132,26 @@ const List<double> _desaturateDarken = <double>[
   0, 0, 0, 1, 0,
 ];
 
+const List<double> _identityMatrix = <double>[
+  1, 0, 0, 0, 0, //
+  0, 1, 0, 0, 0, //
+  0, 0, 1, 0, 0, //
+  0, 0, 0, 1, 0,
+];
+
+/// The web-safe reject filter as a [ColorFilter] matrix interpolated by
+/// [amount] (0 = untouched image → 1 = full grayscale + darken). The scene wraps
+/// its hero image in `ColorFiltered(colorFilter: ColorFilter.matrix(...))` and
+/// feeds the live reject `reach` here, so the image actually drains its colour
+/// on Flutter web AND mobile (no [BackdropFilter], which is unreliable on web).
+List<double> rejectColorMatrix(double amount) {
+  final a = amount.clamp(0.0, 1.0).toDouble();
+  return <double>[
+    for (var i = 0; i < 20; i++)
+      _identityMatrix[i] + (_desaturateDarken[i] - _identityMatrix[i]) * a,
+  ];
+}
+
 class _EdgeDecisivePainter extends CustomPainter {
   _EdgeDecisivePainter({
     required this.action,
@@ -170,25 +170,47 @@ class _EdgeDecisivePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
-    final color = action.color;
+    final reject = action.desaturates;
+    // Reject radiates a near-black slate (the grayscale drain itself rides on the
+    // hero image's ColorFiltered wrapper); the others radiate their action hue.
+    final color = reject ? const Color(0xFF0E1417) : action.color;
 
-    // ---- 1. Decisive colour wave from the contact point ------------------
-    // Non-reject edges flood the frame with the action colour as a radial wave;
-    // reject radiates a darkening slate (the grayscale itself is applied by the
-    // ShaderMask BackdropFilter behind this painter, masked by the same wave).
-    final peak = action.desaturates ? 0.5 : 0.6;
+    // ---- 1. Decisive colour wave from the contact edge -------------------
+    // Floods inward from the aimed screen edge as a radial wave. STRONG peak so
+    // it visibly filters the hero image as the orb nears the edge (the founder
+    // reported the old, gentler wave didn't read on web).
+    final edgePeak = reject ? 0.66 : 0.82;
     canvas.drawRect(
       rect,
       Paint()
         ..shader = _waveShader(size, direction, orbCenter, reach, [
-          color.withValues(alpha: (peak * reach).clamp(0, 1)),
+          color.withValues(alpha: (edgePeak * reach).clamp(0, 1)),
           color.withValues(alpha: 0.0),
         ]),
     );
 
-    // ---- 2. Orb aura recolour -------------------------------------------
+    // ---- 2. Orb hotspot --------------------------------------------------
+    // A tighter, brighter pool of the action colour centred RIGHT where the user
+    // is looking (the orb), so the filter is unmistakable even when the orb is
+    // still mid-screen and far from the edge origin.
     final c = orbCenter;
     if (c == null) return;
+    final hotR = lensRadius * 3.0 + size.shortestSide * 0.30 * reach;
+    final hotPeak = reject ? 0.55 : 0.58;
+    canvas.drawCircle(
+      c,
+      hotR,
+      Paint()
+        ..shader = RadialGradient(
+          colors: [
+            color.withValues(alpha: (hotPeak * reach).clamp(0, 1)),
+            color.withValues(alpha: 0.0),
+          ],
+          stops: const [0.0, 1.0],
+        ).createShader(Rect.fromCircle(center: c, radius: hotR)),
+    );
+
+    // ---- 3. Orb aura recolour -------------------------------------------
     final auraR = lensRadius * 2.0;
     if (action.desaturates) {
       // Darken the orb instead of tinting it (no colour to lean toward).
