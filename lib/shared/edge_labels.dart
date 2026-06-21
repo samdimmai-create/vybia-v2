@@ -8,7 +8,17 @@ import 'glass.dart';
 /// Labels sit centered on each screen edge — never in the corners — and are
 /// pinned with explicit insets so they can never overflow the viewport.
 class EdgeLabels extends StatelessWidget {
-  const EdgeLabels({super.key, this.left, this.right, this.up, this.down});
+  const EdgeLabels({
+    super.key,
+    this.left,
+    this.right,
+    this.up,
+    this.down,
+    this.leftColor,
+    this.rightColor,
+    this.upColor,
+    this.downColor,
+  });
 
   /// Null (or empty) labels are simply not drawn — so a 2-choice scene shows
   /// only its left/right chips.
@@ -16,6 +26,15 @@ class EdgeLabels extends StatelessWidget {
   final String? right;
   final String? up;
   final String? down;
+
+  /// Per-edge chip tints. When supplied (by [SceneScaffold], from the active
+  /// palette's per-action colour) each label glows in the SAME colour as the
+  /// wave it triggers — so the label reads as a preview of the decisive filter.
+  /// Falls back to the fixed directional accent when null.
+  final Color? leftColor;
+  final Color? rightColor;
+  final Color? upColor;
+  final Color? downColor;
 
   bool _has(String? s) => s != null && s.isNotEmpty;
 
@@ -32,7 +51,10 @@ class EdgeLabels extends StatelessWidget {
                 top: 0,
                 bottom: 0,
                 child: Center(
-                  child: _Chip(label: left!, color: AppColors.edgeLeft),
+                  child: _Chip(
+                    label: left!,
+                    color: leftColor ?? AppColors.edgeLeft,
+                  ),
                 ),
               ),
             if (_has(right))
@@ -41,7 +63,10 @@ class EdgeLabels extends StatelessWidget {
                 top: 0,
                 bottom: 0,
                 child: Center(
-                  child: _Chip(label: right!, color: AppColors.edgeRight),
+                  child: _Chip(
+                    label: right!,
+                    color: rightColor ?? AppColors.edgeRight,
+                  ),
                 ),
               ),
             if (_has(up))
@@ -53,7 +78,7 @@ class EdgeLabels extends StatelessWidget {
                 left: 0,
                 right: 0,
                 child: Center(
-                  child: _Chip(label: up!, color: AppColors.edgeUp),
+                  child: _Chip(label: up!, color: upColor ?? AppColors.edgeUp),
                 ),
               ),
             if (_has(down))
@@ -62,7 +87,10 @@ class EdgeLabels extends StatelessWidget {
                 left: 0,
                 right: 0,
                 child: Center(
-                  child: _Chip(label: down!, color: AppColors.edgeDown),
+                  child: _Chip(
+                    label: down!,
+                    color: downColor ?? AppColors.edgeDown,
+                  ),
                 ),
               ),
           ],

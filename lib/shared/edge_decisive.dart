@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../core/theme/app_colors.dart' show OrbDirection;
 import 'edge_action.dart';
+import 'edge_palette.dart';
 
 /// The reusable DECISIVE-EDGE feedback layer.
 ///
@@ -72,6 +73,10 @@ class EdgeDecisiveOverlay extends StatelessWidget {
           reach: reach,
           orbCenter: orbCenter,
           lensRadius: lensRadius,
+          // The action→colour mapping comes from the active palette; include its
+          // index so a live palette flip repaints the wave even when the orb is
+          // held still (same action/reach, different hue).
+          paletteRev: activeEdgePaletteIndex.value,
         ),
       ),
     );
@@ -159,6 +164,7 @@ class _EdgeDecisivePainter extends CustomPainter {
     required this.reach,
     required this.orbCenter,
     required this.lensRadius,
+    required this.paletteRev,
   });
 
   final EdgeAction action;
@@ -166,6 +172,7 @@ class _EdgeDecisivePainter extends CustomPainter {
   final double reach;
   final Offset? orbCenter;
   final double lensRadius;
+  final int paletteRev;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -250,5 +257,6 @@ class _EdgeDecisivePainter extends CustomPainter {
       old.direction != direction ||
       old.reach != reach ||
       old.orbCenter != orbCenter ||
-      old.lensRadius != lensRadius;
+      old.lensRadius != lensRadius ||
+      old.paletteRev != paletteRev;
 }

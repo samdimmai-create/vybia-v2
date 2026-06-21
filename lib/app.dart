@@ -14,6 +14,7 @@ import 'features/dev/s11_proof_tour.dart';
 import 'features/dev/s12_proof_tour.dart';
 import 'features/guest/state/guest_controller.dart';
 import 'features/plans/state/plan_controller.dart';
+import 'shared/edge_palette.dart';
 
 /// Root application widget. Wires the theme + router and hosts the single
 /// shared [GuestController] above the navigator (via [GuestScope]) so every
@@ -210,10 +211,18 @@ class _VybiaAppState extends State<VybiaApp> {
       ],
       onGenerateRoute: AppRouter.onGenerateRoute,
       // GuestScope + PlanScope sit above the navigator so session state
-      // survives route changes.
-      builder: (context, child) => GuestScope(
-        controller: _guest,
-        child: PlanScope(controller: _plans, child: child ?? const SizedBox()),
+      // survives route changes. The ValueListenableBuilder rebuilds the whole
+      // navigator subtree when the founder flips the edge-colour palette (S14B),
+      // so the change is global and instant.
+      builder: (context, child) => ValueListenableBuilder<int>(
+        valueListenable: activeEdgePaletteIndex,
+        builder: (context, _, _) => GuestScope(
+          controller: _guest,
+          child: PlanScope(
+            controller: _plans,
+            child: child ?? const SizedBox(),
+          ),
+        ),
       ),
     );
   }
