@@ -1,5 +1,6 @@
 import '../../guest/model/dimension.dart';
 import 'activity_kind.dart';
+import 'availability.dart';
 import 'motive.dart';
 
 /// Broad activity families — used for light diversification and labelling.
@@ -63,6 +64,7 @@ class Activity {
     this.petFriendly,
     this.effortLevel = 0.4,
     this.source = 'seed',
+    this.availability = Availability.fixed,
   });
 
   final String id;
@@ -104,6 +106,11 @@ class Activity {
   /// Where this entry came from (provenance): `seed`, `osm`, `wikidata`,
   /// `wikivoyage`, `tmdb`, `claude`… Mirrors the catalog record's source.
   final String source;
+
+  /// Whether this activity is a stable snapshot row or a time-sensitive LIVE
+  /// item (S10.1). Static rows are recommended directly; live rows are normally
+  /// served by the live layer and only fall back to the snapshot offline.
+  final Availability availability;
 
   /// Position on the eight activity-fit axes (see [Dimension]). Polarity matches
   /// the profile, e.g. `Dimension.indoor` → 1 indoor / 0 outdoor.

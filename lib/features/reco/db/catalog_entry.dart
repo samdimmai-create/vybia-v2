@@ -1,6 +1,7 @@
 import '../../guest/model/dimension.dart';
 import '../model/activity.dart';
 import '../model/activity_kind.dart';
+import '../model/availability.dart';
 import '../model/motive.dart';
 
 /// One record in OUR multi-source activity database (S10).
@@ -21,7 +22,7 @@ import '../model/motive.dart';
 ///     record.
 ///   * Compact field names where it matters for the prompt slice ([llmSlice]).
 class CatalogEntry {
-  const CatalogEntry({
+  CatalogEntry({
     required this.id,
     required this.name,
     required this.kind,
@@ -47,6 +48,7 @@ class CatalogEntry {
     this.sourceId,
     this.enrichedAt,
     this.confidence = 0.5,
+    Availability? availability,
     // kind-specific (nullable)
     this.lat,
     this.lng,
@@ -65,7 +67,7 @@ class CatalogEntry {
     this.duration,
     this.imageAttribution,
     this.imageLicense,
-  });
+  }) : availability = availability ?? Availability.ofKind(kind);
 
   // ---- Common ----
   final String id;
@@ -132,6 +134,14 @@ class CatalogEntry {
   /// 0..1 confidence in the record's completeness/quality.
   final double confidence;
 
+  /// Stable snapshot row vs time-sensitive LIVE item (S10.1). Defaults to the
+  /// kind's natural availability (films/events live, the rest static) but a
+  /// record may override it. Live rows are kept as offline fallback only.
+  final Availability availability;
+
+  bool get isLive => availability == Availability.live;
+  bool get isStatic => availability == Availability.fixed;
+
   // ---- Kind-specific (nullable) ----
   // place / event:
   final double? lat;
@@ -191,6 +201,7 @@ class CatalogEntry {
       petFriendly: petFriendly,
       effortLevel: effortLevel,
       source: source,
+      availability: availability,
     );
   }
 
@@ -235,6 +246,10 @@ class CatalogEntry {
         if (sourceId != null) 'sourceId': sourceId,
         if (enrichedAt != null) 'enrichedAt': enrichedAt,
         'confidence': confidence,
+        // Only persist availability when it overrides the kind default, so the
+        // 200+ snapshot rows stay byte-stable and never need migration.
+        if (availability != Availability.ofKind(kind))
+          'availability': availability.jsonName,
         if (lat != null) 'lat': lat,
         if (lng != null) 'lng': lng,
         if (neighbourhood != null) 'neighbourhood': neighbourhood,
@@ -318,6 +333,10 @@ class CatalogEntry {
       sourceId: j['sourceId'] as String?,
       enrichedAt: j['enrichedAt'] as String?,
       confidence: (j['confidence'] as num?)?.toDouble() ?? 0.5,
+      availability: Availability.fromJson(
+        j['availability'] as String?,
+        ActivityKind.fromName(j['kind'] as String?),
+      ),
       lat: (j['lat'] as num?)?.toDouble(),
       lng: (j['lng'] as num?)?.toDouble(),
       neighbourhood: j['neighbourhood'] as String?,
@@ -345,6 +364,7 @@ class CatalogEntry {
         'id': id,
         'name': name,
         'kind': kind.name,
+        'availability': availability.jsonName,
         'category': category.name,
         if (subcategory != null) 'sub': subcategory,
         'desc': descFr,

@@ -62,6 +62,28 @@ class ActivityRepository {
 
   static Activity? activityById(String id) => entryById(id)?.toActivity();
 
+  // ---- Static / live slices (S10.1) ---------------------------------------
+
+  /// The STABLE snapshot records — the recommendation pool that is always
+  /// served, fully offline.
+  static List<CatalogEntry> get staticEntries =>
+      entries.where((e) => e.isStatic).toList(growable: false);
+
+  /// The TIME-SENSITIVE snapshot records (films/events). NOT served as primary
+  /// recommendations — the live layer (S10.1B) supplies fresh ones; these remain
+  /// only as an offline fallback.
+  static List<CatalogEntry> get liveEntries =>
+      entries.where((e) => e.isLive).toList(growable: false);
+
+  /// Scoring activities for the static pool — what the engine ranks by default.
+  static List<Activity> get staticActivities =>
+      staticEntries.map((e) => e.toActivity()).toList(growable: false);
+
+  /// Scoring activities for the live-kind snapshot rows, used ONLY as a graceful
+  /// fallback when no live source is reachable (S10.1B).
+  static List<Activity> get liveFallbackActivities =>
+      liveEntries.map((e) => e.toActivity()).toList(growable: false);
+
   // ---- Loading -------------------------------------------------------------
 
   /// Parse + index the JSON (tolerant: a malformed row is skipped). Safe to call

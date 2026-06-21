@@ -12,13 +12,28 @@ import '../engine/reco_context.dart';
 import '../model/activity.dart';
 import '../model/recommendation.dart';
 
-/// The live recommendation catalog (S10D): OUR multi-source database (all kinds)
-/// when loaded, then the thin OSM snapshot, then the hand-authored seed catalog —
-/// each a safe fallback for the next so the loop never starves.
-List<Activity> liveActivityCatalog() {
-  if (ActivityRepository.isLoaded) return ActivityRepository.activities;
+/// The STABLE recommendation pool (S10.1): OUR multi-source database, sliced to
+/// static-availability rows only (places/travel/online), then the thin OSM
+/// snapshot, then the hand-authored seed catalog — each a safe fallback for the
+/// next so the loop never starves. Films/events are deliberately excluded: they
+/// are time-sensitive and served by the live layer (S10.1B), not these snapshot
+/// rows.
+List<Activity> staticActivityCatalog() {
+  if (ActivityRepository.isLoaded) return ActivityRepository.staticActivities;
   if (OsmPlaceRepository.isLoaded) return OsmPlaceRepository.activities;
   return kActivityCatalog;
+}
+
+/// The full pool the reco engine ranks: the stable static pool PLUS the live
+/// kinds. Until the live layer (S10.1B) is wired, the live kinds are served from
+/// the snapshot rows as an OFFLINE FALLBACK so nothing disappears; B swaps that
+/// fallback for items actually available now, degrading back to it on failure.
+List<Activity> liveActivityCatalog() {
+  if (!ActivityRepository.isLoaded) return staticActivityCatalog();
+  return [
+    ...ActivityRepository.staticActivities,
+    ...ActivityRepository.liveFallbackActivities,
+  ];
 }
 
 /// Drives the immersive reco loop with live revealed-preference learning.

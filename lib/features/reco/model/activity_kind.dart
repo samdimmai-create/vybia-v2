@@ -1,3 +1,5 @@
+import 'availability.dart';
+
 /// The kind of thing the engine can recommend (S10).
 ///
 /// V2 started place-only (the OSM snapshot). S10 broadens the catalog to the
@@ -42,4 +44,8 @@ enum ActivityKind {
     }
     return ActivityKind.place;
   }
+
+  /// Whether this kind is time-sensitive (films/events → LIVE) or stable enough
+  /// for the offline snapshot (everything else → static). See [Availability].
+  Availability get availability => Availability.ofKind(this);
 }
