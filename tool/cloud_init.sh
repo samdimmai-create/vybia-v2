@@ -32,7 +32,7 @@ if gh repo view "$USER_LOGIN/$REPO_NAME" >/dev/null 2>&1; then
   git remote get-url origin >/dev/null 2>&1 || \
     git remote add origin "https://github.com/$USER_LOGIN/$REPO_NAME.git"
 else
-  echo "==> Creating private repo $USER_LOGIN/$REPO_NAME…"
+  echo "==> Creating private repo ${USER_LOGIN}/${REPO_NAME}..."
   gh repo create "$REPO_NAME" --private --source=. --remote=origin
 fi
 

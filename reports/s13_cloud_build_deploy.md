@@ -88,8 +88,30 @@ the Actions run and at the bottom of `cloud_init.sh` / `deploy.sh`.
 gh run watch                            # follow it
 ```
 
-## Status
-- Repo: local `main` ready, **not yet pushed** (blocked on founder GitHub auth).
-- Workflow + scripts committed locally; no secret in git.
-- **BLOCKED on the single founder step: `gh auth login`.** No local-build
-  fallback was used (it crashes the Mac), per S13 constraints.
+## Outcome — LIVE ✅
+**Live URL:** https://samdimmai-create.github.io/vybia-v2/  (HTTP 200, serves the
+Flutter web app). Open it on your iPhone — NOT in Chrome on this Mac.
+
+What actually happened during setup (recorded for the next time):
+1. `gh` installed via Homebrew; founder did `gh auth login` (one step).
+2. `tool/cloud_init.sh` created the repo and pushed.
+3. **Big-history push:** `.git` is ~385 MB (screenshots tracked since S0). A
+   single push timed out (HTTP 408), so main was pushed in **incremental commit
+   batches** (each batch only uploads new objects → each stays under the
+   timeout). All 70 commits landed.
+4. **`workflow` scope:** the default `gh` token lacked the `workflow` scope, so
+   the final commit (which adds `.github/workflows/deploy.yml`) was rejected.
+   Founder ran `gh auth refresh -s workflow` (device code) → final push went in.
+5. **Private repo + free plan = no Pages.** GitHub Pages needs a paid plan for
+   private repos. Founder chose to make the repo **public** (the build is
+   keyless and no secret is committed, so public is safe). `gh repo edit
+   --visibility public` + enable Pages (`build_type=workflow`).
+6. First Actions run: **build job succeeded** (Flutter web compiled in the
+   cloud, ~2m50s); deploy step had 404'd only because Pages wasn't enabled yet.
+   Re-ran the failed deploy job → **success**, site live.
+
+## Status: DONE
+- Repo `samdimmai-create/vybia-v2` (**public**), `main` pushed (70 commits).
+- `.github/workflows/deploy.yml` live; first cloud build green; Pages serving.
+- `tool/deploy.sh` = one-command future deploys. No secret in git.
+- No local `flutter build`/run/simulator/Chrome was used at any point.
