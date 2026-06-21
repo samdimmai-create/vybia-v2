@@ -71,5 +71,21 @@ Commons file + author + licence listed in `assets/images/catalog/NOTICES.md`:
 Live items (films/events) carry their source's image at runtime (e.g. a TMDB
 poster URL), rendered via the same universal bubble (`imageProviderFor`).
 
+## Live data providers (S12)
+
+- **Open-Meteo** — météo en direct, SANS clé (https://open-meteo.com). Données
+  météo gratuites/ouvertes ; appelées uniquement par la couche live (timeout +
+  cache + repli hors-ligne).
+- **Ticketmaster Discovery API** — événements datés (concerts/sports/arts/théâtre).
+  Clé requise (gratuite). Nom + image de l'événement selon les conditions
+  Ticketmaster. En veille tant qu'aucune clé n'est fournie.
+- **TMDB** (The Movie Database) — films à l'affiche + affiches. Clé requise
+  (gratuite en usage personnel ; attribution « This product uses the TMDB API but
+  is not endorsed or certified by TMDB »). En veille sans clé. Affiches © TMDB.
+
+Toutes les clés sont lues UNIQUEMENT via `--dart-define` ; aucune clé n'est en dur
+ni commitée. Chaque source à clé absente se met en veille proprement (résultat
+vide + statut « clé manquante », sans crash).
+
 <!-- enrich:geoapify -->
 - **Geoapify Places** (enrichi 2026-06-21) — 158 lieux enrichis (horaires/note/coordonnées). Données © geoapify / OpenStreetMap, selon les conditions de geoapify. Enrichissement au BUILD ; le runtime reste hors-ligne.

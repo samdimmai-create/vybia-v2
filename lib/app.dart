@@ -11,6 +11,7 @@ import 'features/dev/s9_3_proof_tour.dart';
 import 'features/dev/s10_1_proof_tour.dart';
 import 'features/dev/s10_proof_tour.dart';
 import 'features/dev/s11_proof_tour.dart';
+import 'features/dev/s12_proof_tour.dart';
 import 'features/guest/state/guest_controller.dart';
 import 'features/plans/state/plan_controller.dart';
 
@@ -89,6 +90,12 @@ class _VybiaAppState extends State<VybiaApp> {
   // and the honest per-term factor breakdown behind a "pourquoi".
   static const bool _kProof11 = bool.fromEnvironment('VYBIA_PROOF11');
 
+  // S12: VISIBLE-IN-CHROME proof tour of the real data providers wired behind
+  // secrets-safe keys (`--dart-define=VYBIA_PROOF12=true`): weather flips
+  // feasibility, a place enriched with real hours, the Ticketmaster/TMDB
+  // provider status (keyed or "needs key" standby), and the offline fallback.
+  static const bool _kProof12 = bool.fromEnvironment('VYBIA_PROOF12');
+
   @override
   void initState() {
     super.initState();
@@ -152,7 +159,8 @@ class _VybiaAppState extends State<VybiaApp> {
         _kProof93 ||
         _kProof10 ||
         _kProof101 ||
-        _kProof11) {
+        _kProof11 ||
+        _kProof12) {
       return MaterialApp(
         title: 'Vybia',
         debugShowCheckedModeBanner: false,
@@ -161,7 +169,9 @@ class _VybiaAppState extends State<VybiaApp> {
           controller: _guest,
           child: PlanScope(
             controller: _plans,
-            child: _kProof11
+            child: _kProof12
+                ? const S12ProofTour()
+                : _kProof11
                 ? const S11ProofTour()
                 : _kProof101
                 ? const S101ProofTour()
