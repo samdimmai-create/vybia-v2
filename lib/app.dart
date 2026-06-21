@@ -10,6 +10,7 @@ import 'features/dev/s9_2_proof_tour.dart';
 import 'features/dev/s9_3_proof_tour.dart';
 import 'features/dev/s10_1_proof_tour.dart';
 import 'features/dev/s10_proof_tour.dart';
+import 'features/dev/s11_proof_tour.dart';
 import 'features/guest/state/guest_controller.dart';
 import 'features/plans/state/plan_controller.dart';
 
@@ -82,6 +83,12 @@ class _VybiaAppState extends State<VybiaApp> {
   // open-data events, the keyed-source seam status, and the offline fallback.
   static const bool _kProof101 = bool.fromEnvironment('VYBIA_PROOF101');
 
+  // S11: VISIBLE-IN-CHROME proof tour of the research-grounded deterministic
+  // scorer (`--dart-define=VYBIA_PROOF11=true`): same catalog, different top
+  // picks driven by mood/motive (hedonic vs eudaimonic), a context hard-filter,
+  // and the honest per-term factor breakdown behind a "pourquoi".
+  static const bool _kProof11 = bool.fromEnvironment('VYBIA_PROOF11');
+
   @override
   void initState() {
     super.initState();
@@ -144,7 +151,8 @@ class _VybiaAppState extends State<VybiaApp> {
         _kProof92 ||
         _kProof93 ||
         _kProof10 ||
-        _kProof101) {
+        _kProof101 ||
+        _kProof11) {
       return MaterialApp(
         title: 'Vybia',
         debugShowCheckedModeBanner: false,
@@ -153,7 +161,9 @@ class _VybiaAppState extends State<VybiaApp> {
           controller: _guest,
           child: PlanScope(
             controller: _plans,
-            child: _kProof101
+            child: _kProof11
+                ? const S11ProofTour()
+                : _kProof101
                 ? const S101ProofTour()
                 : _kProof10
                 ? const S10ProofTour()
