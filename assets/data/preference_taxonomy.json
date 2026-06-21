@@ -1,0 +1,69 @@
+{
+  "schema": "vybia.preference_taxonomy.v1",
+  "note": "Preference taxonomy as DATA (S10A). Extensible without code changes: the engine, the question bank and the catalog all read the same vocabulary. Polarity for every 0..1 dimension is documented in `low`/`high`.",
+  "dimensions": [
+    { "id": "mood", "labelFr": "Humeur", "low": "calme", "high": "énergique", "captured": "welcome", "matched": false },
+    { "id": "energy", "labelFr": "Énergie", "low": "calme", "high": "vif" },
+    { "id": "social", "labelFr": "Social", "low": "solo", "high": "en groupe" },
+    { "id": "novelty", "labelFr": "Nouveauté", "low": "valeur sûre", "high": "découverte" },
+    { "id": "distance", "labelFr": "Distance", "low": "tout près", "high": "loin" },
+    { "id": "indoor", "labelFr": "Cadre", "low": "plein air", "high": "à l’abri" },
+    { "id": "timing", "labelFr": "Moment", "low": "journée", "high": "soirée" },
+    { "id": "budget", "labelFr": "Budget", "low": "économe", "high": "plaisir" },
+    { "id": "vibe", "labelFr": "Ambiance", "low": "intime", "high": "effervescent" }
+  ],
+  "motivesLms": [
+    { "id": "intellectual", "labelFr": "Découvrir", "desc": "apprendre, explorer, imaginer, créer" },
+    { "id": "social", "labelFr": "Partager", "desc": "lien, appartenance, estime" },
+    { "id": "competence", "labelFr": "Se dépasser", "desc": "accomplir, relever un défi, maîtriser" },
+    { "id": "stimulusAvoidance", "labelFr": "Décompresser", "desc": "souffler, se reposer, s’évader" }
+  ],
+  "motivesBase": [
+    { "id": "hedonic", "labelFr": "Plaisir" },
+    { "id": "relaxation", "labelFr": "Détente" },
+    { "id": "eudaimonic", "labelFr": "Sens" }
+  ],
+  "lifeContexts": [
+    { "id": "avecEnfants", "labelFr": "Avec des enfants", "family": "interpersonnel", "flag": "kidFriendly" },
+    { "id": "sansAlcool", "labelFr": "Sans alcool", "family": "intrapersonnel", "flag": "servesAlcohol" },
+    { "id": "budgetSerre", "labelFr": "Budget serré", "family": "structurel", "flag": "priceTier" },
+    { "id": "mobiliteReduite", "labelFr": "Mobilité réduite", "family": "intrapersonnel", "flag": "wheelchairAccessible+effortLevel" },
+    { "id": "sansVoiture", "labelFr": "Sans voiture", "family": "structurel", "flag": "distance" },
+    { "id": "avecAnimal", "labelFr": "Avec un animal", "family": "interpersonnel", "flag": "petFriendly" }
+  ],
+  "kinds": [
+    { "id": "place", "labelFr": "Lieu" },
+    { "id": "event", "labelFr": "Événement" },
+    { "id": "film", "labelFr": "Film" },
+    { "id": "online", "labelFr": "À la maison" },
+    { "id": "travel", "labelFr": "Escapade" }
+  ],
+  "categories": [
+    { "id": "cafe", "labelFr": "Café" },
+    { "id": "nature", "labelFr": "Nature" },
+    { "id": "culture", "labelFr": "Culture" },
+    { "id": "nightlife", "labelFr": "Soirée" },
+    { "id": "food", "labelFr": "Gourmand" },
+    { "id": "wellness", "labelFr": "Bien-être" },
+    { "id": "active", "labelFr": "Actif" },
+    { "id": "creative", "labelFr": "Créatif" }
+  ],
+  "priceTiers": [
+    { "id": 0, "labelFr": "Gratuit" },
+    { "id": 1, "labelFr": "Abordable" },
+    { "id": 2, "labelFr": "Moyen" },
+    { "id": 3, "labelFr": "Plaisir" }
+  ],
+  "timeOfDay": [
+    { "id": "matin", "labelFr": "Matin" },
+    { "id": "apresMidi", "labelFr": "Après-midi" },
+    { "id": "soir", "labelFr": "Soir" },
+    { "id": "nuit", "labelFr": "Nuit" }
+  ],
+  "seasons": [
+    { "id": "printemps", "labelFr": "Printemps" },
+    { "id": "ete", "labelFr": "Été" },
+    { "id": "automne", "labelFr": "Automne" },
+    { "id": "hiver", "labelFr": "Hiver" }
+  ]
+}

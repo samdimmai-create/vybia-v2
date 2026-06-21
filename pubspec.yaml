@@ -70,6 +70,11 @@ flutter:
     - assets/images/NOTICES.md
     # Build-time OpenStreetMap Montréal snapshot (offline, deterministic, free).
     - assets/data/montreal_places.json
+    # S10: OUR multi-source activity database + the preference taxonomy as data.
+    - assets/data/preference_taxonomy.json
+    - assets/data/vybia_catalog.json
+    - assets/data/NOTICES.md
+    - assets/images/catalog/
 
   # GLSL fragment shaders (liquid-glass refraction). Compiled by the Flutter
   # toolchain and loaded at runtime via flutter_shaders.

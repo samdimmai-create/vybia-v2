@@ -1,4 +1,5 @@
 import '../../guest/model/dimension.dart';
+import 'activity_kind.dart';
 import 'motive.dart';
 
 /// Broad activity families — used for light diversification and labelling.
@@ -54,11 +55,55 @@ class Activity {
     required this.lng,
     required this.image,
     this.winterFriendly = true,
+    this.kind = ActivityKind.place,
+    this.hasLocation = true,
+    this.kidFriendly,
+    this.servesAlcohol,
+    this.wheelchairAccessible,
+    this.petFriendly,
+    this.effortLevel = 0.4,
+    this.source = 'seed',
   });
 
   final String id;
   final String titleFr;
   final ActivityCategory category;
+
+  /// What sort of thing this is (S10). `place` for everything pre-S10; the new
+  /// multi-source catalog also carries `event | film | online | travel`. Drives
+  /// which kind-specific facts the detail/why surface should show.
+  final ActivityKind kind;
+
+  /// Whether [lat]/[lng] are a real, on-the-map position (S10). `false` for
+  /// films, streaming and other at-home/online kinds, which have no geography —
+  /// the engine then skips the distance filter and proximity reward for them
+  /// instead of treating a placeholder coordinate as "right here".
+  final bool hasLocation;
+
+  // ---- Explicit life-context flags (S10) ----------------------------------
+  // When non-null these drive feasibility directly; when null the engine falls
+  // back to category inference (the pre-S10 behaviour), so seed entries that
+  // never set them keep working unchanged.
+
+  /// Safe / welcoming with children in tow.
+  final bool? kidFriendly;
+
+  /// Alcohol is central (a bar/club) — excluded for `sansAlcool`.
+  final bool? servesAlcohol;
+
+  /// Step-free / wheelchair accessible.
+  final bool? wheelchairAccessible;
+
+  /// Dogs/pets are welcome.
+  final bool? petFriendly;
+
+  /// Physical effort required, 0 effortless … 1 strenuous (a hike, a climb).
+  /// Drives the `mobiliteReduite` filter alongside category.
+  final double effortLevel;
+
+  /// Where this entry came from (provenance): `seed`, `osm`, `wikidata`,
+  /// `wikivoyage`, `tmdb`, `claude`… Mirrors the catalog record's source.
+  final String source;
 
   /// Position on the eight activity-fit axes (see [Dimension]). Polarity matches
   /// the profile, e.g. `Dimension.indoor` → 1 indoor / 0 outdoor.
