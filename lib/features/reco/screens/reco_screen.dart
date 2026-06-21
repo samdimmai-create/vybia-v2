@@ -12,6 +12,7 @@ import '../../guest/widgets/reflection_slides.dart';
 import '../../guest/widgets/reflection_transition.dart';
 import '../../guest/widgets/scene_scaffold.dart';
 import '../../plans/screens/planifier_screen.dart';
+import '../live/live_availability_service.dart';
 import '../model/activity.dart';
 import '../model/recommendation.dart';
 import '../state/reco_controller.dart';
@@ -62,11 +63,15 @@ List<String> _vibeTags(Activity a) {
 /// to many recommendations — each sharpening the profile — before committing to
 /// one.
 class RecoScreen extends StatefulWidget {
-  const RecoScreen({super.key, this.skipIntro = false});
+  const RecoScreen({super.key, this.skipIntro = false, this.liveService});
 
   /// Test/proof seam: skip the entry reflection so a widget test (or a
   /// deterministic capture) lands straight on the first recommendation.
   final bool skipIntro;
+
+  /// The LIVE availability layer (S10.1B), supplied by the router and null in
+  /// widget tests so they run offline.
+  final LiveAvailabilityService? liveService;
 
   @override
   State<RecoScreen> createState() => _RecoScreenState();
@@ -98,7 +103,11 @@ class _RecoScreenState extends State<RecoScreen> {
     // Threads the same store so likes/dislikes persist across relaunches.
     final guest = GuestScope.of(context);
     if (_reco == null) {
-      _reco = RecoController(profile: guest.profile, store: guest.store);
+      _reco = RecoController(
+        profile: guest.profile,
+        store: guest.store,
+        liveService: widget.liveService,
+      );
       _reflectSlides = exploreReflectionSlides(guest.profile);
       _resolveLocation(); // guest-friendly: requested now, never a hard gate
       // Debug-only: open Plus d'infos on load for the visible proof capture.

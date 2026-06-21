@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/edge_action.dart';
 import '../../plans/screens/planifier_screen.dart';
+import '../../reco/live/live_availability_service.dart';
 import '../../reco/model/recommendation.dart';
 import '../../reco/screens/reco_detail_overlay.dart';
 import '../engine/loop_controller.dart';
@@ -29,7 +30,12 @@ class EngineLoopScreen extends StatefulWidget {
     this.skipReflection = false,
     this.controller,
     this.proof = false,
+    this.liveService,
   });
+
+  /// The LIVE availability layer (S10.1B), supplied by the router in the real
+  /// app and left null in widget tests so they run fully offline.
+  final LiveAvailabilityService? liveService;
 
   /// Test/proof seam: collapse the reflection bridge to a single frame so a
   /// widget test can step the loop deterministically.
@@ -67,7 +73,11 @@ class _EngineLoopScreenState extends State<EngineLoopScreen> {
         _ownsLoop = false;
       } else {
         final guest = GuestScope.of(context);
-        _loop = LoopController(profile: guest.profile, store: guest.store);
+        _loop = LoopController(
+          profile: guest.profile,
+          store: guest.store,
+          liveService: widget.liveService,
+        );
         _ownsLoop = true;
         _resolveLocation();
       }

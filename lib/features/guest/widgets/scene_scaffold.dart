@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../../components/bubble/calm_home_field.dart';
 import '../../../components/bubble/refraction_bubble.dart';
 import '../../../components/orb/vybia_orb.dart';
+import '../../../core/media/image_ref.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -401,7 +402,7 @@ class _SceneScaffoldState extends State<SceneScaffold>
                   fit: StackFit.expand,
                   children: [
                     RefractionBubble(
-                      image: AssetImage(widget.image),
+                      image: imageProviderFor(widget.image),
                       orbCenter: center,
                       radius: radius,
                       magnification: 0.8,

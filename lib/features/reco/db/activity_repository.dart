@@ -27,6 +27,10 @@ class ActivityRepository {
 
   static final List<CatalogEntry> _base = [];
   static final Map<String, CatalogEntry> _overlay = {}; // S10E write-back wins
+  // S10.1B: fresh LIVE items fetched at runtime (events, films). Held in memory
+  // ONLY — never persisted, because time-sensitive availability goes stale; a
+  // relaunch re-fetches. Distinct ids (mtlevt_/tmdb_) so they never collide.
+  static final Map<String, CatalogEntry> _liveNow = {};
 
   static List<Activity>? _activitiesCache;
 
@@ -36,18 +40,20 @@ class ActivityRepository {
 
   static bool get isLoaded => _base.isNotEmpty || _overlay.isNotEmpty;
 
-  /// Every record, overlay taking precedence over the bundled base.
+  /// Every record: bundled base, then the persisted overlay, then the fresh
+  /// in-memory live items (each layer winning over the previous for its id).
   static List<CatalogEntry> get entries {
     final byId = <String, CatalogEntry>{};
     for (final e in _base) {
       byId[e.id] = e;
     }
     byId.addAll(_overlay);
+    byId.addAll(_liveNow);
     return byId.values.toList(growable: false);
   }
 
   static CatalogEntry? entryById(String id) =>
-      _overlay[id] ?? _firstBaseById(id);
+      _liveNow[id] ?? _overlay[id] ?? _firstBaseById(id);
 
   static CatalogEntry? _firstBaseById(String id) {
     for (final e in _base) {
@@ -64,16 +70,26 @@ class ActivityRepository {
 
   // ---- Static / live slices (S10.1) ---------------------------------------
 
+  /// The bundled + overlaid snapshot, WITHOUT the fresh live-now items.
+  static List<CatalogEntry> get _snapshotEntries {
+    final byId = <String, CatalogEntry>{};
+    for (final e in _base) {
+      byId[e.id] = e;
+    }
+    byId.addAll(_overlay);
+    return byId.values.toList(growable: false);
+  }
+
   /// The STABLE snapshot records — the recommendation pool that is always
   /// served, fully offline.
   static List<CatalogEntry> get staticEntries =>
-      entries.where((e) => e.isStatic).toList(growable: false);
+      _snapshotEntries.where((e) => e.isStatic).toList(growable: false);
 
   /// The TIME-SENSITIVE snapshot records (films/events). NOT served as primary
   /// recommendations — the live layer (S10.1B) supplies fresh ones; these remain
   /// only as an offline fallback.
   static List<CatalogEntry> get liveEntries =>
-      entries.where((e) => e.isLive).toList(growable: false);
+      _snapshotEntries.where((e) => e.isLive).toList(growable: false);
 
   /// Scoring activities for the static pool — what the engine ranks by default.
   static List<Activity> get staticActivities =>
@@ -83,6 +99,30 @@ class ActivityRepository {
   /// fallback when no live source is reachable (S10.1B).
   static List<Activity> get liveFallbackActivities =>
       liveEntries.map((e) => e.toActivity()).toList(growable: false);
+
+  // ---- Fresh live-now items (S10.1B) --------------------------------------
+
+  /// Replace the in-memory live-now set with freshly fetched items (never
+  /// persisted). Clears the activities cache so the next rank sees them.
+  static void setLiveNow(Iterable<CatalogEntry> items) {
+    _liveNow
+      ..clear()
+      ..addEntries(items.map((e) => MapEntry(e.id, e)));
+    _activitiesCache = null;
+  }
+
+  static void clearLiveNow() {
+    if (_liveNow.isEmpty) return;
+    _liveNow.clear();
+    _activitiesCache = null;
+  }
+
+  static List<CatalogEntry> get liveNowEntries =>
+      _liveNow.values.toList(growable: false);
+
+  /// The kinds that currently have at least one fresh live item.
+  static Set<ActivityKind> get liveNowKinds =>
+      _liveNow.values.map((e) => e.kind).toSet();
 
   // ---- Loading -------------------------------------------------------------
 

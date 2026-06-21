@@ -9,6 +9,8 @@ import '../data/osm_place_repository.dart';
 import '../db/activity_repository.dart';
 import '../engine/recommendation_engine.dart';
 import '../engine/reco_context.dart';
+import '../live/live_availability_service.dart';
+import '../live/live_source.dart';
 import '../model/activity.dart';
 import '../model/recommendation.dart';
 
@@ -24,16 +26,21 @@ List<Activity> staticActivityCatalog() {
   return kActivityCatalog;
 }
 
-/// The full pool the reco engine ranks: the stable static pool PLUS the live
-/// kinds. Until the live layer (S10.1B) is wired, the live kinds are served from
-/// the snapshot rows as an OFFLINE FALLBACK so nothing disappears; B swaps that
-/// fallback for items actually available now, degrading back to it on failure.
+/// The full pool the reco engine ranks (S10.1B): the always-present static pool,
+/// PLUS the fresh live items the live layer fetched, PLUS — for any LIVE kind the
+/// live layer could NOT supply (offline, no key, error) — the snapshot rows of
+/// that kind as a graceful OFFLINE FALLBACK. So events/films served live when
+/// available, degrade to stale-but-safe snapshot suggestions otherwise, and the
+/// loop never starves.
 List<Activity> liveActivityCatalog() {
   if (!ActivityRepository.isLoaded) return staticActivityCatalog();
-  return [
-    ...ActivityRepository.staticActivities,
-    ...ActivityRepository.liveFallbackActivities,
-  ];
+  final out = <Activity>[...ActivityRepository.staticActivities];
+  out.addAll(ActivityRepository.liveNowEntries.map((e) => e.toActivity()));
+  final fresh = ActivityRepository.liveNowKinds;
+  for (final e in ActivityRepository.liveEntries) {
+    if (!fresh.contains(e.kind)) out.add(e.toActivity());
+  }
+  return out;
 }
 
 /// Drives the immersive reco loop with live revealed-preference learning.
@@ -51,6 +58,7 @@ class RecoController extends ChangeNotifier {
     RecoContext? context,
     GeoResult? location,
     this.store,
+    this.liveService,
   })  : engine =
             engine ?? RecommendationEngine(catalog: liveActivityCatalog()),
         _location = location ?? store?.readGeo() ?? GeoResult.fallback,
@@ -61,12 +69,51 @@ class RecoController extends ChangeNotifier {
             ) {
     _hydrate();
     _rank();
+    // S10.1B: fetch the LIVE availability layer in the background. Safe: the
+    // service never throws, and on failure/empty the static + snapshot fallback
+    // already ranked above stays exactly as-is.
+    if (liveService != null) _loadLive();
   }
 
   final GuestProfile profile;
-  final RecommendationEngine engine;
+  RecommendationEngine engine;
   RecoContext context;
   final AppStore? store;
+
+  /// The LIVE availability layer (S10.1B). Null in tests / pure-offline mode →
+  /// no runtime network, recommendations come from the static pool + fallback.
+  final LiveAvailabilityService? liveService;
+
+  bool _disposed = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  /// Fetch live events/films, fold them into the catalog and re-rank. Time-
+  /// sensitive items are held in memory only (never persisted).
+  Future<void> _loadLive() async {
+    final svc = liveService;
+    if (svc == null) return;
+    try {
+      final items = await svc.fetchAvailableNow(LiveQuery(
+        lat: _location.lat,
+        lng: _location.lng,
+        when: DateTime.now(),
+        contexts: profile.contexts,
+        limit: 8,
+      ));
+      ActivityRepository.setLiveNow(items);
+      engine = RecommendationEngine(
+        catalog: liveActivityCatalog(),
+        content: engine.content,
+      );
+      _rank();
+      if (!_disposed) notifyListeners();
+    } catch (_) {/* keep the static + fallback ranking already shown */}
+  }
 
   GeoResult _location;
 

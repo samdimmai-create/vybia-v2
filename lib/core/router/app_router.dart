@@ -15,10 +15,17 @@ import '../../features/guest/screens/welcome_screen.dart';
 import '../../features/plans/screens/mes_plans_screen.dart';
 import '../../features/plans/screens/planifier_screen.dart';
 import '../../features/profile/screens/profil_screen.dart';
+import '../../features/reco/live/live_availability_service.dart';
 import '../../features/reco/screens/reco_screen.dart';
 
 /// Central route table. Kept tiny; every screen is reachable directly (handy
 /// for visual tests via `/#<route>` and the hidden `/dev` menu).
+/// One shared LIVE availability layer (S10.1B) for the whole app, so the events/
+/// films fetched on the reco path are cached once per session and reused. Only
+/// the real app touches this (via the router); widget tests build screens
+/// directly with `liveService: null` → fully offline.
+final LiveAvailabilityService _liveService = LiveAvailabilityService.standard();
+
 class AppRouter {
   AppRouter._();
 
@@ -52,13 +59,13 @@ class AppRouter {
       case discover:
         page = const DiscoverScreen();
       case engine:
-        page = const EngineLoopScreen();
+        page = EngineLoopScreen(liveService: _liveService);
       case intention:
         page = const IntentionScreen();
       case profileReady:
         page = const ProfileReadyScreen();
       case reco:
-        page = const RecoScreen();
+        page = RecoScreen(liveService: _liveService);
       case plan:
         page = PlanifierScreen.fromRoute(settings);
       case mesPlans:
