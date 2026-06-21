@@ -52,8 +52,27 @@ class RecoDetailOverlay extends StatelessWidget {
                   _block(
                     t,
                     title: 'Pourquoi pour toi',
-                    child: Text(recommendation.why,
-                        style: t.titleMedium?.copyWith(color: AppColors.pearl)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(recommendation.why,
+                            style:
+                                t.titleMedium?.copyWith(color: AppColors.pearl)),
+                        // S11D: the honest top contributing factors behind this
+                        // pick — the deterministic, specific "pourquoi".
+                        if (recommendation.factors.isNotEmpty) ...[
+                          const SizedBox(height: AppSpacing.sm),
+                          Wrap(
+                            spacing: AppSpacing.xs,
+                            runSpacing: AppSpacing.xs,
+                            children: [
+                              for (final f in recommendation.factors)
+                                _factorChip(t, f),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Wrap(
@@ -107,6 +126,22 @@ class RecoDetailOverlay extends StatelessWidget {
           child,
         ],
       ),
+    );
+  }
+
+  /// A factor chip — the engine's real top scoring terms, accented to read as
+  /// the "why" rather than the neutral fact chips below.
+  Widget _factorChip(TextTheme t, String label) {
+    return Container(
+      padding:
+          const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.45)),
+      ),
+      child: Text(label,
+          style: t.labelMedium?.copyWith(color: AppColors.pearl)),
     );
   }
 

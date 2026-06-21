@@ -10,6 +10,7 @@ import '../model/wellbeing.dart';
 import 'leisure_motivation.dart';
 import 'life_context_rules.dart';
 import 'reco_context.dart';
+import 'reco_factors.dart';
 import 'score_breakdown.dart';
 import 'wellbeing_tagger.dart';
 
@@ -185,6 +186,13 @@ class RecommendationEngine {
             lms: lms, topDims: match.topDims, context: ctx),
         topDimensions: match.topDims,
         breakdown: breakdown,
+        factors: RecoFactors.top(
+          breakdown: breakdown,
+          activity: a,
+          lms: lms,
+          wellbeing: wb,
+          farness: farness,
+        ),
         distanceKm: distanceKm,
         imageOverride: content.imageFor(a, profile),
       );
