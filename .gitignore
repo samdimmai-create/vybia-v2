@@ -45,3 +45,9 @@ app.*.map.json
 /android/app/release
 .tmp/
 tool/_raw/
+
+# S12 — API keys: passed ONLY via --dart-define / shell env, NEVER committed.
+# A local secrets file for dev convenience must stay out of git.
+tool/secrets.env
+*.secrets.env
+.dart-define*.json

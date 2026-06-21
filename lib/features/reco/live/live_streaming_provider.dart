@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../../../core/config/api_config.dart';
 import '../../guest/data/assets.dart';
 import '../../guest/model/dimension.dart';
 import '../db/catalog_entry.dart';
@@ -26,10 +27,8 @@ class LiveStreamingProvider implements LiveSourceProvider {
     this.region = 'CA',
     this.language = 'fr-CA',
   })  : _get = httpGet ?? httpGetDefault,
-        _key = apiKey ?? _envKey;
+        _key = apiKey ?? ApiConfig.tmdbKey;
 
-  static const String _envKey =
-      String.fromEnvironment('TMDB_KEY', defaultValue: '');
   static const String _base = 'https://api.themoviedb.org/3';
   static const String _imgBase = 'https://image.tmdb.org/t/p/w500';
 
