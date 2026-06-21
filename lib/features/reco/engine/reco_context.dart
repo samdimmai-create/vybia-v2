@@ -1,17 +1,33 @@
 import '../../../core/geo/geo.dart';
 
-/// Ambient context the engine folds into scoring: time of day and season.
+/// A coarse current-weather signal (S11C). Deliberately optional: Vybia ships
+/// with NO runtime network in the deterministic brain, so unless a caller
+/// injects a real reading this stays null and the weather feasibility filter is
+/// skipped (a noted seam — wire a free weather source here to switch it on).
+enum WeatherSignal {
+  clear,
+  rain,
+  snow,
+  cold;
+
+  /// Wet weather that makes an open-air outing infeasible.
+  bool get isWet => this == rain || this == snow;
+}
+
+/// Ambient context the engine folds into scoring: time of day, season and
+/// (optionally) weather.
 ///
 /// Injected (rather than read from the clock inside the engine) so tests are
-/// fully deterministic. [evening] and [winter] are the only two facts scoring
-/// needs today; more (weather, day-of-week) can join later without touching
-/// call sites that use [RecoContext.now].
+/// fully deterministic. [evening], [winter] and the optional [weather] are the
+/// facts scoring + feasibility need today; more (day-of-week) can join later
+/// without touching call sites that use [RecoContext.now].
 class RecoContext {
   const RecoContext({
     required this.hourOfDay,
     required this.month,
     this.userLat,
     this.userLng,
+    this.weather,
   });
 
   /// 0..23 local hour.
@@ -25,13 +41,23 @@ class RecoContext {
   final double? userLat;
   final double? userLng;
 
-  factory RecoContext.now({DateTime? clock, double? userLat, double? userLng}) {
+  /// Current weather (S11C), or null when no signal is available — in which case
+  /// the weather feasibility filter is skipped entirely.
+  final WeatherSignal? weather;
+
+  factory RecoContext.now({
+    DateTime? clock,
+    double? userLat,
+    double? userLng,
+    WeatherSignal? weather,
+  }) {
     final t = clock ?? DateTime.now();
     return RecoContext(
       hourOfDay: t.hour,
       month: t.month,
       userLat: userLat,
       userLng: userLng,
+      weather: weather,
     );
   }
 
@@ -40,6 +66,7 @@ class RecoContext {
         month: month,
         userLat: lat,
         userLng: lng,
+        weather: weather,
       );
 
   bool get hasUser => userLat != null && userLng != null;

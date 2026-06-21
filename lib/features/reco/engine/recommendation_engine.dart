@@ -130,10 +130,11 @@ class RecommendationEngine {
         _activities.where((a) => !excludedIds.contains(a.id)).toList();
     if (pool.isEmpty) return const [];
 
-    // Hard feasibility filter, with a guard so we never starve the scene.
-    final feasible = pool
-        .where((a) => _isFeasible(profile, a, _distanceOf(ctx, a)))
-        .toList();
+    // Hard feasibility filter (S11C), with a starve-guard so a pile-up of
+    // contexts never blanks the scene: if the filter leaves too few, fall back
+    // to the unfiltered pool — better a slightly-off pick than nothing.
+    final feasible =
+        pool.where((a) => _isFeasible(profile, a, ctx)).toList();
     final ranked = feasible.length >= 4 ? feasible : pool;
 
     // S9C: leisure-motivation weights over the four Beard & Ragheb LMS
@@ -285,11 +286,24 @@ class RecommendationEngine {
   double? _distanceOf(RecoContext ctx, Activity a) =>
       a.hasLocation ? ctx.distanceKmTo(a.lat, a.lng) : null;
 
-  bool _isFeasible(GuestProfile p, Activity a, double? distanceKm) {
+  bool _isFeasible(GuestProfile p, Activity a, RecoContext ctx) {
+    final distanceKm = _distanceOf(ctx, a);
+
     // S9D: durable life-contexts are hard feasibility filters (kids, sans
     // alcool, budget serré, mobilité réduite, sans voiture, animal).
     if (!LifeContextRules.feasible(p.contexts, a, distanceKm: distanceKm)) {
       return false;
+    }
+
+    // S11C: weather-appropriateness — ONLY when a weather signal exists; with no
+    // signal (the default) this is skipped entirely (the noted seam). Wet
+    // weather rules out open-air outings; deep cold rules out non-winter-friendly
+    // outdoor activities (open water, gardens) as a hard filter on top of the
+    // soft seasonal penalty in [_contextFit].
+    final weather = ctx.weather;
+    if (weather != null && !a.indoor) {
+      if (weather.isWet) return false;
+      if (weather == WeatherSignal.cold && !a.winterFriendly) return false;
     }
     // Tight budget rules out a splurge.
     if (p.isConfident(Dimension.budget) &&
