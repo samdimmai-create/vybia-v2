@@ -1890,7 +1890,7 @@
    "category": "culture",
    "subcategory": "cinema",
    "descFr": "Une salle obscure à Rosemont-Petite-Patrie et l’histoire qui défile.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/osm_281865771.jpg",
    "tags": {
     "energy": 0.3,
     "social": 0.4,
@@ -1932,7 +1932,7 @@
    "winterFriendly": true,
    "source": "osm",
    "sourceId": "osm_281865771",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.54807,
    "lng": -73.59209,
    "neighbourhood": "Rosemont-Petite-Patrie",
@@ -1948,8 +1948,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "JBouchez — CC BY-SA 4.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 4.0"
   },
   {
    "id": "osm_1231386090",
@@ -2162,7 +2162,7 @@
    "category": "culture",
    "subcategory": "cinema",
    "descFr": "Une salle obscure à Montréal et l’histoire qui défile.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/osm_1571409662.jpg",
    "tags": {
     "energy": 0.3,
     "social": 0.4,
@@ -2204,7 +2204,7 @@
    "winterFriendly": true,
    "source": "osm",
    "sourceId": "osm_1571409662",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.51695,
    "lng": -73.57909,
    "neighbourhood": null,
@@ -2220,8 +2220,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Guilhem Vellut from Annecy, France — CC BY 2.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY 2.0"
   },
   {
    "id": "osm_229609745",
@@ -2230,7 +2230,7 @@
    "category": "culture",
    "subcategory": "cinema",
    "descFr": "Une salle obscure à Montréal et l’histoire qui défile.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/osm_229609745.jpg",
    "tags": {
     "energy": 0.3,
     "social": 0.4,
@@ -2272,7 +2272,7 @@
    "winterFriendly": true,
    "source": "osm",
    "sourceId": "osm_229609745",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.501,
    "lng": -73.57231,
    "neighbourhood": null,
@@ -2288,8 +2288,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "D. Benjamin Miller — CC0 (Wikimedia Commons)",
+   "imageLicense": "CC0"
   },
   {
    "id": "osm_229612116",
@@ -4884,7 +4884,7 @@
    "category": "food",
    "subcategory": "market",
    "descFr": "Un marché à Montréal, les étals, les odeurs, le monde.",
-   "imageRef": "assets/images/places/restaurant.jpg",
+   "imageRef": "assets/images/catalog/osm_12125417451.jpg",
    "tags": {
     "energy": 0.55,
     "social": 0.65,
@@ -4927,7 +4927,7 @@
    "winterFriendly": true,
    "source": "osm",
    "sourceId": "osm_12125417451",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.47964,
    "lng": -73.57678,
    "neighbourhood": null,
@@ -4943,8 +4943,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Colin Rose from Montreal, Canada — CC BY-SA 2.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 2.0"
   },
   {
    "id": "osm_12175674802",
@@ -5436,7 +5436,7 @@
    "category": "culture",
    "subcategory": "museum",
    "descFr": "Un musée à Montréal où flâner d’une salle à l’autre.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/osm_1458999228.jpg",
    "tags": {
     "energy": 0.3,
     "social": 0.4,
@@ -5478,7 +5478,7 @@
    "winterFriendly": true,
    "source": "osm",
    "sourceId": "osm_1458999228",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.49244,
    "lng": -73.61726,
    "neighbourhood": null,
@@ -5494,8 +5494,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Dpalma01 — CC BY-SA 4.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 4.0"
   },
   {
    "id": "osm_1655418412",
@@ -5640,7 +5640,7 @@
    "category": "culture",
    "subcategory": "museum",
    "descFr": "Un musée à Montréal où flâner d’une salle à l’autre.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/osm_213716077.jpg",
    "tags": {
     "energy": 0.3,
     "social": 0.4,
@@ -5682,7 +5682,7 @@
    "winterFriendly": true,
    "source": "osm",
    "sourceId": "osm_213716077",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.4987,
    "lng": -73.57938,
    "neighbourhood": null,
@@ -5698,8 +5698,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Thomas Ledl — CC BY-SA 4.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 4.0"
   },
   {
    "id": "osm_2422210609",
@@ -5708,7 +5708,7 @@
    "category": "culture",
    "subcategory": "museum",
    "descFr": "Un musée à Montréal où flâner d’une salle à l’autre.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/osm_2422210609.jpg",
    "tags": {
     "energy": 0.3,
     "social": 0.4,
@@ -5750,7 +5750,7 @@
    "winterFriendly": true,
    "source": "osm",
    "sourceId": "osm_2422210609",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.52033,
    "lng": -73.56366,
    "neighbourhood": null,
@@ -5766,8 +5766,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Jeangagnon — CC BY-SA 3.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 3.0"
   },
   {
    "id": "osm_333465990",
@@ -5776,7 +5776,7 @@
    "category": "culture",
    "subcategory": "museum",
    "descFr": "Un musée à Montréal où flâner d’une salle à l’autre.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/osm_333465990.jpg",
    "tags": {
     "energy": 0.3,
     "social": 0.4,
@@ -5818,7 +5818,7 @@
    "winterFriendly": true,
    "source": "osm",
    "sourceId": "osm_333465990",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.47755,
    "lng": -73.5924,
    "neighbourhood": null,
@@ -5834,8 +5834,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Dr. Nipper — CC BY-SA 4.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 4.0"
   },
   {
    "id": "osm_3677627825",
@@ -5980,7 +5980,7 @@
    "category": "culture",
    "subcategory": "museum",
    "descFr": "Un musée à Montréal où flâner d’une salle à l’autre.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/osm_4363655226.jpg",
    "tags": {
     "energy": 0.3,
     "social": 0.4,
@@ -6022,7 +6022,7 @@
    "winterFriendly": true,
    "source": "osm",
    "sourceId": "osm_4363655226",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.51169,
    "lng": -73.67133,
    "neighbourhood": null,
@@ -6038,8 +6038,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Pierre5018 — CC BY-SA 4.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 4.0"
   },
   {
    "id": "osm_4852683785",
@@ -9267,7 +9267,7 @@
    "category": "culture",
    "subcategory": "theatre",
    "descFr": "Une scène vivante à Montréal, le frisson du direct.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/osm_1329148191.jpg",
    "tags": {
     "energy": 0.4,
     "social": 0.55,
@@ -9309,7 +9309,7 @@
    "winterFriendly": true,
    "source": "osm",
    "sourceId": "osm_1329148191",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.50979,
    "lng": -73.56333,
    "neighbourhood": null,
@@ -9325,8 +9325,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Jean Gagnon — CC BY-SA 3.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 3.0"
   },
   {
    "id": "osm_1329148192",
@@ -9335,7 +9335,7 @@
    "category": "culture",
    "subcategory": "theatre",
    "descFr": "Une scène vivante à Montréal, le frisson du direct.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/osm_1329148192.jpg",
    "tags": {
     "energy": 0.4,
     "social": 0.55,
@@ -9377,7 +9377,7 @@
    "winterFriendly": true,
    "source": "osm",
    "sourceId": "osm_1329148192",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.50901,
    "lng": -73.56238,
    "neighbourhood": null,
@@ -9393,8 +9393,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Jeangagnon — CC BY-SA 3.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 3.0"
   },
   {
    "id": "osm_1329148193",
@@ -9403,7 +9403,7 @@
    "category": "culture",
    "subcategory": "theatre",
    "descFr": "Une scène vivante à Montréal, le frisson du direct.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/osm_1329148193.jpg",
    "tags": {
     "energy": 0.4,
     "social": 0.55,
@@ -9445,7 +9445,7 @@
    "winterFriendly": true,
    "source": "osm",
    "sourceId": "osm_1329148193",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.51061,
    "lng": -73.5634,
    "neighbourhood": null,
@@ -9461,8 +9461,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Jeangagnon — CC BY-SA 4.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 4.0"
   },
   {
    "id": "osm_1382525117",
@@ -9471,7 +9471,7 @@
    "category": "culture",
    "subcategory": "theatre",
    "descFr": "Une scène vivante à Montréal, le frisson du direct.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/osm_1382525117.jpg",
    "tags": {
     "energy": 0.4,
     "social": 0.55,
@@ -9513,7 +9513,7 @@
    "winterFriendly": true,
    "source": "osm",
    "sourceId": "osm_1382525117",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.51364,
    "lng": -73.56226,
    "neighbourhood": null,
@@ -9529,8 +9529,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Jeangagnon — CC BY-SA 3.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 3.0"
   },
   {
    "id": "osm_1401388715",
@@ -9539,7 +9539,7 @@
    "category": "culture",
    "subcategory": "theatre",
    "descFr": "Une scène vivante à Montréal, le frisson du direct.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/osm_1401388715.jpg",
    "tags": {
     "energy": 0.4,
     "social": 0.55,
@@ -9581,7 +9581,7 @@
    "winterFriendly": true,
    "source": "osm",
    "sourceId": "osm_1401388715",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.50356,
    "lng": -73.55656,
    "neighbourhood": null,
@@ -9597,8 +9597,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Jeangagnon — CC BY-SA 3.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 3.0"
   },
   {
    "id": "osm_1571409658",
@@ -9675,7 +9675,7 @@
    "category": "culture",
    "subcategory": "theatre",
    "descFr": "Une scène vivante à Montréal, le frisson du direct.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/osm_1608795313.jpg",
    "tags": {
     "energy": 0.4,
     "social": 0.55,
@@ -9717,7 +9717,7 @@
    "winterFriendly": true,
    "source": "osm",
    "sourceId": "osm_1608795313",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.52199,
    "lng": -73.59083,
    "neighbourhood": null,
@@ -9733,8 +9733,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Jeangagnon — CC BY-SA 3.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 3.0"
   },
   {
    "id": "osm_1617219945",
@@ -9743,7 +9743,7 @@
    "category": "culture",
    "subcategory": "theatre",
    "descFr": "Une scène vivante à Montréal, le frisson du direct.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/osm_1617219945.jpg",
    "tags": {
     "energy": 0.4,
     "social": 0.55,
@@ -9785,7 +9785,7 @@
    "winterFriendly": true,
    "source": "osm",
    "sourceId": "osm_1617219945",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.51338,
    "lng": -73.56015,
    "neighbourhood": null,
@@ -9801,8 +9801,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Jeangagnon — CC BY-SA 3.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 3.0"
   },
   {
    "id": "osm_1643704217",
@@ -9811,7 +9811,7 @@
    "category": "culture",
    "subcategory": "theatre",
    "descFr": "Une scène vivante à Montréal, le frisson du direct.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/osm_1643704217.jpg",
    "tags": {
     "energy": 0.4,
     "social": 0.55,
@@ -9853,7 +9853,7 @@
    "winterFriendly": true,
    "source": "osm",
    "sourceId": "osm_1643704217",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.48289,
    "lng": -73.57507,
    "neighbourhood": null,
@@ -9869,8 +9869,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Jean Gagnon — CC BY-SA 3.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 3.0"
   },
   {
    "id": "osm_2406168498",
@@ -9879,7 +9879,7 @@
    "category": "culture",
    "subcategory": "theatre",
    "descFr": "Une scène vivante à Montréal, le frisson du direct.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/osm_2406168498.jpg",
    "tags": {
     "energy": 0.4,
     "social": 0.55,
@@ -9921,7 +9921,7 @@
    "winterFriendly": true,
    "source": "osm",
    "sourceId": "osm_2406168498",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.51994,
    "lng": -73.6086,
    "neighbourhood": null,
@@ -9937,8 +9937,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Jbfournot — CC BY-SA 4.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 4.0"
   },
   {
    "id": "osm_2503033206",
@@ -10083,7 +10083,7 @@
    "category": "culture",
    "subcategory": "theatre",
    "descFr": "Une scène vivante à Montréal, le frisson du direct.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/osm_747803141.jpg",
    "tags": {
     "energy": 0.4,
     "social": 0.55,
@@ -10125,7 +10125,7 @@
    "winterFriendly": true,
    "source": "osm",
    "sourceId": "osm_747803141",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.51342,
    "lng": -73.56856,
    "neighbourhood": null,
@@ -10141,8 +10141,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Jeangagnon — CC BY-SA 3.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 3.0"
   },
   {
    "id": "osm_810790773",
@@ -10763,7 +10763,7 @@
    "category": "nature",
    "subcategory": "viewpoint",
    "descFr": "Un point de vue à Montréal où la ville se déplie.",
-   "imageRef": "assets/images/places/park.jpg",
+   "imageRef": "assets/images/catalog/osm_4859545621.jpg",
    "tags": {
     "energy": 0.45,
     "social": 0.45,
@@ -10805,7 +10805,7 @@
    "winterFriendly": false,
    "source": "osm",
    "sourceId": "osm_4859545621",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 45.52144,
    "lng": -73.54056,
    "neighbourhood": null,
@@ -10821,8 +10821,8 @@
    "destination": null,
    "distanceKm": null,
    "duration": null,
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "No machine-readable author provided. Colocho assumed (based on copyright claims). — CC BY-SA 2.5 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 2.5"
   },
   {
    "id": "osm_5013134222",
@@ -13356,7 +13356,7 @@
    "category": "culture",
    "subcategory": "escapade",
    "descFr": "Vieux-Québec — vielle ville, site du patrimoine mondial au Canada. À ~232.6 km, week-end.",
-   "imageRef": "assets/images/places/museum.jpg",
+   "imageRef": "assets/images/catalog/travel_q2114279.jpg",
    "tags": {
     "energy": 0.3,
     "social": 0.4,
@@ -13401,7 +13401,7 @@
    "winterFriendly": true,
    "source": "wikidata",
    "sourceId": "Q2114279",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 46.809444444444,
    "lng": -71.210555555556,
    "neighbourhood": null,
@@ -13417,8 +13417,8 @@
    "destination": "Vieux-Québec",
    "distanceKm": 232.6,
    "duration": "week-end",
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Bernard Gagnon — CC BY-SA 4.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 4.0"
   },
   {
    "id": "travel_q252793",
@@ -13427,7 +13427,7 @@
    "category": "nature",
    "subcategory": "escapade",
    "descFr": "parc national du Mont-Tremblant — parc national du Québec (Canada). À ~119.9 km, journée ou nuitée.",
-   "imageRef": "assets/images/places/park.jpg",
+   "imageRef": "assets/images/catalog/travel_q252793.jpg",
    "tags": {
     "energy": 0.45,
     "social": 0.5,
@@ -13472,7 +13472,7 @@
    "winterFriendly": false,
    "source": "wikidata",
    "sourceId": "Q252793",
-   "confidence": 0.7,
+   "confidence": 0.7999999999999999,
    "lat": 46.4333,
    "lng": -74.35,
    "neighbourhood": null,
@@ -13488,8 +13488,8 @@
    "destination": "parc national du Mont-Tremblant",
    "distanceKm": 119.9,
    "duration": "journée ou nuitée",
-   "imageAttribution": null,
-   "imageLicense": null
+   "imageAttribution": "Fralambert — CC BY-SA 3.0 (Wikimedia Commons)",
+   "imageLicense": "CC BY-SA 3.0"
   },
   {
    "id": "online_recipe",

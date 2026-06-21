@@ -1,3 +1,50 @@
+# Per-activity place images (S10.1C)
+
+Real, open-licensed photos fetched at BUILD TIME from Wikimedia Commons via a
+NAME→Wikidata reconciliation that is GEO-VERIFIED (entity coordinate within
+0.7 km of the venue). CC / CC0 / Public-Domain only. Runtime is offline
+(images bundled under assets/images/catalog/).
+
+22 new place images this run · 39 per-activity images total.
+
+- **Cinéma Beaubien** (culture) — `osm_281865771.jpg` · Q2973109 · JBouchez · CC BY-SA 4.0 · File:Éclairage de nuit du Cinéma Beaubien.jpg
+- **Cinema l'Amour** (culture) — `osm_1571409662.jpg` · Q16303781 · Guilhem Vellut from Annecy, France · CC BY 2.0 · File:Cinema L'Amour @ Le Plateau @ Montréal (29877086844).jpg
+- **Cinéma Banque Scotia Montréal** (culture) — `osm_229609745.jpg` · Q38271433 · D. Benjamin Miller · CC0 · File:Cinéma Banque Scotia, Oct 15 2022.jpg
+- **Marché Atwater** (food) — `osm_12125417451.jpg` · Q3289780 · Colin Rose from Montreal, Canada · CC BY-SA 2.0 · File:AtwaterMarket.jpg
+- **Musée de l'Oratoire** (culture) — `osm_1458999228.jpg` · Q284716 · Dpalma01 · CC BY-SA 4.0 · File:View of St. Joseph's Oratory on Mount Royal 08 2025.jpg
+- **Musée des Beaux-Arts de Montréal** (culture) — `osm_213716077.jpg` · Q860812 · Thomas Ledl · CC BY-SA 4.0 · File:Museum of Fine Arts, main entrance, Montreal.jpg
+- **Écomusée du Fier Monde** (culture) — `osm_2422210609.jpg` · Q3578612 · Jeangagnon · CC BY-SA 3.0 · File:Ecomusee du Fier Monde.jpg
+- **Musée des ondes Emile Berliner** (culture) — `osm_333465990.jpg` · Q3330268 · Dr. Nipper · CC BY-SA 4.0 · File:Dauerausstellung im Musée des ondes Emile Berliner.jpg
+- **Musée des maîtres et artisans du Québec** (culture) — `osm_4363655226.jpg` · Q1955726 · Pierre5018 · CC BY-SA 4.0 · File:CEGEP Saint-Laurent 01.jpg
+- **Club Soda** (culture) — `osm_1329148191.jpg` · Q2979978 · Jean Gagnon · CC BY-SA 3.0 · File:Club Soda, Montréal 2011.jpg
+- **Monument-National** (culture) — `osm_1329148192.jpg` · Q3323401 · Jeangagnon · CC BY-SA 3.0 · File:Monument National.jpg
+- **MTELUS** (culture) — `osm_1329148193.jpg` · Q3333891 · Jeangagnon · CC BY-SA 4.0 · File:M Telus.jpg
+- **Salle Pierre-Mercure** (culture) — `osm_1382525117.jpg` · Q2944857 · Jeangagnon · CC BY-SA 3.0 · File:Centre Pierre-Peladeau 03.JPG
+- **Centaur Theatre** (culture) — `osm_1401388715.jpg` · Q1053482 · Jeangagnon · CC BY-SA 3.0 · File:Centaur Theater.JPG
+- **Théâtre ESPACE GO** (culture) — `osm_1608795313.jpg` · Q3058139 · Jeangagnon · CC BY-SA 3.0 · File:Espace Go.JPG
+- **Théâtre Telus** (culture) — `osm_1617219945.jpg` · Q3527564 · Jeangagnon · CC BY-SA 3.0 · File:Theatre Telus.JPG
+- **Théâtre Beanfield** (culture) — `osm_1643704217.jpg` · Q282314 · Jean Gagnon · CC BY-SA 3.0 · File:Theatre Corona 02.JPG
+- **Théatre Outremont** (culture) — `osm_2406168498.jpg` · Q3527534 · Jbfournot · CC BY-SA 4.0 · File:Avenue Bernard piétonnisée.png
+- **Chapelle Historique du Bon-Pasteur** (culture) — `osm_747803141.jpg` · Q3320400 · Jeangagnon · CC BY-SA 3.0 · File:Monastere du Bon-Pasteur 03.JPG
+- **Pont Jacques Cartier** (nature) — `osm_4859545621.jpg` · Q1094877 · No machine-readable author provided. Colocho assumed (based on copyright claims). · CC BY-SA 2.5 · File:Jacques-Cartier bridge.JPG
+- **Vieux-Québec** (culture) — `travel_q2114279.jpg` · Q2114279 · Bernard Gagnon · CC BY-SA 4.0 · File:Panorama of Quebec City.jpg
+- **parc national du Mont-Tremblant** (nature) — `travel_q252793.jpg` · Q252793 · Fralambert · CC BY-SA 3.0 · File:Paysage lac Monroe.jpg
+
+---
+
+# Per-activity place images (S10.1C)
+
+Real, open-licensed photos fetched at BUILD TIME from Wikimedia Commons via a
+NAME→Wikidata reconciliation that is GEO-VERIFIED (entity coordinate within
+0.7 km of the venue). CC / CC0 / Public-Domain only. Runtime is offline
+(images bundled under assets/images/catalog/).
+
+0 new place images this run · 17 per-activity images total.
+
+
+
+---
+
 # Per-activity image attributions (S10C)
 
 Real, open-licensed images fetched at BUILD TIME from Wikimedia Commons via
