@@ -8,6 +8,7 @@ import 'live_cinema_provider.dart';
 import 'live_events_provider.dart';
 import 'live_source.dart';
 import 'live_streaming_provider.dart';
+import 'live_ticketmaster_provider.dart';
 
 /// How a provider's last fetch went — surfaced for the report/proof and the UX.
 enum LiveFetchState {
@@ -66,11 +67,13 @@ class LiveProviderStatus {
 class LiveAvailabilityService {
   LiveAvailabilityService(this.providers);
 
-  /// The standard production set: keyless Montréal events + the TMDB streaming
-  /// seam + the cinema-showtimes stub.
+  /// The standard production set: keyless Montréal open-data events + the keyed
+  /// Ticketmaster events (blended/deduped) + the TMDB streaming seam + the
+  /// cinema-showtimes stub. Keyed sources stay dormant until their key exists.
   factory LiveAvailabilityService.standard({HttpGet? httpGet}) {
     return LiveAvailabilityService([
       LiveEventsProvider(httpGet: httpGet),
+      LiveTicketmasterProvider(httpGet: httpGet),
       LiveStreamingProvider(httpGet: httpGet),
       const LiveCinemaProvider(),
     ]);
@@ -104,11 +107,27 @@ class LiveAvailabilityService {
     if (_cache != null && _cacheKey == key) return _cache!;
 
     final results = await Future.wait(providers.map((p) => _runOne(p, q)));
-    final merged = <CatalogEntry>[for (final r in results) ...r];
+    // Blend every source, deduping events that two providers both report (e.g.
+    // a concert in BOTH the Montréal open-data feed AND Ticketmaster). First
+    // occurrence wins — provider order in [standard] decides precedence.
+    final merged = <CatalogEntry>[];
+    final seen = <String>{};
+    for (final list in results) {
+      for (final e in list) {
+        final dedupeKey = '${e.kind.name}|${_normTitle(e.name)}';
+        if (seen.add(dedupeKey)) merged.add(e);
+      }
+    }
     _cache = merged;
     _cacheKey = key;
     return merged;
   }
+
+  /// Normalised title for dedupe: lowercase, accent/punct-insensitive.
+  static String _normTitle(String s) => s
+      .toLowerCase()
+      .replaceAll(RegExp(r'[^a-z0-9]+'), ' ')
+      .trim();
 
   Future<List<CatalogEntry>> _runOne(LiveSourceProvider p, LiveQuery q) async {
     if (!p.isConfigured) {
