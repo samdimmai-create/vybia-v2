@@ -1,0 +1,59 @@
+name: Build & Deploy Vybia V2 (web → GitHub Pages)
+
+# Cloud build only. NOTHING compiles on the founder's Mac — a `git push` to main
+# makes a GitHub-hosted runner build Flutter web and publish it to GitHub Pages.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+# Allow the workflow to publish to Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time; let an in-progress run finish (don't cancel a live publish).
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.1
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # KEYLESS build by design: this bundle is public, so we DO NOT bake any
+      # secret keys (TMDB / Ticketmaster) into it. The keyless live sources
+      # (Open-Meteo weather + Montreal open-data events) plus the place
+      # enrichment baked at ingest time still give a rich, testable build.
+      - name: Build web (release)
+        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
