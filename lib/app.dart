@@ -8,6 +8,7 @@ import 'features/dev/s8_proof_tour.dart';
 import 'features/dev/s9_1_engine_proof_tour.dart';
 import 'features/dev/s9_2_proof_tour.dart';
 import 'features/dev/s9_3_proof_tour.dart';
+import 'features/dev/s10_proof_tour.dart';
 import 'features/guest/state/guest_controller.dart';
 import 'features/plans/state/plan_controller.dart';
 
@@ -70,6 +71,11 @@ class _VybiaAppState extends State<VybiaApp> {
   // (`--dart-define=VYBIA_PROOF93=true`) on a bright AND a dark background.
   static const bool _kProof93 = bool.fromEnvironment('VYBIA_PROOF93');
 
+  // S10: VISIBLE-IN-CHROME proof tour of OUR multi-source database
+  // (`--dart-define=VYBIA_PROOF10=true`): different-kind recs backed by the DB,
+  // a life-context filter on the new flags, and an enriched/persisted entry.
+  static const bool _kProof10 = bool.fromEnvironment('VYBIA_PROOF10');
+
   @override
   void initState() {
     super.initState();
@@ -127,7 +133,7 @@ class _VybiaAppState extends State<VybiaApp> {
         ),
       );
     }
-    if (_kProof || _kProof81 || _kProof92 || _kProof93) {
+    if (_kProof || _kProof81 || _kProof92 || _kProof93 || _kProof10) {
       return MaterialApp(
         title: 'Vybia',
         debugShowCheckedModeBanner: false,
@@ -136,7 +142,9 @@ class _VybiaAppState extends State<VybiaApp> {
           controller: _guest,
           child: PlanScope(
             controller: _plans,
-            child: _kProof93
+            child: _kProof10
+                ? const S10ProofTour()
+                : _kProof93
                 ? const S93ProofTour()
                 : _kProof92
                 ? const S92ProofTour()
