@@ -1,6 +1,6 @@
 {
  "schema": "vybia.catalog.v1",
- "generated": "2026-06-21T02:13:39.003Z",
+ "generated": "2026-06-21T10:05:10.150Z",
  "city": "Montréal",
  "origin": {
   "lat": 45.5019,
@@ -68,13 +68,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_458913001",
-   "confidence": 0.7,
-   "lat": 45.51344,
-   "lng": -73.57121,
+   "confidence": 0.8,
+   "lat": 45.5134424,
+   "lng": -73.5712107,
    "neighbourhood": "Le Plateau-Mont-Royal",
-   "address": null,
+   "address": "McKibbins Irish Pub, 3515 Boulevard Saint-Laurent, Montreal, QC H2X 2T6, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -87,7 +87,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Lun-Dim 11:30-3:00",
+   "enrichedAt": "2026-06-21T10:03:04.478Z"
   },
   {
    "id": "osm_1057485548",
@@ -137,13 +139,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1057485548",
-   "confidence": 0.7,
-   "lat": 45.51182,
-   "lng": -73.56193,
+   "confidence": 0.8,
+   "lat": 45.5118201,
+   "lng": -73.5619282,
    "neighbourhood": null,
-   "address": null,
+   "address": "MVP, 200 Rue Sainte-Catherine Est, Montreal, QC H2X 1K8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -156,7 +158,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:05.236Z"
   },
   {
    "id": "osm_1070167377",
@@ -206,13 +209,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1070167377",
-   "confidence": 0.7,
-   "lat": 45.55116,
-   "lng": -73.57321,
+   "confidence": 0.8,
+   "lat": 45.5511562,
+   "lng": -73.5732119,
    "neighbourhood": null,
-   "address": null,
+   "address": "Bar Monaco, 3251 Rue Masson, Montreal, QC H1X 1R4, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -225,7 +228,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "08:00-03:00",
+   "enrichedAt": "2026-06-21T10:03:05.990Z"
   },
   {
    "id": "osm_1113852373",
@@ -344,13 +349,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1192154422",
-   "confidence": 0.7,
-   "lat": 45.49682,
-   "lng": -73.57723,
+   "confidence": 0.8,
+   "lat": 45.4968227,
+   "lng": -73.5772264,
    "neighbourhood": null,
-   "address": null,
+   "address": "Mckibbins Pub, 1426 Rue Bishop, Montreal, QC H3G 2E4, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -363,7 +368,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:07.830Z"
   },
   {
    "id": "osm_1199285545",
@@ -413,13 +419,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1199285545",
-   "confidence": 0.7,
-   "lat": 45.49687,
-   "lng": -73.57484,
+   "confidence": 0.8,
+   "lat": 45.4968705,
+   "lng": -73.5748362,
    "neighbourhood": null,
-   "address": null,
+   "address": "Hurley's, Crescent Street, Montreal, QC H3G 2A9, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -432,7 +438,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:08.486Z"
   },
   {
    "id": "osm_1199366737",
@@ -482,13 +489,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1199366737",
-   "confidence": 0.7,
-   "lat": 45.49682,
-   "lng": -73.57518,
+   "confidence": 0.8,
+   "lat": 45.4968178,
+   "lng": -73.5751849,
    "neighbourhood": null,
-   "address": null,
+   "address": "Mad Hatters, Crescent Street, Montreal, QC H3G 2A9, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -501,7 +508,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:09.266Z"
   },
   {
    "id": "osm_1200671675",
@@ -551,13 +559,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1200671675",
-   "confidence": 0.7,
-   "lat": 45.49779,
-   "lng": -73.57744,
+   "confidence": 0.8,
+   "lat": 45.4977858,
+   "lng": -73.5774405,
    "neighbourhood": null,
-   "address": null,
+   "address": "Newtown, 1388 Boulevard De Maisonneuve Ouest, Montreal, QC H3G 2B2, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -570,7 +578,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:10.187Z"
   },
   {
    "id": "osm_1201288284",
@@ -620,13 +629,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1201288284",
-   "confidence": 0.7,
-   "lat": 45.49826,
-   "lng": -73.5776,
+   "confidence": 0.8,
+   "lat": 45.4982639,
+   "lng": -73.5776034,
    "neighbourhood": null,
-   "address": null,
+   "address": "Stogies, 2015 Boulevard De Maisonneuve Ouest, Montreal, QC H3G 2R9, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -639,7 +648,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:11.185Z"
   },
   {
    "id": "osm_1201303570",
@@ -689,13 +699,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1201303570",
-   "confidence": 0.7,
-   "lat": 45.49543,
-   "lng": -73.5766,
+   "confidence": 0.8,
+   "lat": 45.4954263,
+   "lng": -73.5765956,
    "neighbourhood": null,
-   "address": null,
+   "address": "P.J. O'Hara's, 1258 Rue Mackay, Montreal, QC H3G 2H4, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -708,7 +718,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:12.340Z"
   },
   {
    "id": "osm_1202687596",
@@ -758,13 +769,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1202687596",
-   "confidence": 0.7,
-   "lat": 45.49726,
-   "lng": -73.57344,
+   "confidence": 0.8,
+   "lat": 45.4972594,
+   "lng": -73.5734412,
    "neighbourhood": null,
-   "address": null,
+   "address": "Ye Olde Orchard Pub & Grill, 1191 Rue de la Montagne, Montreal, QC H3G 0A2, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -777,7 +788,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:13.306Z"
   },
   {
    "id": "osm_1202690811",
@@ -827,13 +839,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1202690811",
-   "confidence": 0.7,
-   "lat": 45.49748,
-   "lng": -73.57666,
+   "confidence": 0.8,
+   "lat": 45.4974756,
+   "lng": -73.5766599,
    "neighbourhood": null,
-   "address": null,
+   "address": "Seven, 1434 Crescent Street, Montreal, QC H3G 2B6, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -846,7 +858,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:13.972Z"
   },
   {
    "id": "osm_191045563",
@@ -896,13 +909,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_191045563",
-   "confidence": 0.7,
-   "lat": 45.55036,
-   "lng": -73.6715,
+   "confidence": 0.8,
+   "lat": 45.5503554,
+   "lng": -73.671504,
    "neighbourhood": null,
-   "address": null,
+   "address": "Bar Ahuntsic, 10720 Boulevard Saint-Laurent, Montreal, QC H3L 2P8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -915,7 +928,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:14.641Z"
   },
   {
    "id": "osm_393143427",
@@ -965,13 +979,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_393143427",
-   "confidence": 0.7,
-   "lat": 45.4994,
-   "lng": -73.57194,
+   "confidence": 0.8,
+   "lat": 45.4994016,
+   "lng": -73.5719392,
    "neighbourhood": null,
-   "address": null,
+   "address": "Peel Pub, 1196 Rue Peel, Montreal, QC H3B 2T5, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -984,7 +998,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:15.410Z"
   },
   {
    "id": "osm_420041496",
@@ -1034,13 +1049,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_420041496",
-   "confidence": 0.7,
-   "lat": 45.4953,
-   "lng": -73.56361,
+   "confidence": 0.8,
+   "lat": 45.4953035,
+   "lng": -73.5636118,
    "neighbourhood": null,
-   "address": null,
+   "address": "Le 100 Génies, 1111 Rue Notre-Dame Ouest, Montreal, QC H3C 6M8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -1053,7 +1068,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:16.329Z"
   },
   {
    "id": "osm_425718549",
@@ -1103,13 +1119,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_425718549",
-   "confidence": 0.7,
-   "lat": 45.51478,
-   "lng": -73.56547,
+   "confidence": 0.8,
+   "lat": 45.5147796,
+   "lng": -73.5654681,
    "neighbourhood": null,
-   "address": null,
+   "address": "La Distillerie, 300 Rue Ontario Est, Montreal, QC H2X 1H7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -1122,7 +1138,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Lun-Dim 16:00-03:00",
+   "enrichedAt": "2026-06-21T10:03:17.147Z"
   },
   {
    "id": "osm_237590709",
@@ -1172,13 +1190,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_237590709",
-   "confidence": 0.7,
-   "lat": 45.51984,
-   "lng": -73.59592,
+   "confidence": 0.8,
+   "lat": 45.5198411,
+   "lng": -73.5959163,
    "neighbourhood": "Outremont",
-   "address": null,
+   "address": "Columbus Café & Co, 5101 Park Avenue, Montreal, QC H2V 4G3, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -1191,7 +1209,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Lun-Ven 07:30-19:00 ·  Sam-Dim 08:30-19:00",
+   "enrichedAt": "2026-06-21T10:03:17.749Z"
   },
   {
    "id": "osm_300077245",
@@ -1241,13 +1261,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_300077245",
-   "confidence": 0.7,
-   "lat": 45.52721,
-   "lng": -73.58013,
+   "confidence": 0.8,
+   "lat": 45.5272146,
+   "lng": -73.5801315,
    "neighbourhood": "Le Plateau-Mont-Royal",
-   "address": null,
+   "address": "Americano, 957 Avenue du Mont-Royal Est, Montreal, QC H2J 1X4, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -1260,7 +1280,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Lun-Dim 09:00-17:00",
+   "enrichedAt": "2026-06-21T10:03:18.785Z"
   },
   {
    "id": "osm_458918543",
@@ -1310,13 +1332,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_458918543",
-   "confidence": 0.7,
-   "lat": 45.51406,
-   "lng": -73.57262,
+   "confidence": 0.8,
+   "lat": 45.5140638,
+   "lng": -73.5726243,
    "neighbourhood": "Le Plateau-Mont-Royal",
-   "address": null,
+   "address": "Starbucks, 3601 Boulevard Saint-Laurent, Montreal, QC H2X 2V5, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -1329,7 +1351,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Lun-Dim 06:30-23:00",
+   "enrichedAt": "2026-06-21T10:03:19.707Z"
   },
   {
    "id": "osm_942874457",
@@ -1379,13 +1403,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_942874457",
-   "confidence": 0.7,
-   "lat": 45.54523,
-   "lng": -73.54459,
+   "confidence": 0.8,
+   "lat": 45.5452307,
+   "lng": -73.544586,
    "neighbourhood": "Mercier-Hochelaga-Maisonneuve",
-   "address": null,
+   "address": "Atomic Café, 3606 Rue Ontario Est, Montreal, QC H1W 1R7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -1398,7 +1422,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Lun-Ven 08:00-22:00 ·  Sam 09:00-22:00 ·  Dim 09:00-21:00",
+   "enrichedAt": "2026-06-21T10:03:20.324Z"
   },
   {
    "id": "osm_1106702256",
@@ -1448,13 +1474,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1106702256",
-   "confidence": 0.7,
-   "lat": 45.52447,
-   "lng": -73.52126,
+   "confidence": 0.8,
+   "lat": 45.5244685,
+   "lng": -73.5212604,
    "neighbourhood": null,
-   "address": null,
+   "address": "Tim Hortons, 120 Place Charles-Le Moyne, Longueuil, QC J4K 2T4, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -1467,7 +1493,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Dim 06:30-23:00 ·  Lun-Ven 05:00-24:00 ·  Sam 06:15-24:00",
+   "enrichedAt": "2026-06-21T10:03:21.038Z"
   },
   {
    "id": "osm_1192154243",
@@ -1517,13 +1545,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1192154243",
-   "confidence": 0.7,
-   "lat": 45.49483,
-   "lng": -73.57777,
+   "confidence": 0.8,
+   "lat": 45.4948318,
+   "lng": -73.5777732,
    "neighbourhood": null,
-   "address": null,
+   "address": "Second Cup, 1250 Rue Guy, Montreal, QC H3H 2T4, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -1536,7 +1564,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:21.859Z"
   },
   {
    "id": "osm_1205131688",
@@ -1586,13 +1615,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1205131688",
-   "confidence": 0.7,
-   "lat": 45.49859,
-   "lng": -73.57684,
+   "confidence": 0.8,
+   "lat": 45.4985915,
+   "lng": -73.5768385,
    "neighbourhood": null,
-   "address": null,
+   "address": "M Café, 1310 Boulevard De Maisonneuve Ouest, Montreal, QC H2L 1Z9, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -1605,7 +1634,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:22.677Z"
   },
   {
    "id": "osm_1231381513",
@@ -1655,13 +1685,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1231381513",
-   "confidence": 0.7,
-   "lat": 45.49853,
-   "lng": -73.57958,
+   "confidence": 0.8,
+   "lat": 45.4985268,
+   "lng": -73.5795792,
    "neighbourhood": null,
-   "address": null,
+   "address": "Le café des beaux-arts, 1384 Rue Sherbrooke Ouest, Montreal, QC H3G 2E8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -1674,7 +1704,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:23.523Z"
   },
   {
    "id": "osm_1232026989",
@@ -1724,13 +1755,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1232026989",
-   "confidence": 0.7,
-   "lat": 45.49833,
-   "lng": -73.57778,
+   "confidence": 0.8,
+   "lat": 45.4983266,
+   "lng": -73.5777757,
    "neighbourhood": null,
-   "address": null,
+   "address": "Nespresso, 2045 Crescent Street, Montreal, QC H3G 2C1, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -1743,7 +1774,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:24.110Z"
   },
   {
    "id": "osm_1263357123",
@@ -1793,13 +1825,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1263357123",
-   "confidence": 0.7,
-   "lat": 45.49607,
-   "lng": -73.57785,
+   "confidence": 0.8,
+   "lat": 45.4960734,
+   "lng": -73.5778526,
    "neighbourhood": null,
-   "address": null,
+   "address": "Myriade, 1432 Rue Mackay, Montreal, QC H3G 2H6, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -1812,7 +1844,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Lun-Ven 07:30-19:00 ·  Sam,Dim 09:00-19:00",
+   "enrichedAt": "2026-06-21T10:03:24.610Z"
   },
   {
    "id": "osm_1271672559",
@@ -1862,13 +1896,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1271672559",
-   "confidence": 0.7,
-   "lat": 45.50173,
-   "lng": -73.57021,
+   "confidence": 0.8,
+   "lat": 45.501726,
+   "lng": -73.570212,
    "neighbourhood": null,
-   "address": null,
+   "address": "Java U Café, 1241 McGill College Avenue, Montreal, QC H3B 5K4, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -1881,7 +1915,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:25.090Z"
   },
   {
    "id": "osm_281865771",
@@ -1930,13 +1965,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_281865771",
-   "confidence": 0.7999999999999999,
-   "lat": 45.54807,
-   "lng": -73.59209,
+   "confidence": 0.8,
+   "lat": 45.5480677,
+   "lng": -73.5920883,
    "neighbourhood": "Rosemont-Petite-Patrie",
-   "address": null,
+   "address": "Cinéma Beaubien, 2396 Rue Beaubien Est, Montreal, QC H2G 1N2, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -1949,7 +1984,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": "JBouchez — CC BY-SA 4.0 (Wikimedia Commons)",
-   "imageLicense": "CC BY-SA 4.0"
+   "imageLicense": "CC BY-SA 4.0",
+   "enrichedAt": "2026-06-21T10:03:25.880Z"
   },
   {
    "id": "osm_1231386090",
@@ -1998,13 +2034,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1231386090",
-   "confidence": 0.7,
-   "lat": 45.49869,
-   "lng": -73.58002,
+   "confidence": 0.8,
+   "lat": 45.4986932,
+   "lng": -73.5800213,
    "neighbourhood": null,
-   "address": null,
+   "address": "Cinéma du Musée, 1379A Rue Sherbrooke Ouest, Montreal, QC H3G 1K3, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -2017,7 +2053,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:26.467Z"
   },
   {
    "id": "osm_1263357004",
@@ -2066,13 +2103,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1263357004",
-   "confidence": 0.7,
-   "lat": 45.4964,
-   "lng": -73.5778,
+   "confidence": 0.8,
+   "lat": 45.4963996,
+   "lng": -73.5778047,
    "neighbourhood": null,
-   "address": null,
+   "address": "J.A. DeSève Cinema, 1400 Boulevard De Maisonneuve Ouest, Montreal, QC H3G 0C8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -2085,7 +2122,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "\"24/7 but only open when events happening\"",
+   "enrichedAt": "2026-06-21T10:03:27.701Z"
   },
   {
    "id": "osm_1481687479",
@@ -2134,13 +2173,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1481687479",
-   "confidence": 0.7,
-   "lat": 45.44891,
-   "lng": -73.61576,
+   "confidence": 0.8,
+   "lat": 45.4489084,
+   "lng": -73.615758,
    "neighbourhood": null,
-   "address": null,
+   "address": "Cinéma Famous Players Carrefour Angrignon, 7077 Boulevard Newman, Montreal, QC H8N 1X1, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -2153,7 +2192,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:28.487Z"
   },
   {
    "id": "osm_1571409662",
@@ -2202,13 +2242,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1571409662",
-   "confidence": 0.7999999999999999,
-   "lat": 45.51695,
-   "lng": -73.57909,
+   "confidence": 0.8,
+   "lat": 45.5169477,
+   "lng": -73.5790888,
    "neighbourhood": null,
-   "address": null,
+   "address": "Cinema l'Amour, 4007 Boulevard Saint-Laurent, Montreal, QC H2W 1Y4, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -2221,7 +2261,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": "Guilhem Vellut from Annecy, France — CC BY 2.0 (Wikimedia Commons)",
-   "imageLicense": "CC BY 2.0"
+   "imageLicense": "CC BY 2.0",
+   "enrichedAt": "2026-06-21T10:03:29.232Z"
   },
   {
    "id": "osm_229609745",
@@ -2270,13 +2311,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_229609745",
-   "confidence": 0.7999999999999999,
-   "lat": 45.501,
-   "lng": -73.57231,
+   "confidence": 0.8,
+   "lat": 45.5009986,
+   "lng": -73.5723084,
    "neighbourhood": null,
-   "address": null,
+   "address": "Scotiabank Theatre, 977 Rue Sainte-Catherine Ouest, Montreal, QC H3B 4W3, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -2289,7 +2330,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": "D. Benjamin Miller — CC0 (Wikimedia Commons)",
-   "imageLicense": "CC0"
+   "imageLicense": "CC0",
+   "enrichedAt": "2026-06-21T10:03:30.153Z"
   },
   {
    "id": "osm_229612116",
@@ -2338,13 +2380,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_229612116",
-   "confidence": 0.7,
-   "lat": 45.51046,
-   "lng": -73.575,
+   "confidence": 0.8,
+   "lat": 45.5104646,
+   "lng": -73.5750036,
    "neighbourhood": null,
-   "address": null,
+   "address": "Cinéma du Parc, 3575 Avenue du Parc, Montreal, QC H2X 3P9, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -2357,7 +2399,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:30.785Z"
   },
   {
    "id": "osm_2519344583",
@@ -2406,13 +2449,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_2519344583",
-   "confidence": 0.7,
-   "lat": 45.49025,
-   "lng": -73.58501,
+   "confidence": 0.8,
+   "lat": 45.4902532,
+   "lng": -73.5850149,
    "neighbourhood": null,
-   "address": null,
+   "address": "Cineplex Forum & VIP, 2313 Rue Sainte-Catherine Ouest, Montreal, QC H3H 1N2, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -2425,7 +2468,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:31.380Z"
   },
   {
    "id": "osm_289946226",
@@ -2474,13 +2518,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_289946226",
-   "confidence": 0.7,
-   "lat": 45.53257,
-   "lng": -73.48388,
+   "confidence": 0.8,
+   "lat": 45.5325714,
+   "lng": -73.4838791,
    "neighbourhood": null,
-   "address": null,
+   "address": "Cinéma Guzzo, Jacques-Cartier 14, 1401 Rue Rougemont, Longueuil, QC J4J 2C1, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -2493,7 +2537,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:32.101Z"
   },
   {
    "id": "osm_3987146330",
@@ -2542,13 +2587,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_3987146330",
-   "confidence": 0.7,
-   "lat": 45.502,
-   "lng": -73.63863,
+   "confidence": 0.8,
+   "lat": 45.5019992,
+   "lng": -73.6386311,
    "neighbourhood": null,
-   "address": null,
+   "address": "Cinéstarz Côte-des-Neiges, 6700 Chemin de la Côte-des-Neiges, Montreal, QC H3S 2A8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -2561,7 +2606,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:32.816Z"
   },
   {
    "id": "osm_3987146331",
@@ -2610,13 +2656,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_3987146331",
-   "confidence": 0.7,
-   "lat": 45.49018,
-   "lng": -73.65059,
+   "confidence": 0.8,
+   "lat": 45.4901817,
+   "lng": -73.6505909,
    "neighbourhood": null,
-   "address": null,
+   "address": "Dollar Cinema, 6900 Boulevard Décarie, Côte Saint-Luc, QC H3X 2T8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -2629,7 +2675,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:33.738Z"
   },
   {
    "id": "osm_486873439",
@@ -2678,13 +2725,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_486873439",
-   "confidence": 0.7,
-   "lat": 45.49352,
-   "lng": -73.70442,
+   "confidence": 0.8,
+   "lat": 45.4935185,
+   "lng": -73.7044175,
    "neighbourhood": null,
-   "address": null,
+   "address": "Guzzo Mega-Plex Spheretech 14, Rue Beaulac, Montreal, QC H4R 2X7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -2697,7 +2744,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:34.351Z"
   },
   {
    "id": "osm_10003959284",
@@ -2746,13 +2794,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_10003959284",
-   "confidence": 0.7,
-   "lat": 45.49305,
-   "lng": -73.5686,
+   "confidence": 0.8,
+   "lat": 45.4930528,
+   "lng": -73.5686029,
    "neighbourhood": null,
-   "address": null,
+   "address": "PINK Espace, 1399 Saint-Jacques Street, Montreal, QC H3C 1H2, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -2765,7 +2813,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:34.965Z"
   },
   {
    "id": "osm_10016921264",
@@ -2814,13 +2863,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_10016921264",
-   "confidence": 0.7,
-   "lat": 45.48698,
-   "lng": -73.56716,
+   "confidence": 0.8,
+   "lat": 45.4869815,
+   "lng": -73.5671639,
    "neighbourhood": null,
-   "address": null,
+   "address": "Montreal Art Center & Museum, 1844 William Street, Montreal, QC H3J 1R5, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -2833,7 +2882,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:35.785Z"
   },
   {
    "id": "osm_10658211880",
@@ -2882,13 +2932,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_10658211880",
-   "confidence": 0.7,
-   "lat": 45.54586,
-   "lng": -73.71001,
+   "confidence": 0.8,
+   "lat": 45.545857,
+   "lng": -73.7100119,
    "neighbourhood": null,
-   "address": null,
+   "address": "Verticale - Centre d'artistes, 397 Boulevard des Prairies, Laval, QC H7N 2W3, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -2901,7 +2951,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:36.602Z"
   },
   {
    "id": "osm_11094552201",
@@ -2950,13 +3001,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11094552201",
-   "confidence": 0.7,
-   "lat": 45.51313,
-   "lng": -73.57051,
+   "confidence": 0.8,
+   "lat": 45.5131326,
+   "lng": -73.570514,
    "neighbourhood": null,
-   "address": null,
+   "address": "WIP, 3485 Boulevard Saint-Laurent, Montreal, QC H2X 2V1, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -2969,7 +3020,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:37.320Z"
   },
   {
    "id": "osm_11132554606",
@@ -3018,13 +3070,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11132554606",
-   "confidence": 0.7,
-   "lat": 45.55047,
-   "lng": -73.58253,
+   "confidence": 0.8,
+   "lat": 45.5504706,
+   "lng": -73.5825281,
    "neighbourhood": null,
-   "address": null,
+   "address": "Galerie Yara, 2900,2902 Boulevard Rosemont, Montreal, QC H1Y 1M4, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -3037,7 +3089,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:38.138Z"
   },
   {
    "id": "osm_11133045949",
@@ -3086,13 +3139,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11133045949",
-   "confidence": 0.7,
-   "lat": 45.50103,
-   "lng": -73.55628,
+   "confidence": 0.8,
+   "lat": 45.5010279,
+   "lng": -73.5562776,
    "neighbourhood": null,
-   "address": null,
+   "address": "Impact Galerie, 350 Rue Saint-Paul Ouest, Montreal, QC H2Y 2E8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -3105,7 +3158,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:38.752Z"
   },
   {
    "id": "osm_11146373860",
@@ -3154,13 +3208,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11146373860",
-   "confidence": 0.7,
-   "lat": 45.52172,
-   "lng": -73.59022,
+   "confidence": 0.8,
+   "lat": 45.5217207,
+   "lng": -73.5902168,
    "neighbourhood": null,
-   "address": null,
+   "address": "Galerie Noël Guyomarc'h, 4838 Boulevard Saint-Laurent, Montreal, QC H2T 1R5, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -3173,7 +3227,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:39.471Z"
   },
   {
    "id": "osm_11146373861",
@@ -3222,13 +3277,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11146373861",
-   "confidence": 0.7,
-   "lat": 45.52177,
-   "lng": -73.59032,
+   "confidence": 0.8,
+   "lat": 45.5217669,
+   "lng": -73.5903203,
    "neighbourhood": null,
-   "address": null,
+   "address": "La Galerie Espace, 4846 Boulevard Saint-Laurent, Montreal, QC H2T 1R5, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -3241,7 +3296,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:40.187Z"
   },
   {
    "id": "osm_11146400303",
@@ -3290,13 +3346,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11146400303",
-   "confidence": 0.7,
-   "lat": 45.52205,
-   "lng": -73.59028,
+   "confidence": 0.8,
+   "lat": 45.5220531,
+   "lng": -73.5902837,
    "neighbourhood": null,
-   "address": null,
+   "address": "Le Centre d'Apprentissage Parallèle, 4853 Boulevard Saint-Laurent, Montreal, QC H2T 1R5, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -3309,7 +3365,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:48.848Z"
   },
   {
    "id": "osm_1263357005",
@@ -3358,13 +3415,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1263357005",
-   "confidence": 0.7,
-   "lat": 45.49705,
-   "lng": -73.57765,
+   "confidence": 0.8,
+   "lat": 45.4970539,
+   "lng": -73.5776491,
    "neighbourhood": null,
-   "address": null,
+   "address": "Leonard & Bina Ellen Art Gallery, 1400 Boulevard De Maisonneuve Ouest, Montreal, QC H3G 0C8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -3377,7 +3434,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Mar-Ven 12:00-18:00 ·  Sam 12:00-17:00 ·  PH off",
+   "enrichedAt": "2026-06-21T10:03:49.503Z"
   },
   {
    "id": "osm_1263357006",
@@ -3426,13 +3485,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1263357006",
-   "confidence": 0.7,
-   "lat": 45.49559,
-   "lng": -73.5775,
+   "confidence": 0.8,
+   "lat": 45.4955911,
+   "lng": -73.5775043,
    "neighbourhood": null,
-   "address": null,
+   "address": "FOFA Gallery, 1515 Rue Sainte-Catherine Ouest, Montreal, QC H3G 1S8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -3445,7 +3504,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Lun-Ven 11:00-18:00",
+   "enrichedAt": "2026-06-21T10:03:50.227Z"
   },
   {
    "id": "osm_1263357007",
@@ -3494,13 +3555,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1263357007",
-   "confidence": 0.7,
-   "lat": 45.49556,
-   "lng": -73.57369,
+   "confidence": 0.8,
+   "lat": 45.4955648,
+   "lng": -73.5736902,
    "neighbourhood": null,
-   "address": null,
+   "address": "VAV Gallery, 1395 Boulevard René-Lévesque Ouest, Montreal, QC H3G 0E1, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -3513,7 +3574,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:51.016Z"
   },
   {
    "id": "osm_1278632226",
@@ -3562,13 +3624,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1278632226",
-   "confidence": 0.7,
+   "confidence": 0.8,
    "lat": 45.50341,
-   "lng": -73.5665,
+   "lng": -73.5665003,
    "neighbourhood": null,
-   "address": null,
+   "address": "Galerie 2000, 555 Boulevard René-Lévesque Ouest, Montreal, QC H2Z 1A8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -3581,7 +3643,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:51.656Z"
   },
   {
    "id": "osm_2329817388",
@@ -3630,13 +3693,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_2329817388",
-   "confidence": 0.7,
-   "lat": 45.50695,
-   "lng": -73.56072,
+   "confidence": 0.8,
+   "lat": 45.5069545,
+   "lng": -73.5607177,
    "neighbourhood": null,
-   "address": null,
+   "address": "Galerie de Chine, 94 Rue de La Gauchetière Ouest, Montreal, QC H2Z 1C1, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -3649,7 +3712,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:52.271Z"
   },
   {
    "id": "osm_2695200189",
@@ -3698,13 +3762,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_2695200189",
-   "confidence": 0.7,
-   "lat": 45.50534,
-   "lng": -73.55404,
+   "confidence": 0.8,
+   "lat": 45.5053355,
+   "lng": -73.5540396,
    "neighbourhood": null,
-   "address": null,
+   "address": "Galerie LeRoyer, 11 Rue Saint-Paul Ouest, Montreal, QC H2Y 1Z1, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -3717,7 +3781,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:52.986Z"
   },
   {
    "id": "osm_2695200193",
@@ -3766,13 +3831,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_2695200193",
-   "confidence": 0.7,
-   "lat": 45.5051,
-   "lng": -73.55422,
+   "confidence": 0.8,
+   "lat": 45.5050982,
+   "lng": -73.5542171,
    "neighbourhood": null,
-   "address": null,
+   "address": "GLR45 Underground, 45 Rue Saint-Paul Ouest, Montreal, QC H2Y 1Z1, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -3785,7 +3850,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:53.704Z"
   },
   {
    "id": "osm_10801652887",
@@ -3834,13 +3900,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_10801652887",
-   "confidence": 0.7,
-   "lat": 45.47194,
-   "lng": -73.6009,
+   "confidence": 0.8,
+   "lat": 45.4719435,
+   "lng": -73.6008993,
    "neighbourhood": null,
-   "address": null,
+   "address": "Rio Tinto Gardens, Côte-des-Neiges–Notre-Dame-de-Grâce, Montreal, QC H4A 3J1, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -3853,7 +3919,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:54.596Z"
   },
   {
    "id": "osm_11565138181",
@@ -3902,13 +3969,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11565138181",
-   "confidence": 0.7,
-   "lat": 45.5063,
-   "lng": -73.52938,
+   "confidence": 0.8,
+   "lat": 45.5063012,
+   "lng": -73.5293792,
    "neighbourhood": null,
-   "address": null,
+   "address": "Jardin des États-Unis, Ville-Marie, Montreal, QC H3C 4W7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -3921,7 +3988,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:55.434Z"
   },
   {
    "id": "osm_11647450502",
@@ -3970,13 +4038,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11647450502",
-   "confidence": 0.7,
-   "lat": 45.50684,
-   "lng": -73.52743,
+   "confidence": 0.8,
+   "lat": 45.5068362,
+   "lng": -73.5274289,
    "neighbourhood": null,
-   "address": null,
+   "address": "Jardin de l'Angleterre, Ville-Marie, Montreal, QC H3C 4W7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -3989,7 +4057,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:56.059Z"
   },
   {
    "id": "osm_11647450503",
@@ -4038,13 +4107,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11647450503",
-   "confidence": 0.7,
-   "lat": 45.50681,
-   "lng": -73.52807,
+   "confidence": 0.8,
+   "lat": 45.506806,
+   "lng": -73.5280729,
    "neighbourhood": null,
-   "address": null,
+   "address": "Jardin de la Belgique, Ville-Marie, Montreal, QC H3C 4W7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -4057,7 +4126,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:57.084Z"
   },
   {
    "id": "osm_11647450504",
@@ -4106,13 +4176,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11647450504",
-   "confidence": 0.7,
-   "lat": 45.50533,
-   "lng": -73.52753,
+   "confidence": 0.8,
+   "lat": 45.5053287,
+   "lng": -73.5275252,
    "neighbourhood": null,
-   "address": null,
+   "address": "Jardin de la France, Ville-Marie, Montreal, QC H3C 4W7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -4125,7 +4195,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:57.998Z"
   },
   {
    "id": "osm_11647450505",
@@ -4174,13 +4245,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11647450505",
-   "confidence": 0.7,
-   "lat": 45.50592,
-   "lng": -73.52814,
+   "confidence": 0.8,
+   "lat": 45.5059228,
+   "lng": -73.5281376,
    "neighbourhood": null,
-   "address": null,
+   "address": "Jardin de l'Italie, Ville-Marie, Montreal, QC H3C 4W7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -4193,7 +4264,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:58.619Z"
   },
   {
    "id": "osm_11647450507",
@@ -4242,13 +4314,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11647450507",
-   "confidence": 0.7,
-   "lat": 45.50444,
-   "lng": -73.52938,
+   "confidence": 0.8,
+   "lat": 45.5044372,
+   "lng": -73.5293792,
    "neighbourhood": null,
-   "address": null,
+   "address": "Jardin du Canada, Ville-Marie, Montreal, QC H3C 4W7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -4261,7 +4333,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:03:59.439Z"
   },
   {
    "id": "osm_11647450508",
@@ -4310,13 +4383,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11647450508",
-   "confidence": 0.7,
-   "lat": 45.50482,
-   "lng": -73.52775,
+   "confidence": 0.8,
+   "lat": 45.5048237,
+   "lng": -73.5277463,
    "neighbourhood": null,
-   "address": null,
+   "address": "Jardin du Mexique, Ville-Marie, Montreal, QC H3C 4W7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -4329,7 +4402,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:00.052Z"
   },
   {
    "id": "osm_11647450509",
@@ -4378,13 +4452,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11647450509",
-   "confidence": 0.7,
-   "lat": 45.50484,
-   "lng": -73.52707,
+   "confidence": 0.8,
+   "lat": 45.504841,
+   "lng": -73.5270654,
    "neighbourhood": null,
-   "address": null,
+   "address": "Jardin de l'Ontario, Ville-Marie, Montreal, QC H3C 4W7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -4397,7 +4471,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:00.790Z"
   },
   {
    "id": "osm_11647450816",
@@ -4446,13 +4521,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11647450816",
-   "confidence": 0.7,
-   "lat": 45.50491,
-   "lng": -73.52867,
+   "confidence": 0.8,
+   "lat": 45.5049101,
+   "lng": -73.5286689,
    "neighbourhood": null,
-   "address": null,
+   "address": "Jardin de l'Autriche, Ville-Marie, Montreal, QC H3C 4W7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -4465,7 +4540,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:01.486Z"
   },
   {
    "id": "osm_11647450817",
@@ -4514,13 +4590,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11647450817",
-   "confidence": 0.7,
-   "lat": 45.50333,
-   "lng": -73.52642,
+   "confidence": 0.8,
+   "lat": 45.5033316,
+   "lng": -73.5264228,
    "neighbourhood": null,
-   "address": null,
+   "address": "Jardin du Québec, Ville-Marie, Montreal, QC H3C 4W7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -4533,7 +4609,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:02.099Z"
   },
   {
    "id": "osm_12984934494",
@@ -4582,13 +4659,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_12984934494",
-   "confidence": 0.7,
-   "lat": 45.52945,
-   "lng": -73.6118,
+   "confidence": 0.8,
+   "lat": 45.5294532,
+   "lng": -73.6117976,
    "neighbourhood": null,
-   "address": null,
+   "address": "Jardin collectif des amiEs du parc des Gorilles, Rosemont–La Petite-Patrie, Montreal, QC H2V 4M2, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -4601,7 +4678,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:02.715Z"
   },
   {
    "id": "osm_3526926198",
@@ -4650,13 +4728,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_3526926198",
-   "confidence": 0.7,
-   "lat": 45.52503,
+   "confidence": 0.8,
+   "lat": 45.5250252,
    "lng": -73.55307,
    "neighbourhood": null,
-   "address": null,
+   "address": "Sentiers urbains - Jardim, Ville-Marie, Montreal, QC H3H 1K4, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -4669,7 +4747,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:03.535Z"
   },
   {
    "id": "osm_9582953728",
@@ -4718,13 +4797,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_9582953728",
-   "confidence": 0.7,
-   "lat": 45.55818,
-   "lng": -73.67182,
+   "confidence": 0.8,
+   "lat": 45.5581783,
+   "lng": -73.6718182,
    "neighbourhood": null,
-   "address": null,
+   "address": "Arboretum Parcours Gouin, Ahuntsic-Cartierville, Montreal, QC H2C 2G8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -4737,7 +4816,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:04.148Z"
   },
   {
    "id": "osm_11071882559",
@@ -4787,13 +4867,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11071882559",
-   "confidence": 0.7,
-   "lat": 45.56268,
-   "lng": -73.60495,
+   "confidence": 0.8,
+   "lat": 45.5626773,
+   "lng": -73.6049543,
    "neighbourhood": null,
-   "address": null,
+   "address": "Saint Michel Flea Market, 7707 Avenue Shelley, Montreal, QC H2A 3N9, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -4806,7 +4886,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Ven-Dim 09:00-17:00",
+   "enrichedAt": "2026-06-21T10:04:04.762Z"
   },
   {
    "id": "osm_11071897398",
@@ -4856,13 +4938,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11071897398",
-   "confidence": 0.7,
-   "lat": 45.59232,
-   "lng": -73.58179,
+   "confidence": 0.8,
+   "lat": 45.5923187,
+   "lng": -73.5817874,
    "neighbourhood": null,
-   "address": null,
+   "address": "Métropolitain Flea Market, 6245 Boulevard Métropolitain - Voie de desserte Nord, Montreal, QC H1P 1X7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -4875,7 +4957,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Jeu-Ven 10:00-18:00, Sam-Dim 10:00-17:00",
+   "enrichedAt": "2026-06-21T10:04:05.448Z"
   },
   {
    "id": "osm_12125417451",
@@ -4925,13 +5009,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_12125417451",
-   "confidence": 0.7999999999999999,
-   "lat": 45.47964,
-   "lng": -73.57678,
+   "confidence": 0.8,
+   "lat": 45.4796443,
+   "lng": -73.5767813,
    "neighbourhood": null,
-   "address": null,
+   "address": "Atwater Market, Avenue Greene, Montreal, QC H4C 2H6, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -4944,7 +5028,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": "Colin Rose from Montreal, Canada — CC BY-SA 2.0 (Wikimedia Commons)",
-   "imageLicense": "CC BY-SA 2.0"
+   "imageLicense": "CC BY-SA 2.0",
+   "openingHours": "Lun-Ven 09:00-18:00 ·  Sam,Dim 09:00-17:00",
+   "enrichedAt": "2026-06-21T10:04:06.195Z"
   },
   {
    "id": "osm_12175674802",
@@ -4994,13 +5080,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_12175674802",
-   "confidence": 0.7,
-   "lat": 45.52569,
-   "lng": -73.62523,
+   "confidence": 0.8,
+   "lat": 45.525689,
+   "lng": -73.6252315,
    "neighbourhood": null,
-   "address": null,
+   "address": "Marché d'Afrique, Avenue Wiseman, Montreal, QC H3N 2R3, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -5013,7 +5099,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:06.810Z"
   },
   {
    "id": "osm_12175708602",
@@ -5063,13 +5150,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_12175708602",
-   "confidence": 0.7,
-   "lat": 45.52531,
-   "lng": -73.62501,
+   "confidence": 0.8,
+   "lat": 45.5253099,
+   "lng": -73.6250144,
    "neighbourhood": null,
-   "address": null,
+   "address": "Meezan, 908 Rue Jean-Talon Ouest, Montreal, QC H3N 1S7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -5082,7 +5169,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:07.527Z"
   },
   {
    "id": "osm_12242527603",
@@ -5132,13 +5220,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_12242527603",
-   "confidence": 0.7,
-   "lat": 45.49159,
-   "lng": -73.47407,
+   "confidence": 0.8,
+   "lat": 45.4915914,
+   "lng": -73.4740726,
    "neighbourhood": null,
-   "address": null,
+   "address": "Boutiques Marcado, Rue de Mont-Royal, Longueuil, QC J4P 3G2, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -5151,7 +5239,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:08.061Z"
   },
   {
    "id": "osm_262071903",
@@ -5201,13 +5290,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_262071903",
-   "confidence": 0.7,
-   "lat": 45.41087,
-   "lng": -73.47847,
+   "confidence": 0.8,
+   "lat": 45.4108678,
+   "lng": -73.4784735,
    "neighbourhood": null,
-   "address": null,
+   "address": "Marché des Jardiniers, Chemin de Saint-Jean, La Prairie, QC J5R 2L7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -5220,7 +5309,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:08.655Z"
   },
   {
    "id": "osm_6296879986",
@@ -5270,13 +5360,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_6296879986",
-   "confidence": 0.7,
-   "lat": 45.53612,
-   "lng": -73.57995,
+   "confidence": 0.8,
+   "lat": 45.5361188,
+   "lng": -73.579949,
    "neighbourhood": null,
-   "address": null,
+   "address": "Fruiterie Roger, Avenue Laurier Est, Montreal, QC H2H 1V9, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -5289,7 +5379,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Lun-Dim,PH 08:00-20:00",
+   "enrichedAt": "2026-06-21T10:04:09.165Z"
   },
   {
    "id": "osm_7133625993",
@@ -5339,13 +5431,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_7133625993",
-   "confidence": 0.7,
-   "lat": 45.53649,
-   "lng": -73.61591,
+   "confidence": 0.8,
+   "lat": 45.5364867,
+   "lng": -73.6159144,
    "neighbourhood": null,
-   "address": null,
+   "address": "Supermarché l'Olivier, 7070 Avenue Henri-Julien, Montreal, QC H2S 3S3, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -5358,7 +5450,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:09.811Z"
   },
   {
    "id": "osm_9533220003",
@@ -5408,13 +5501,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_9533220003",
-   "confidence": 0.7,
-   "lat": 45.55081,
-   "lng": -73.65655,
+   "confidence": 0.8,
+   "lat": 45.5508082,
+   "lng": -73.6565478,
    "neighbourhood": null,
-   "address": null,
+   "address": "Marché Ahuntsic-Cartierville, Rue Berri, Montreal, QC H3L 2G5, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -5427,7 +5520,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Lun-Ven 14:00-19:00",
+   "enrichedAt": "2026-06-21T10:04:10.548Z"
   },
   {
    "id": "osm_1458999228",
@@ -5476,13 +5571,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1458999228",
-   "confidence": 0.7999999999999999,
-   "lat": 45.49244,
-   "lng": -73.61726,
+   "confidence": 0.8,
+   "lat": 45.4924417,
+   "lng": -73.617264,
    "neighbourhood": null,
-   "address": null,
+   "address": "The Oratory Museum, Jardin du chemin de la croix, Montreal, QC H3V 1H4, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -5495,7 +5590,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": "Dpalma01 — CC BY-SA 4.0 (Wikimedia Commons)",
-   "imageLicense": "CC BY-SA 4.0"
+   "imageLicense": "CC BY-SA 4.0",
+   "enrichedAt": "2026-06-21T10:04:11.418Z"
   },
   {
    "id": "osm_1655418412",
@@ -5544,13 +5640,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1655418412",
-   "confidence": 0.7,
-   "lat": 45.52306,
-   "lng": -73.59309,
+   "confidence": 0.8,
+   "lat": 45.5230566,
+   "lng": -73.5930927,
    "neighbourhood": null,
-   "address": null,
+   "address": "Musée des Pompiers de Montréal, 5100 Boulevard Saint-Laurent, Montreal, QC H2T 1R8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -5563,7 +5659,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:12.238Z"
   },
   {
    "id": "osm_1996555147",
@@ -5612,13 +5709,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1996555147",
-   "confidence": 0.7,
-   "lat": 45.54023,
-   "lng": -73.62348,
+   "confidence": 0.8,
+   "lat": 45.5402274,
+   "lng": -73.6234793,
    "neighbourhood": null,
-   "address": null,
+   "address": "Espace Projet, 7711 Rue Drolet, Montreal, QC H2R 2C7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -5631,7 +5728,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:12.854Z"
   },
   {
    "id": "osm_213716077",
@@ -5680,13 +5778,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_213716077",
-   "confidence": 0.7999999999999999,
-   "lat": 45.4987,
-   "lng": -73.57938,
+   "confidence": 0.8,
+   "lat": 45.4986971,
+   "lng": -73.5793846,
    "neighbourhood": null,
-   "address": null,
+   "address": "Montreal Museum of Fine Arts, 1380 Rue Sherbrooke Ouest, Montreal, QC H3G 2C6, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -5699,7 +5797,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": "Thomas Ledl — CC BY-SA 4.0 (Wikimedia Commons)",
-   "imageLicense": "CC BY-SA 4.0"
+   "imageLicense": "CC BY-SA 4.0",
+   "openingHours": "Mar-Dim 10:00-17:00 ·  Mer 17:00-21:00 \"open to public\"",
+   "enrichedAt": "2026-06-21T10:04:13.419Z"
   },
   {
    "id": "osm_2422210609",
@@ -5748,13 +5848,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_2422210609",
-   "confidence": 0.7999999999999999,
-   "lat": 45.52033,
-   "lng": -73.56366,
+   "confidence": 0.8,
+   "lat": 45.5203343,
+   "lng": -73.5636566,
    "neighbourhood": null,
-   "address": null,
+   "address": "Écomusée du Fier Monde, 2050 Rue Atateken, Montreal, QC H2L 4P1, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -5767,7 +5867,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": "Jeangagnon — CC BY-SA 3.0 (Wikimedia Commons)",
-   "imageLicense": "CC BY-SA 3.0"
+   "imageLicense": "CC BY-SA 3.0",
+   "openingHours": "Mer 11:00-20:00 ·  Jeu,Ven 09:30-16:00 ·  Sam,Dim 10:30-17:00",
+   "enrichedAt": "2026-06-21T10:04:14.062Z"
   },
   {
    "id": "osm_333465990",
@@ -5816,13 +5918,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_333465990",
-   "confidence": 0.7999999999999999,
-   "lat": 45.47755,
-   "lng": -73.5924,
+   "confidence": 0.8,
+   "lat": 45.4775501,
+   "lng": -73.5924031,
    "neighbourhood": null,
-   "address": null,
+   "address": "Musée des ondes Emile Berliner, 1027 Rue Lacasse, Montreal, QC H4C 2Z2, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -5835,7 +5937,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": "Dr. Nipper — CC BY-SA 4.0 (Wikimedia Commons)",
-   "imageLicense": "CC BY-SA 4.0"
+   "imageLicense": "CC BY-SA 4.0",
+   "enrichedAt": "2026-06-21T10:04:14.647Z"
   },
   {
    "id": "osm_3677627825",
@@ -5884,13 +5987,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_3677627825",
-   "confidence": 0.7,
-   "lat": 45.44192,
-   "lng": -73.71179,
+   "confidence": 0.8,
+   "lat": 45.4419236,
+   "lng": -73.7117914,
    "neighbourhood": null,
-   "address": null,
+   "address": "Musée des télécommunications, 5000 Rue René-Huguet, Montreal, QC H8T 2W4, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -5903,7 +6006,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:15.312Z"
   },
   {
    "id": "osm_4325235794",
@@ -5952,13 +6056,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_4325235794",
-   "confidence": 0.7,
-   "lat": 45.50156,
-   "lng": -73.59305,
+   "confidence": 0.8,
+   "lat": 45.5015608,
+   "lng": -73.593052,
    "neighbourhood": null,
-   "address": null,
+   "address": "Mount Royal, A Territory to Discover, 1260 Chemin Remembrance, Montreal, QC H3H 1S9, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -5971,7 +6075,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:16.026Z"
   },
   {
    "id": "osm_4363655226",
@@ -6020,13 +6125,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_4363655226",
-   "confidence": 0.7999999999999999,
-   "lat": 45.51169,
-   "lng": -73.67133,
+   "confidence": 0.8,
+   "lat": 45.5116929,
+   "lng": -73.6713332,
    "neighbourhood": null,
-   "address": null,
+   "address": "Musée des maîtres et artisans du Québec, 615 Avenue Sainte-Croix, Montreal, QC H4L 3X5, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -6039,7 +6144,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": "Pierre5018 — CC BY-SA 4.0 (Wikimedia Commons)",
-   "imageLicense": "CC BY-SA 4.0"
+   "imageLicense": "CC BY-SA 4.0",
+   "enrichedAt": "2026-06-21T10:04:16.513Z"
   },
   {
    "id": "osm_4852683785",
@@ -6088,13 +6194,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_4852683785",
-   "confidence": 0.7,
+   "confidence": 0.8,
    "lat": 45.52263,
-   "lng": -73.56521,
+   "lng": -73.5652109,
    "neighbourhood": null,
-   "address": null,
+   "address": "Le Grand Costumier, 2207 Rue Montcalm, Montreal, QC H2L 1R5, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -6107,7 +6213,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:17.067Z"
   },
   {
    "id": "osm_5133035604",
@@ -6156,13 +6263,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_5133035604",
-   "confidence": 0.7,
-   "lat": 45.54086,
-   "lng": -73.71618,
+   "confidence": 0.8,
+   "lat": 45.5408595,
+   "lng": -73.7161839,
    "neighbourhood": null,
-   "address": null,
+   "address": "Musée Armand-Frappier, 531 Boulevard des Prairies, Laval, QC H7V 1B7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -6175,7 +6282,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:17.665Z"
   },
   {
    "id": "osm_5333657163",
@@ -6224,13 +6332,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_5333657163",
-   "confidence": 0.7,
-   "lat": 45.48896,
-   "lng": -73.63637,
+   "confidence": 0.8,
+   "lat": 45.4889582,
+   "lng": -73.6363675,
    "neighbourhood": null,
-   "address": null,
+   "address": "Montreal Holocaust Memorial Center, 5151 Chemin de la Côte-Sainte-Catherine, Montreal, QC H3W 1M6, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -6243,7 +6351,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:18.280Z"
   },
   {
    "id": "osm_5692087726",
@@ -6292,13 +6401,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_5692087726",
-   "confidence": 0.7,
-   "lat": 45.50565,
-   "lng": -73.55365,
+   "confidence": 0.8,
+   "lat": 45.5056496,
+   "lng": -73.5536481,
    "neighbourhood": null,
-   "address": null,
+   "address": "Galerie D'Art Inuit Images Boréales, 4 Rue Saint-Paul Est, Montreal, QC H2Y 3A3, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -6311,7 +6420,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Lun-Sam 09:00-18:00 ·  Dim 10:00-17:00",
+   "enrichedAt": "2026-06-21T10:04:19.129Z"
   },
   {
    "id": "osm_6090219915",
@@ -6360,13 +6471,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_6090219915",
-   "confidence": 0.7,
-   "lat": 45.51296,
-   "lng": -73.56207,
+   "confidence": 0.8,
+   "lat": 45.5129552,
+   "lng": -73.5620656,
    "neighbourhood": null,
-   "address": null,
+   "address": "Centre de design de l'UQAM, 1440 Rue Sanguinet, Montreal, QC H2X 3X9, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -6379,7 +6490,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Mer-Dim 12:00-18:00",
+   "enrichedAt": "2026-06-21T10:04:19.923Z"
   },
   {
    "id": "osm_6222152322",
@@ -6428,13 +6541,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_6222152322",
-   "confidence": 0.7,
-   "lat": 45.55159,
-   "lng": -73.63998,
+   "confidence": 0.8,
+   "lat": 45.551585,
+   "lng": -73.639979,
    "neighbourhood": null,
-   "address": null,
+   "address": "Musée de l'imprimerie du Québec, 999 Avenue Émile-Journault, Montreal, QC H2M 2E2, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -6447,7 +6560,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:20.532Z"
   },
   {
    "id": "osm_6289876711",
@@ -6496,13 +6610,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_6289876711",
-   "confidence": 0.7,
-   "lat": 45.57599,
-   "lng": -73.65958,
+   "confidence": 0.8,
+   "lat": 45.5759898,
+   "lng": -73.6595821,
    "neighbourhood": null,
-   "address": null,
+   "address": "Musée du Sault-au-Récollet, Rue Du Pressoir, Montreal, QC H2B 2L1, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -6515,7 +6629,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "PH,Mar-Dim 11:00-17:00",
+   "enrichedAt": "2026-06-21T10:04:21.248Z"
   },
   {
    "id": "osm_12408281059",
@@ -6565,13 +6681,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_12408281059",
-   "confidence": 0.7,
-   "lat": 45.54976,
-   "lng": -73.59911,
+   "confidence": 0.8,
+   "lat": 45.5497584,
+   "lng": -73.599115,
    "neighbourhood": null,
-   "address": null,
+   "address": "Carré Augier, Rosemont–La Petite-Patrie, Montreal, QC H2G 2L5, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -6584,7 +6700,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:21.863Z"
   },
   {
    "id": "osm_12809407548",
@@ -6634,13 +6751,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_12809407548",
-   "confidence": 0.7,
-   "lat": 45.4726,
-   "lng": -73.64716,
+   "confidence": 0.8,
+   "lat": 45.4725973,
+   "lng": -73.6471644,
    "neighbourhood": null,
-   "address": null,
+   "address": "Harold Greenspon, Côte Saint-Luc, QC H4V 1E9, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -6653,7 +6770,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Lun-Dim 07:00-23:00",
+   "enrichedAt": "2026-06-21T10:04:22.409Z"
   },
   {
    "id": "osm_12895394101",
@@ -6703,13 +6822,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_12895394101",
-   "confidence": 0.7,
-   "lat": 45.57248,
-   "lng": -73.5407,
+   "confidence": 0.8,
+   "lat": 45.572481,
+   "lng": -73.5406953,
    "neighbourhood": null,
-   "address": null,
+   "address": "Square NDV, Mercier–Hochelaga-Maisonneuve, Montreal, QC H1N 1R6, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -6722,7 +6841,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:23.196Z"
   },
   {
    "id": "osm_4379750813",
@@ -6772,13 +6892,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_4379750813",
-   "confidence": 0.7,
-   "lat": 45.47196,
-   "lng": -73.58071,
+   "confidence": 0.8,
+   "lat": 45.4719641,
+   "lng": -73.5807078,
    "neighbourhood": null,
-   "address": null,
+   "address": "Parc de l'ancienne-cour-de-triage, Le Sud-Ouest, Montreal, QC H4C 3P8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -6791,7 +6911,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:23.810Z"
   },
   {
    "id": "osm_8221810682",
@@ -6841,13 +6962,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_8221810682",
-   "confidence": 0.7,
-   "lat": 45.51867,
-   "lng": -73.61394,
+   "confidence": 0.8,
+   "lat": 45.5186716,
+   "lng": -73.6139415,
    "neighbourhood": null,
-   "address": null,
+   "address": "Parc-école Guy-Drummond, Outremont, Montreal, QC H2V 1P9, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -6860,7 +6981,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:24.629Z"
   },
   {
    "id": "osm_8653478309",
@@ -6910,13 +7032,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_8653478309",
-   "confidence": 0.7,
-   "lat": 45.51969,
-   "lng": -73.57569,
+   "confidence": 0.8,
+   "lat": 45.5196888,
+   "lng": -73.575689,
    "neighbourhood": null,
-   "address": null,
+   "address": "Jean-Jacques-Olier, Le Plateau-Mont-Royal, Montreal, QC H2W 2K1, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -6929,7 +7051,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:25.243Z"
   },
   {
    "id": "osm_9140173614",
@@ -6979,13 +7102,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_9140173614",
-   "confidence": 0.7,
-   "lat": 45.45017,
-   "lng": -73.64384,
+   "confidence": 0.8,
+   "lat": 45.4501665,
+   "lng": -73.643838,
    "neighbourhood": null,
-   "address": null,
+   "address": "Back Field, Montreal West, QC H4X 1K5, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -6998,7 +7121,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:25.857Z"
   },
   {
    "id": "osm_9890064847",
@@ -7048,13 +7172,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_9890064847",
-   "confidence": 0.7,
-   "lat": 45.53243,
-   "lng": -73.48027,
+   "confidence": 0.8,
+   "lat": 45.5324263,
+   "lng": -73.4802659,
    "neighbourhood": null,
-   "address": null,
+   "address": "Parc Léo-Major, 145, Longueuil, QC J4J 2E3, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -7067,7 +7191,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Lun-Dim 06:00-23:00",
+   "enrichedAt": "2026-06-21T10:04:26.451Z"
   },
   {
    "id": "osm_454890863",
@@ -7116,13 +7242,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_454890863",
-   "confidence": 0.7,
-   "lat": 45.44023,
-   "lng": -73.62246,
+   "confidence": 0.8,
+   "lat": 45.4402319,
+   "lng": -73.6224568,
    "neighbourhood": "LaSalle",
-   "address": null,
+   "address": "Chez Cora, 7573 Boulevard Newman, Montreal, QC H8N 1X3, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -7135,7 +7261,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:27.188Z"
   },
   {
    "id": "osm_458919689",
@@ -7184,13 +7311,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_458919689",
-   "confidence": 0.7,
+   "confidence": 0.8,
    "lat": 45.51551,
-   "lng": -73.57104,
+   "lng": -73.571037,
    "neighbourhood": "Le Plateau-Mont-Royal",
-   "address": null,
+   "address": "Les Deux Gamins, 170 Rue Prince-Arthur Est, Montreal, QC H2X 1B7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -7203,7 +7330,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:28.007Z"
   },
   {
    "id": "osm_514593512",
@@ -7252,13 +7380,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_514593512",
-   "confidence": 0.7,
-   "lat": 45.52923,
-   "lng": -73.57822,
+   "confidence": 0.8,
+   "lat": 45.5292286,
+   "lng": -73.5782208,
    "neighbourhood": "Le Plateau-Mont-Royal",
-   "address": null,
+   "address": "India Rosa, 1241 Avenue du Mont-Royal Est, Montreal, QC H2J 1Y2, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -7271,7 +7399,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Mo-Th 11:00-23:00; Fr 11:00-24:00; Sa 10:00-15:00, 16:00-24:00; Su 10:00-15:00, ",
+   "enrichedAt": "2026-06-21T10:04:28.520Z"
   },
   {
    "id": "osm_189770160",
@@ -7320,13 +7450,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_189770160",
-   "confidence": 0.7,
-   "lat": 45.54186,
-   "lng": -73.66345,
+   "confidence": 0.8,
+   "lat": 45.5418598,
+   "lng": -73.6634547,
    "neighbourhood": null,
-   "address": null,
+   "address": "GP Restaurant, 355 Rue Sauvé Ouest, Montreal, QC H3L 1Z6, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -7339,7 +7469,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:29.138Z"
   },
   {
    "id": "osm_191024110",
@@ -7388,13 +7519,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_191024110",
-   "confidence": 0.7,
-   "lat": 45.54761,
-   "lng": -73.67232,
+   "confidence": 0.8,
+   "lat": 45.5476096,
+   "lng": -73.6723185,
    "neighbourhood": null,
-   "address": null,
+   "address": "Pizza Roni, 156 Boulevard Henri-Bourassa Ouest, Montreal, QC H3L 3C3, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -7407,7 +7538,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:29.957Z"
   },
   {
    "id": "osm_191024149",
@@ -7456,13 +7588,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_191024149",
-   "confidence": 0.7,
-   "lat": 45.54839,
+   "confidence": 0.8,
+   "lat": 45.5483897,
    "lng": -73.67179,
    "neighbourhood": null,
-   "address": null,
+   "address": "La Crèmière, 120 Boulevard Henri-Bourassa Ouest, Montreal, QC H3L 3C3, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -7475,7 +7607,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:32.001Z"
   },
   {
    "id": "osm_191024164",
@@ -7524,13 +7657,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_191024164",
-   "confidence": 0.7,
-   "lat": 45.54923,
-   "lng": -73.67196,
+   "confidence": 0.8,
+   "lat": 45.5492311,
+   "lng": -73.6719597,
    "neighbourhood": null,
-   "address": null,
+   "address": "Le Palais du Chausson et de la Pizza, 75 Boulevard Henri-Bourassa Ouest, Montreal, QC H3L 3C5, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -7543,7 +7676,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:32.822Z"
   },
   {
    "id": "osm_191082576",
@@ -7592,13 +7726,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_191082576",
-   "confidence": 0.7,
+   "confidence": 0.8,
    "lat": 45.55363,
-   "lng": -73.67057,
+   "lng": -73.6705702,
    "neighbourhood": null,
-   "address": null,
+   "address": "Chopstix, 10759 Avenue D'Auteuil, Montreal, QC H3L 2L8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -7611,7 +7745,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:33.435Z"
   },
   {
    "id": "osm_237575895",
@@ -7660,13 +7795,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_237575895",
-   "confidence": 0.7,
-   "lat": 45.49307,
-   "lng": -73.58042,
+   "confidence": 0.8,
+   "lat": 45.493071,
+   "lng": -73.5804177,
    "neighbourhood": null,
-   "address": null,
+   "address": "Noodles Star, 1871 Rue Sainte-Catherine Ouest, Montreal, QC H3H 1M1, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -7679,7 +7814,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Lun-Mer 12:00-23:00, Jeu-Dim 12:00-24:00",
+   "enrichedAt": "2026-06-21T10:04:34.151Z"
   },
   {
    "id": "osm_237584792",
@@ -7728,13 +7865,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_237584792",
-   "confidence": 0.7,
-   "lat": 45.51316,
-   "lng": -73.57061,
+   "confidence": 0.8,
+   "lat": 45.513161,
+   "lng": -73.5706145,
    "neighbourhood": null,
-   "address": null,
+   "address": "Frite Alors!, 3477 Boulevard Saint-Laurent, Montreal, QC H2X 2V1, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -7747,7 +7884,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Dim-Jeu 11:30-23:00, Ven,Sam 11:30-01:00",
+   "enrichedAt": "2026-06-21T10:04:34.869Z"
   },
   {
    "id": "osm_237584794",
@@ -7796,13 +7935,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_237584794",
-   "confidence": 0.7,
-   "lat": 45.52237,
-   "lng": -73.57794,
+   "confidence": 0.8,
+   "lat": 45.5223731,
+   "lng": -73.5779394,
    "neighbourhood": null,
-   "address": null,
+   "address": "Frite Alors, 4208 Rue Rivard, Montreal, QC H1Z 2A8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -7815,7 +7954,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:35.687Z"
   },
   {
    "id": "osm_245512739",
@@ -7864,13 +8004,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_245512739",
-   "confidence": 0.7,
-   "lat": 45.49719,
-   "lng": -73.57549,
+   "confidence": 0.8,
+   "lat": 45.497185,
+   "lng": -73.5754903,
    "neighbourhood": null,
-   "address": null,
+   "address": "3 Brewers, 1356 Rue Sainte-Catherine Ouest, Montreal, QC H3G 1P6, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -7883,7 +8023,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:36.306Z"
   },
   {
    "id": "osm_245512741",
@@ -7932,13 +8073,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_245512741",
-   "confidence": 0.7,
-   "lat": 45.49722,
-   "lng": -73.57748,
+   "confidence": 0.8,
+   "lat": 45.4972187,
+   "lng": -73.5774768,
    "neighbourhood": null,
-   "address": null,
+   "address": "Le Garden Room, 1445 Rue Bishop, Montreal, QC H3G 2E4, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -7951,7 +8092,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Lun-Mer 12:00-23:00 ·  Jeu-Dim 12:00-02:00",
+   "enrichedAt": "2026-06-21T10:04:37.018Z"
   },
   {
    "id": "osm_282525005",
@@ -8000,13 +8143,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_282525005",
-   "confidence": 0.7,
-   "lat": 45.4103,
-   "lng": -73.4765,
+   "confidence": 0.8,
+   "lat": 45.4103021,
+   "lng": -73.4765024,
    "neighbourhood": null,
-   "address": null,
+   "address": "Restaurant des Jardiniers Maraîchers, 1210 Chemin de Saint-Jean, La Prairie, QC J5R 2L7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -8019,7 +8162,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:37.535Z"
   },
   {
    "id": "osm_299872785",
@@ -8068,13 +8212,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_299872785",
-   "confidence": 0.7,
-   "lat": 45.52503,
-   "lng": -73.58625,
+   "confidence": 0.8,
+   "lat": 45.5250254,
+   "lng": -73.5862543,
    "neighbourhood": null,
-   "address": null,
+   "address": "Monsieur B, 371 Rue de Grand-Pré, Montreal, QC H2J 2L5, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -8087,7 +8231,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:38.144Z"
   },
   {
    "id": "osm_1058291736",
@@ -8137,13 +8282,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1058291736",
-   "confidence": 0.7,
-   "lat": 45.53588,
-   "lng": -73.60344,
+   "confidence": 0.8,
+   "lat": 45.5358786,
+   "lng": -73.603444,
    "neighbourhood": null,
-   "address": null,
+   "address": "Éconofitness, 785 Rue Beaubien Est, Montreal, QC H2S 2M3, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -8156,7 +8301,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "24/7 \"Membres Platine et Extra\"; Mo-Fr 06:00-23:00 \"Membres Weekend et Écono\"; S",
+   "enrichedAt": "2026-06-21T10:04:38.820Z"
   },
   {
    "id": "osm_1573455212",
@@ -8206,13 +8353,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1573455212",
-   "confidence": 0.7,
-   "lat": 45.51805,
-   "lng": -73.5822,
+   "confidence": 0.8,
+   "lat": 45.5180492,
+   "lng": -73.5822013,
    "neighbourhood": null,
-   "address": null,
+   "address": "M Fitness, 4216 Boulevard Saint-Laurent, Montreal, QC H2W 1Z5, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -8225,7 +8372,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:39.375Z"
   },
   {
    "id": "osm_1634799405",
@@ -8275,13 +8423,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1634799405",
-   "confidence": 0.7,
-   "lat": 45.5506,
-   "lng": -73.54953,
+   "confidence": 0.8,
+   "lat": 45.5505962,
+   "lng": -73.5495288,
    "neighbourhood": null,
-   "address": null,
+   "address": "Ping Revolution, 3899 Rue Hochelaga, Montreal, QC H1W 1J8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -8294,7 +8442,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:40.090Z"
   },
   {
    "id": "osm_1966795939",
@@ -8344,13 +8493,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1966795939",
-   "confidence": 0.7,
-   "lat": 45.47953,
-   "lng": -73.58141,
+   "confidence": 0.8,
+   "lat": 45.4795256,
+   "lng": -73.581409,
    "neighbourhood": null,
-   "address": null,
+   "address": "Hard Knox, 3645 Rue Notre-Dame Ouest, Montreal, QC H4C 1P5, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -8363,7 +8512,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:40.817Z"
   },
   {
    "id": "osm_2047454766",
@@ -8413,13 +8563,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_2047454766",
-   "confidence": 0.7,
-   "lat": 45.52758,
-   "lng": -73.59769,
+   "confidence": 0.8,
+   "lat": 45.5275845,
+   "lng": -73.5976905,
    "neighbourhood": null,
-   "address": null,
+   "address": "Shakti Rock Gym, 175 Avenue De Gaspé, Montreal, QC H2T 1Y1, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -8432,7 +8582,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Lun-Ven 10:00-22:00 ·  Sam 10:30-18:00 ·  Dim 13:00-18:00",
+   "enrichedAt": "2026-06-21T10:04:41.422Z"
   },
   {
    "id": "osm_2327699419",
@@ -8482,13 +8634,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_2327699419",
-   "confidence": 0.7,
+   "confidence": 0.8,
    "lat": 45.55426,
-   "lng": -73.69032,
+   "lng": -73.690317,
    "neighbourhood": null,
-   "address": null,
+   "address": "Complexe Sportif Josée Faucher, 125 Boulevard des Prairies, Laval, QC H7N 6K7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -8501,7 +8653,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:41.935Z"
   },
   {
    "id": "osm_2342924434",
@@ -8551,13 +8704,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_2342924434",
-   "confidence": 0.7,
-   "lat": 45.52736,
-   "lng": -73.59797,
+   "confidence": 0.8,
+   "lat": 45.5273593,
+   "lng": -73.5979714,
    "neighbourhood": null,
-   "address": null,
+   "address": "Crossfit Plateau, 5555 Avenue Casgrain, Montreal, QC H2T 1Y1, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -8570,7 +8723,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:42.547Z"
   },
   {
    "id": "osm_2484170016",
@@ -8620,13 +8774,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_2484170016",
-   "confidence": 0.7,
-   "lat": 45.46535,
-   "lng": -73.56692,
+   "confidence": 0.8,
+   "lat": 45.4653499,
+   "lng": -73.5669162,
    "neighbourhood": null,
-   "address": null,
+   "address": "Verdun Fitness, 3841 Rue Wellington, Montreal, QC H4G 1V3, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -8639,7 +8793,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "24/7",
+   "enrichedAt": "2026-06-21T10:04:43.572Z"
   },
   {
    "id": "osm_2501999494",
@@ -8689,13 +8845,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_2501999494",
-   "confidence": 0.7,
-   "lat": 45.54979,
-   "lng": -73.53455,
+   "confidence": 0.8,
+   "lat": 45.549786,
+   "lng": -73.5345531,
    "neighbourhood": null,
-   "address": null,
+   "address": "L'Atelier Sportif, 4236 Rue Sainte-Catherine Est, Montreal, QC H1V 1X3, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -8708,7 +8864,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:44.289Z"
   },
   {
    "id": "osm_3025219639",
@@ -8758,13 +8915,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_3025219639",
-   "confidence": 0.7,
-   "lat": 45.48824,
-   "lng": -73.63405,
+   "confidence": 0.8,
+   "lat": 45.4882393,
+   "lng": -73.6340529,
    "neighbourhood": null,
-   "address": null,
+   "address": "YM-YWHA, 5400 Avenue de Westbury, Montreal, QC H3W 2W8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -8777,7 +8934,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:44.903Z"
   },
   {
    "id": "osm_3081643810",
@@ -8827,13 +8985,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_3081643810",
-   "confidence": 0.7,
-   "lat": 45.51652,
-   "lng": -73.55833,
+   "confidence": 0.8,
+   "lat": 45.5165239,
+   "lng": -73.5583295,
    "neighbourhood": null,
-   "address": null,
+   "address": "Nautilus Plus, 1439 Rue Saint-André, Montreal, QC H2L 3T3, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -8846,7 +9004,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:45.619Z"
   },
   {
    "id": "osm_3220888770",
@@ -8896,13 +9055,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_3220888770",
-   "confidence": 0.7,
-   "lat": 45.53331,
-   "lng": -73.575,
+   "confidence": 0.8,
+   "lat": 45.5333122,
+   "lng": -73.5749955,
    "neighbourhood": null,
-   "address": null,
+   "address": "Zero Gravity, 4519 Avenue Papineau, Montreal, QC H2H 2T3, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -8915,7 +9074,9 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "openingHours": "Jan 01 off; Jul 22 09:00-13:00; Dec 09 09:00-17:00; Dec 10 10:00-21:00; Dec 24 0",
+   "enrichedAt": "2026-06-21T10:04:46.234Z"
   },
   {
    "id": "osm_3626116404",
@@ -9034,13 +9195,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_3627230476",
-   "confidence": 0.7,
-   "lat": 45.53513,
-   "lng": -73.60868,
+   "confidence": 0.8,
+   "lat": 45.5351342,
+   "lng": -73.6086847,
    "neighbourhood": null,
-   "address": null,
+   "address": "Espace Aventures Beach Bun Tribe, 378,380 Rue Saint-Zotique Est, Montreal, QC H2S 2R9, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -9053,7 +9214,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:47.634Z"
   },
   {
    "id": "osm_3798453621",
@@ -9103,13 +9265,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_3798453621",
-   "confidence": 0.7,
-   "lat": 45.49237,
-   "lng": -73.55777,
+   "confidence": 0.8,
+   "lat": 45.4923671,
+   "lng": -73.557765,
    "neighbourhood": null,
-   "address": null,
+   "address": "World Gym, 1150 Rue Wellington, Montreal, QC H3C 0R7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -9122,7 +9284,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:48.283Z"
   },
   {
    "id": "osm_1263357003",
@@ -9171,13 +9334,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1263357003",
-   "confidence": 0.7,
-   "lat": 45.49741,
-   "lng": -73.57851,
+   "confidence": 0.8,
+   "lat": 45.4974073,
+   "lng": -73.5785128,
    "neighbourhood": null,
-   "address": null,
+   "address": "Concordia Theatre, 1455 Boulevard De Maisonneuve Ouest, Montreal, QC H3G 0C8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -9190,7 +9353,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:49.100Z"
   },
   {
    "id": "osm_1281694808",
@@ -9239,13 +9403,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1281694808",
-   "confidence": 0.7,
-   "lat": 45.50666,
-   "lng": -73.56681,
+   "confidence": 0.8,
+   "lat": 45.5066619,
+   "lng": -73.5668057,
    "neighbourhood": null,
-   "address": null,
+   "address": "Le Studio TD, 305 Rue Sainte-Catherine Ouest, Montreal, QC H2X 2A3, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -9258,7 +9422,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:49.722Z"
   },
   {
    "id": "osm_1329148191",
@@ -9307,13 +9472,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1329148191",
-   "confidence": 0.7999999999999999,
-   "lat": 45.50979,
-   "lng": -73.56333,
+   "confidence": 0.8,
+   "lat": 45.5097916,
+   "lng": -73.5633348,
    "neighbourhood": null,
-   "address": null,
+   "address": "Club Soda, 1225 Boulevard Saint-Laurent, Montreal, QC H2X 2S8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -9326,7 +9491,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": "Jean Gagnon — CC BY-SA 3.0 (Wikimedia Commons)",
-   "imageLicense": "CC BY-SA 3.0"
+   "imageLicense": "CC BY-SA 3.0",
+   "enrichedAt": "2026-06-21T10:04:50.330Z"
   },
   {
    "id": "osm_1329148192",
@@ -9375,13 +9541,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1329148192",
-   "confidence": 0.7999999999999999,
-   "lat": 45.50901,
-   "lng": -73.56238,
+   "confidence": 0.8,
+   "lat": 45.5090115,
+   "lng": -73.5623773,
    "neighbourhood": null,
-   "address": null,
+   "address": "Monument-National, 1182 Boulevard Saint-Laurent, Montreal, QC H2X 2S8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -9394,7 +9560,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": "Jeangagnon — CC BY-SA 3.0 (Wikimedia Commons)",
-   "imageLicense": "CC BY-SA 3.0"
+   "imageLicense": "CC BY-SA 3.0",
+   "enrichedAt": "2026-06-21T10:04:50.945Z"
   },
   {
    "id": "osm_1329148193",
@@ -9443,13 +9610,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1329148193",
-   "confidence": 0.7999999999999999,
-   "lat": 45.51061,
-   "lng": -73.5634,
+   "confidence": 0.8,
+   "lat": 45.5106101,
+   "lng": -73.5633963,
    "neighbourhood": null,
-   "address": null,
+   "address": "MTELUS, 59 Rue Sainte-Catherine Est, Montreal, QC H2X 1K5, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -9462,7 +9629,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": "Jeangagnon — CC BY-SA 4.0 (Wikimedia Commons)",
-   "imageLicense": "CC BY-SA 4.0"
+   "imageLicense": "CC BY-SA 4.0",
+   "enrichedAt": "2026-06-21T10:04:51.663Z"
   },
   {
    "id": "osm_1382525117",
@@ -9511,13 +9679,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1382525117",
-   "confidence": 0.7999999999999999,
-   "lat": 45.51364,
-   "lng": -73.56226,
+   "confidence": 0.8,
+   "lat": 45.5136424,
+   "lng": -73.5622626,
    "neighbourhood": null,
-   "address": null,
+   "address": "Salle Pierre-Mercure, 300 Boulevard De Maisonneuve Est, Montreal, QC H2X 3X6, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -9530,7 +9698,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": "Jeangagnon — CC BY-SA 3.0 (Wikimedia Commons)",
-   "imageLicense": "CC BY-SA 3.0"
+   "imageLicense": "CC BY-SA 3.0",
+   "enrichedAt": "2026-06-21T10:04:55.552Z"
   },
   {
    "id": "osm_1401388715",
@@ -9579,13 +9748,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1401388715",
-   "confidence": 0.7999999999999999,
-   "lat": 45.50356,
-   "lng": -73.55656,
+   "confidence": 0.8,
+   "lat": 45.5035562,
+   "lng": -73.5565558,
    "neighbourhood": null,
-   "address": null,
+   "address": "Centaur Theatre, 453 Rue Saint-François-Xavier, Montreal, QC H2Y 2T1, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -9598,7 +9767,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": "Jeangagnon — CC BY-SA 3.0 (Wikimedia Commons)",
-   "imageLicense": "CC BY-SA 3.0"
+   "imageLicense": "CC BY-SA 3.0",
+   "enrichedAt": "2026-06-21T10:04:56.269Z"
   },
   {
    "id": "osm_1571409658",
@@ -9647,13 +9817,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1571409658",
-   "confidence": 0.7,
-   "lat": 45.51684,
-   "lng": -73.57883,
+   "confidence": 0.8,
+   "lat": 45.5168387,
+   "lng": -73.5788327,
    "neighbourhood": null,
-   "address": null,
+   "address": "MainLine, 3993 Boulevard Saint-Laurent, Montreal, QC H2W 1Y4, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -9666,7 +9836,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:04:56.986Z"
   },
   {
    "id": "osm_1608795313",
@@ -9715,13 +9886,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1608795313",
-   "confidence": 0.7999999999999999,
-   "lat": 45.52199,
-   "lng": -73.59083,
+   "confidence": 0.8,
+   "lat": 45.5219886,
+   "lng": -73.5908307,
    "neighbourhood": null,
-   "address": null,
+   "address": "Théâtre ESPACE GO, 4890 Boulevard Saint-Laurent, Montreal, QC H2T 1R5, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -9734,7 +9905,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": "Jeangagnon — CC BY-SA 3.0 (Wikimedia Commons)",
-   "imageLicense": "CC BY-SA 3.0"
+   "imageLicense": "CC BY-SA 3.0",
+   "enrichedAt": "2026-06-21T10:04:57.804Z"
   },
   {
    "id": "osm_1617219945",
@@ -9783,13 +9955,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1617219945",
-   "confidence": 0.7999999999999999,
-   "lat": 45.51338,
+   "confidence": 0.8,
+   "lat": 45.5133797,
    "lng": -73.56015,
    "neighbourhood": null,
-   "address": null,
+   "address": "Théâtre Telus, 1280 Rue Saint-Denis, Montreal, QC H2X 3J6, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -9802,7 +9974,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": "Jeangagnon — CC BY-SA 3.0 (Wikimedia Commons)",
-   "imageLicense": "CC BY-SA 3.0"
+   "imageLicense": "CC BY-SA 3.0",
+   "enrichedAt": "2026-06-21T10:04:58.349Z"
   },
   {
    "id": "osm_1643704217",
@@ -9851,13 +10024,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1643704217",
-   "confidence": 0.7999999999999999,
-   "lat": 45.48289,
-   "lng": -73.57507,
+   "confidence": 0.8,
+   "lat": 45.4828925,
+   "lng": -73.5750666,
    "neighbourhood": null,
-   "address": null,
+   "address": "Théâtre Beanfield, 2490 Rue Notre-Dame Ouest, Montreal, QC H3J 1N5, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -9870,7 +10043,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": "Jean Gagnon — CC BY-SA 3.0 (Wikimedia Commons)",
-   "imageLicense": "CC BY-SA 3.0"
+   "imageLicense": "CC BY-SA 3.0",
+   "enrichedAt": "2026-06-21T10:04:58.931Z"
   },
   {
    "id": "osm_2406168498",
@@ -9919,13 +10093,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_2406168498",
-   "confidence": 0.7999999999999999,
-   "lat": 45.51994,
-   "lng": -73.6086,
+   "confidence": 0.8,
+   "lat": 45.5199369,
+   "lng": -73.6085967,
    "neighbourhood": null,
-   "address": null,
+   "address": "Théatre Outremont, 1248 Avenue Bernard, Montreal, QC H2V 1V6, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -9938,7 +10112,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": "Jbfournot — CC BY-SA 4.0 (Wikimedia Commons)",
-   "imageLicense": "CC BY-SA 4.0"
+   "imageLicense": "CC BY-SA 4.0",
+   "enrichedAt": "2026-06-21T10:04:59.671Z"
   },
   {
    "id": "osm_2503033206",
@@ -9987,13 +10162,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_2503033206",
-   "confidence": 0.7,
-   "lat": 45.4334,
-   "lng": -73.68948,
+   "confidence": 0.8,
+   "lat": 45.4334029,
+   "lng": -73.6894782,
    "neighbourhood": null,
-   "address": null,
+   "address": "salle de spectacle de l’Entrepôt, Boulevard Saint-Joseph, Montreal, QC H8S 3Z7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -10006,7 +10181,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:05:00.365Z"
   },
   {
    "id": "osm_476659877",
@@ -10055,13 +10231,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_476659877",
-   "confidence": 0.7,
-   "lat": 45.51496,
-   "lng": -73.57368,
+   "confidence": 0.8,
+   "lat": 45.5149573,
+   "lng": -73.573676,
    "neighbourhood": null,
-   "address": null,
+   "address": "La Chapelle, 3700 Rue Saint-Dominique, Montreal, QC H2X 2X7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -10074,7 +10250,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:05:00.982Z"
   },
   {
    "id": "osm_747803141",
@@ -10123,13 +10300,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_747803141",
-   "confidence": 0.7999999999999999,
-   "lat": 45.51342,
-   "lng": -73.56856,
+   "confidence": 0.8,
+   "lat": 45.5134199,
+   "lng": -73.5685586,
    "neighbourhood": null,
-   "address": null,
+   "address": "Chapelle Historique du Bon-Pasteur, 100 Rue Sherbrooke Ouest, Montreal, QC H2X 1C3, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -10142,7 +10319,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": "Jeangagnon — CC BY-SA 3.0 (Wikimedia Commons)",
-   "imageLicense": "CC BY-SA 3.0"
+   "imageLicense": "CC BY-SA 3.0",
+   "enrichedAt": "2026-06-21T10:05:01.593Z"
   },
   {
    "id": "osm_810790773",
@@ -10191,13 +10369,13 @@
     "hiver"
    ],
    "winterFriendly": true,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_810790773",
-   "confidence": 0.7,
-   "lat": 45.52485,
-   "lng": -73.58521,
+   "confidence": 0.8,
+   "lat": 45.5248454,
+   "lng": -73.5852122,
    "neighbourhood": null,
-   "address": null,
+   "address": "Théâtre du Rideau Vert, 4664 Rue Saint-Denis, Montreal, QC H2J 2L3, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -10210,7 +10388,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:05:02.208Z"
   },
   {
    "id": "osm_11097127814",
@@ -10259,13 +10438,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11097127814",
-   "confidence": 0.7,
-   "lat": 45.56415,
-   "lng": -73.6233,
+   "confidence": 0.8,
+   "lat": 45.5641494,
+   "lng": -73.6233035,
    "neighbourhood": null,
-   "address": null,
+   "address": "Belvédère du Boisé Est, 8e Avenue, Montreal, QC H1Z 3A1, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -10278,7 +10457,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:05:03.029Z"
   },
   {
    "id": "osm_11439809814",
@@ -10327,13 +10507,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11439809814",
-   "confidence": 0.7,
-   "lat": 45.42876,
-   "lng": -73.58824,
+   "confidence": 0.8,
+   "lat": 45.428756,
+   "lng": -73.5882359,
    "neighbourhood": null,
-   "address": null,
+   "address": "Pointe est du parc-des-Rapides, Piste cyclable des Berges, Montreal, QC H8P 3R1, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -10346,7 +10526,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:05:03.717Z"
   },
   {
    "id": "osm_11439809815",
@@ -10395,13 +10576,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11439809815",
-   "confidence": 0.7,
-   "lat": 45.42315,
-   "lng": -73.59573,
+   "confidence": 0.8,
+   "lat": 45.423146,
+   "lng": -73.5957263,
    "neighbourhood": null,
-   "address": null,
+   "address": "Pointe ouest du parc-des-Rapides, Piste cyclable des Berges, Montreal, QC H8P 3R1, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -10414,7 +10595,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:05:04.358Z"
   },
   {
    "id": "osm_11784772973",
@@ -10463,13 +10645,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11784772973",
-   "confidence": 0.7,
-   "lat": 45.59528,
-   "lng": -73.48169,
+   "confidence": 0.8,
+   "lat": 45.5952765,
+   "lng": -73.4816917,
    "neighbourhood": null,
-   "address": null,
+   "address": "L’Épuisette, Sentier L'Île-Sainte-Marguerite, Boucherville, QC J4G 1R6, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -10482,7 +10664,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:05:04.975Z"
   },
   {
    "id": "osm_11817409520",
@@ -10531,13 +10714,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_11817409520",
-   "confidence": 0.7,
+   "confidence": 0.8,
    "lat": 45.45877,
-   "lng": -73.49672,
+   "lng": -73.4967225,
    "neighbourhood": null,
-   "address": null,
+   "address": "Pointe du Parc St-Laurent, Rue des Saules, Brossard, QC J4X 2P1, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -10550,7 +10733,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:05:05.644Z"
   },
   {
    "id": "osm_1244748261",
@@ -10599,13 +10783,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_1244748261",
-   "confidence": 0.7,
-   "lat": 45.55839,
-   "lng": -73.5518,
+   "confidence": 0.8,
+   "lat": 45.5583923,
+   "lng": -73.5518043,
    "neighbourhood": null,
-   "address": null,
+   "address": "Montreal Tower Observatory, 4545 Avenue Pierre-De Coubertin, Montreal, QC H1V 3N7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -10618,7 +10802,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:05:06.304Z"
   },
   {
    "id": "osm_291483301",
@@ -10667,13 +10852,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_291483301",
-   "confidence": 0.7,
-   "lat": 45.52322,
-   "lng": -73.56874,
+   "confidence": 0.8,
+   "lat": 45.5232225,
+   "lng": -73.5687441,
    "neighbourhood": null,
-   "address": null,
+   "address": "Belvédère Léo-Ayotte, Avenue du Parc-La Fontaine, Montreal, QC H2L 1C7, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -10686,7 +10871,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:05:06.858Z"
   },
   {
    "id": "osm_4374193490",
@@ -10735,13 +10921,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_4374193490",
-   "confidence": 0.7,
-   "lat": 45.41037,
-   "lng": -73.58934,
+   "confidence": 0.8,
+   "lat": 45.4103685,
+   "lng": -73.589339,
    "neighbourhood": null,
-   "address": null,
+   "address": "Belvédère, Petite Voie du Fle uve, Sainte-Catherine, QC J5C 1C2, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -10754,7 +10940,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:05:07.429Z"
   },
   {
    "id": "osm_4859545621",
@@ -10871,13 +11058,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_5013134222",
-   "confidence": 0.7,
-   "lat": 45.51301,
-   "lng": -73.54875,
+   "confidence": 0.8,
+   "lat": 45.5130091,
+   "lng": -73.5487517,
    "neighbourhood": null,
-   "address": null,
+   "address": "Du chemin qui marche, Rue de la Commune Est, Montreal, QC H2L 0B9, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -10890,7 +11077,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:05:08.762Z"
   },
   {
    "id": "osm_5696414419",
@@ -10939,13 +11127,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_5696414419",
-   "confidence": 0.7,
-   "lat": 45.54489,
-   "lng": -73.50798,
+   "confidence": 0.8,
+   "lat": 45.5448924,
+   "lng": -73.5079753,
    "neighbourhood": null,
-   "address": null,
+   "address": "Belvédère de Longueuil, Belvédère sur le Fle uve, Longueuil, QC J4H 3N8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -10958,7 +11146,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:05:09.311Z"
   },
   {
    "id": "osm_8613684906",
@@ -11007,13 +11196,13 @@
     "automne"
    ],
    "winterFriendly": false,
-   "source": "osm",
+   "source": "osm+geoapify",
    "sourceId": "osm_8613684906",
-   "confidence": 0.7,
-   "lat": 45.48722,
-   "lng": -73.73076,
+   "confidence": 0.8,
+   "lat": 45.4872157,
+   "lng": -73.7307608,
    "neighbourhood": null,
-   "address": null,
+   "address": "Rond-point Pitfield, Boulevard Pitfield, Montreal, QC H4S 1J8, Canada",
    "startsAt": null,
    "endsAt": null,
    "runtimeMin": null,
@@ -11026,7 +11215,8 @@
    "distanceKm": null,
    "duration": null,
    "imageAttribution": null,
-   "imageLicense": null
+   "imageLicense": null,
+   "enrichedAt": "2026-06-21T10:05:09.989Z"
   },
   {
    "id": "film_q25188",

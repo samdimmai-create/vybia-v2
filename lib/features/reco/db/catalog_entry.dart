@@ -56,6 +56,8 @@ class CatalogEntry {
     this.lng,
     this.neighbourhood,
     this.address,
+    this.openingHours,
+    this.rating,
     this.startsAt,
     this.endsAt,
     this.runtimeMin,
@@ -156,6 +158,13 @@ class CatalogEntry {
   final double? lng;
   final String? neighbourhood;
   final String? address;
+
+  /// Human-readable opening hours, e.g. "Lun–Ven 9h–18h" (S12C enrichment from
+  /// Geoapify/Foursquare). Null when unknown — purely additive, never required.
+  final String? openingHours;
+
+  /// 0..5 venue rating/popularity (S12C enrichment). Null when unknown.
+  final double? rating;
   // event:
   final String? startsAt; // ISO-8601
   final String? endsAt; // ISO-8601
@@ -211,6 +220,8 @@ class CatalogEntry {
       source: source,
       availability: availability,
       wellbeing: wellbeing,
+      openingHours: openingHours,
+      rating: rating,
     );
   }
 
@@ -264,6 +275,8 @@ class CatalogEntry {
         if (lng != null) 'lng': lng,
         if (neighbourhood != null) 'neighbourhood': neighbourhood,
         if (address != null) 'address': address,
+        if (openingHours != null) 'openingHours': openingHours,
+        if (rating != null) 'rating': rating,
         if (startsAt != null) 'startsAt': startsAt,
         if (endsAt != null) 'endsAt': endsAt,
         if (runtimeMin != null) 'runtimeMin': runtimeMin,
@@ -352,6 +365,8 @@ class CatalogEntry {
       lng: (j['lng'] as num?)?.toDouble(),
       neighbourhood: j['neighbourhood'] as String?,
       address: j['address'] as String?,
+      openingHours: j['openingHours'] as String?,
+      rating: (j['rating'] as num?)?.toDouble(),
       startsAt: j['startsAt'] as String?,
       endsAt: j['endsAt'] as String?,
       runtimeMin: (j['runtimeMin'] as num?)?.toInt(),
@@ -390,6 +405,8 @@ class CatalogEntry {
         if (timeOfDay.isNotEmpty) 'time': timeOfDay,
         if (seasons.isNotEmpty) 'season': seasons,
         if (neighbourhood != null) 'hood': neighbourhood,
+        if (openingHours != null) 'hours': openingHours,
+        if (rating != null) 'rating': rating,
         if (genre != null) 'genre': genre,
         if (whereToWatch != null) 'watch': whereToWatch,
         if (destination != null) 'dest': destination,

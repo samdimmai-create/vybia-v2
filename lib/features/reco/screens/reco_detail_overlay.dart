@@ -81,6 +81,13 @@ class RecoDetailOverlay extends StatelessWidget {
                     children: [
                       if (recommendation.distanceKm != null)
                         _chip(t, formatDistanceEta(recommendation.distanceKm!)),
+                      // S12C: real enriched facts (Geoapify/Foursquare), shown
+                      // only when present — additive, never blocks the card.
+                      if (a.rating != null)
+                        _chip(t, '★ ${a.rating!.toStringAsFixed(1)}'),
+                      if (a.openingHours != null &&
+                          a.openingHours!.trim().isNotEmpty)
+                        _chip(t, a.openingHours!),
                       _chip(t, budgetLabel),
                       _chip(t, a.indoor ? 'Intérieur' : 'Plein air'),
                       for (final d in recommendation.topDimensions)

@@ -70,3 +70,6 @@ Commons file + author + licence listed in `assets/images/catalog/NOTICES.md`:
 
 Live items (films/events) carry their source's image at runtime (e.g. a TMDB
 poster URL), rendered via the same universal bubble (`imageProviderFor`).
+
+<!-- enrich:geoapify -->
+- **Geoapify Places** (enrichi 2026-06-21) — 158 lieux enrichis (horaires/note/coordonnées). Données © geoapify / OpenStreetMap, selon les conditions de geoapify. Enrichissement au BUILD ; le runtime reste hors-ligne.

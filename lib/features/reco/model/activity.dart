@@ -67,6 +67,8 @@ class Activity {
     this.source = 'seed',
     this.availability = Availability.fixed,
     this.wellbeing,
+    this.openingHours,
+    this.rating,
   });
 
   final String id;
@@ -135,6 +137,11 @@ class Activity {
   /// `false` for activities that don't make sense in a Montréal winter
   /// (open water, cycling, gardens) — softly penalized Dec–Feb.
   final bool winterFriendly;
+
+  /// S12C: real opening hours / rating enriched from Geoapify/Foursquare at
+  /// build time (bundled, offline). Null when unknown — additive detail only.
+  final String? openingHours;
+  final double? rating;
 
   final String descFr;
   final double lat;
