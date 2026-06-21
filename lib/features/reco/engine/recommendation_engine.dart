@@ -4,10 +4,14 @@ import '../../guest/model/dimension.dart';
 import '../../guest/model/guest_profile.dart';
 import '../content/content_provider.dart';
 import '../model/activity.dart';
+import '../model/lms_motive.dart';
 import '../model/recommendation.dart';
+import '../model/wellbeing.dart';
 import 'leisure_motivation.dart';
 import 'life_context_rules.dart';
 import 'reco_context.dart';
+import 'score_breakdown.dart';
+import 'wellbeing_tagger.dart';
 
 /// Deterministic, explainable recommendation engine — no LLM, on-device, free.
 ///
@@ -17,14 +21,26 @@ import 'reco_context.dart';
 /// most. Same inputs → same outputs (pure), which is what makes the revealed-
 /// preference learning and the unit tests well-behaved.
 ///
-/// S9E score blend (weights below):
-///   score = wPref·prefMatch + wMotive·lmsMatch(LMS+mood) + wContext·contextFit
-///         + wSocial·socialFit + wNovelty·(noveltyPref·novelty) + wProximity·(1−farness)
-///         − categoryRepeatPenalty
-/// then: life-context + feasibility filter → diversity-aware ranking (category
-/// spread + near-duplicate-venue guard) → DOSED serendipity (one guaranteed
-/// discovery unless novelty-averse) → best pick first, then 4–6 alternatives one
-/// at a time at the orb, each with its real distance and a tailored "pourquoi".
+/// S11B — RESEARCH-GROUNDED score blend. Every term is tied to a documented
+/// principle and every weight is a named constant with a one-line rationale +
+/// source (see `reports/s11_research_grounded_scoring.md`):
+///
+///   score = w_pref·prefMatch(confidence-weighted, revealed-corrected)
+///         + w_motive·lmsMotiveMatch                 (Beard & Ragheb LMS)
+///         + w_affect·hedonicEudaimonicMoodFit        (Ryan&Deci / Huta&Ryan)
+///         + w_context·contextFit(timeOfDay, season)  (context-aware rec)
+///         + w_social·socialFit
+///         + w_novelty·(noveltyPref·activityNovelty)  (novelty → hedonic boost)
+///         + w_happiness·happinessTraitFit            (Lyubomirsky)
+///         + w_proximity·(1−farness)                  (reachability as soft fit)
+///         − w_repeat·repetitionPenalty               (revealed-pref anti-repeat)
+///
+/// Low-confidence taste dimensions contribute less (we lean on what we actually
+/// know). Then: context + life-context feasibility hard-filter → diversity-aware
+/// ranking (category spread + near-duplicate-venue guard) → DOSED serendipity
+/// (one guaranteed discovery unless novelty-averse) → best pick first, then 4–6
+/// alternatives one at a time, each with its real distance, a tailored
+/// "pourquoi" AND its honest top-factor breakdown ([Recommendation.breakdown]).
 class RecommendationEngine {
   const RecommendationEngine({
     this.catalog,
@@ -38,14 +54,47 @@ class RecommendationEngine {
   /// an LLM-backed provider later without touching the engine.
   final ContentProvider content;
 
-  // ---- Blend weights (sum ≈ 1; penalties subtract on top). -----------------
-  static const double _wPref = 0.42;
-  static const double _wMotive = 0.20;
-  static const double _wContext = 0.14;
-  static const double _wSocial = 0.09;
-  static const double _wNovelty = 0.10;
-  static const double _wProximity = 0.12; // S7C: nearer real places rank up
-  static const double _categoryRepeatPenalty = 0.06;
+  // ---- Blend weights (sum ≈ 1; the penalty subtracts on top). --------------
+  // Each weight names the principle it encodes; rationale in the S11 report.
+
+  /// Taste match is the backbone — but it is REVEALED-corrected (the profile is
+  /// continuously nudged by Intéressant/Pas-intéressant reactions) and
+  /// confidence-weighted, because people mispredict what they'll enjoy
+  /// (affective forecasting). So it leads without dominating the wellbeing terms.
+  static const double _wPref = 0.30;
+
+  /// Beard & Ragheb Leisure Motivation Scale — match the activity to WHY the
+  /// guest reaches for leisure (intellectual/social/competence/escape).
+  static const double _wMotive = 0.16;
+
+  /// S11: hedonic↔eudaimonic mood fit. Leisure delivers pleasure/detachment AND
+  /// meaning/growth; match the activity's axis to the guest's CURRENT motive
+  /// (tired/escape → hedonic; curious/growth → eudaimonic). Ryan & Deci; Huta &
+  /// Ryan.
+  static const double _wAffect = 0.14;
+
+  /// Context-aware recommendation: time-of-day + season as soft fit.
+  static const double _wContext = 0.10;
+
+  /// Plain social-axis fit (solo ↔ group), kept small since the happiness term
+  /// already rewards self-congruent social support.
+  static const double _wSocial = 0.06;
+
+  /// Novelty → hedonic boost, scaled to the guest's OWN novelty preference, so
+  /// it lifts discovery for the curious without unsettling the novelty-averse.
+  static const double _wNovelty = 0.08;
+
+  /// S11: happiness-raising activity traits (self-congruent, intrinsically
+  /// appealing, flexible) lift wellbeing — reward fit on them. Lyubomirsky.
+  static const double _wHappiness = 0.10;
+
+  /// Reachability as soft fit: nearer real places rank up (S7C), so changing
+  /// location visibly reranks.
+  static const double _wProximity = 0.10;
+
+  /// Anti-repetition: gently down-weight a category the guest just engaged, so a
+  /// batch stays varied (revealed-preference / don't re-surface the decided).
+  static const double _wRepeat = 0.06;
 
   // S9E diversity / serendipity tuning.
   /// Two same-category venues closer than this read as duplicates → keep one.
@@ -90,6 +139,11 @@ class RecommendationEngine {
     // S9C: leisure-motivation weights over the four Beard & Ragheb LMS
     // components, derived once from the latent profile + mood.
     final lms = LeisureMotivation.weightsFor(profile);
+    // S11: the guest's CURRENT desired position on the hedonic↔eudaimonic axis,
+    // read off the same LMS weights (escape → hedonic, curiosity → eudaimonic).
+    final desiredEud = _desiredEudaimonia(lms);
+    final guestSocial = profile.valueOf(Dimension.social);
+    final guestNovelty = profile.valueOf(Dimension.novelty);
 
     final scored = ranked.map((a) {
       // S7C: real haversine distance → 0 (here) … 1 (across town). S10: null
@@ -99,34 +153,37 @@ class RecommendationEngine {
       final farness =
           distanceKm == null ? null : (distanceKm / _farKm).clamp(0.0, 1.0).toDouble();
 
+      final wb = WellbeingTagger.of(a);
       final match = _prefMatch(profile, a, farness);
       final motive = LeisureMotivation.match(lms, LeisureMotivation.affinityFor(a));
+      final affect = 1 - (wb.hedoniaEudaimonia - desiredEud).abs();
       final context = _contextFit(ctx, a);
-      final social =
-          1 - (profile.valueOf(Dimension.social) - a.tag(Dimension.social)).abs();
-      final novelty =
-          profile.valueOf(Dimension.novelty) * a.tag(Dimension.novelty);
+      final social = 1 - (guestSocial - a.tag(Dimension.social)).abs();
+      final novelty = guestNovelty * a.tag(Dimension.novelty);
+      final happiness = _happinessFit(wb, guestSocial);
 
-      var score = _wPref * match.score +
-          _wMotive * motive +
-          _wContext * context +
-          _wSocial * social +
-          _wNovelty * novelty;
-
-      // Always reward proximity a little so changing location visibly reranks.
-      if (farness != null) score += _wProximity * (1 - farness);
-
-      if (likedCategories.contains(a.category)) {
-        score -= _categoryRepeatPenalty;
-      }
+      final breakdown = ScoreBreakdown(
+        pref: _wPref * match.score,
+        motive: _wMotive * motive,
+        affect: _wAffect * affect,
+        context: _wContext * context,
+        social: _wSocial * social,
+        novelty: _wNovelty * novelty,
+        happiness: _wHappiness * happiness,
+        // Proximity only applies to located activities; 0 otherwise so films/
+        // online are neither rewarded nor punished on distance.
+        proximity: farness == null ? 0.0 : _wProximity * (1 - farness),
+        repeatPenalty: likedCategories.contains(a.category) ? _wRepeat : 0.0,
+      );
 
       return Recommendation(
         activity: a,
-        score: score,
+        score: breakdown.total,
         isBestPick: false,
         why: content.why(a, profile,
             lms: lms, topDims: match.topDims, context: ctx),
         topDimensions: match.topDims,
+        breakdown: breakdown,
         distanceKm: distanceKm,
         imageOverride: content.imageFor(a, profile),
       );
@@ -143,6 +200,8 @@ class RecommendationEngine {
       isBestPick: true,
       why: lead.why,
       topDimensions: lead.topDimensions,
+      breakdown: lead.breakdown,
+      factors: lead.factors,
       distanceKm: lead.distanceKm,
       imageOverride: lead.imageOverride,
     );
@@ -292,6 +351,39 @@ class RecommendationEngine {
   // S9C: motive matching now runs over the four Beard & Ragheb LMS components
   // (see [LeisureMotivation]). The activity's legacy (hedonic/relaxation/
   // eudaimonic) affinities are folded into that derivation, not matched directly.
+
+  // ---- Affect (hedonic ↔ eudaimonic) ---------------------------------------
+
+  /// The guest's CURRENT desired position on the hedonic↔eudaimonic axis
+  /// (0 hedonic/escape … 1 eudaimonic/growth), read off their live LMS weights.
+  ///
+  /// Intellectual & competence motives pull toward eudaimonia (meaning, mastery,
+  /// discovery); stimulus-avoidance & — more weakly — social pull toward hedonia
+  /// (escape, pleasure, detachment). So a tired guest who wants to decompress is
+  /// matched to hedonic, low-effort picks, and a curious guest to eudaimonic,
+  /// novel, cultural ones — from the SAME catalog. Ryan & Deci; Huta & Ryan.
+  double _desiredEudaimonia(LmsWeights w) {
+    final eud = w.intellectual + 0.6 * w.competence;
+    final hed = w.stimulusAvoidance + 0.4 * w.social;
+    return (0.5 + 0.5 * (eud - hed)).clamp(0.0, 1.0).toDouble();
+  }
+
+  // ---- Happiness-raising traits (Lyubomirsky) ------------------------------
+
+  /// How well an activity's happiness-raising traits serve THIS guest, 0..1:
+  ///   * self-congruent social support — the activity's connectedness matches
+  ///     what the guest wants (a group place for a social guest, a calm one for
+  ///     a solo guest);
+  ///   * intrinsic appeal — enjoyed for its own sake (always rewarded);
+  ///   * flexibility — adaptable / low-commitment (always a mild plus).
+  double _happinessFit(WellbeingTags wb, double guestSocial) {
+    final socialCongruence = 1 - (wb.socialSupport - guestSocial).abs();
+    return (0.4 * socialCongruence +
+            0.35 * wb.intrinsicAppeal +
+            0.25 * wb.flexibility)
+        .clamp(0.0, 1.0)
+        .toDouble();
+  }
 
   // ---- Context -------------------------------------------------------------
 
