@@ -149,5 +149,9 @@ dans la console Anthropic.
    à chaque run**. Si le proxy est coupé, ça **retombe silencieusement** sur la
    copie templated — jamais cassé.
 
-> URL live : imprimée à la fin du run GitHub Actions
-> (`https://samdimmai-create.github.io/vybia-v2/`).
+> **URL live : https://samdimmai-create.github.io/vybia-v2/**
+> Déployée le 2026-06-22 (run Actions `27927985809` — vert). Commit gelé
+> `44d4caf`. Build cloud SANS `PROXY_URL` réglé → l'appli est en ligne en mode
+> **déterministe** (palette A persistée incluse) ; la variété Claude s'active dès
+> que tu fais les 2 étapes fondateur (worker + variable `PROXY_URL`) puis
+> `./tool/deploy.sh`.
