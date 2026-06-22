@@ -55,6 +55,27 @@ void main() {
       expect(loop.currentReco, isNull);
     });
 
+    test('S16B: the first batch is short (firstBatchSize) so value arrives fast',
+        () {
+      // Production tuning: questionsPerBatch 3, but the FIRST batch is capped at
+      // firstBatchSize so a brand-new guest reaches a reco in the fewest steps.
+      final loop = LoopController(
+        profile: _seeded(),
+        recoEngine: _recoEngine,
+        context: _ctx,
+        questionsPerBatch: 3,
+        firstBatchSize: 2,
+      );
+      final asked = _answerBatch(loop);
+      expect(asked, 2,
+          reason: 'first batch capped at firstBatchSize, not questionsPerBatch');
+      expect(loop.phase, LoopPhase.reflection);
+
+      loop.reflectionDone();
+      expect(loop.phase, LoopPhase.recos, reason: 'best pick lands after 2 Qs');
+      expect(loop.currentReco, isNotNull);
+    });
+
     test('a batch bridges to reflection, then reflection opens a reco round',
         () {
       final loop = _alternatingLoop();

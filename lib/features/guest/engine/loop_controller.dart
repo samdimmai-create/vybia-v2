@@ -65,6 +65,7 @@ class LoopController extends ChangeNotifier {
     this.liveService,
     this.weatherService,
     this.questionsPerBatch = 3,
+    this.firstBatchSize = 2,
     this.recosPerRound = 4,
     this.maxRounds = 4,
   }) : questionEngine = questionEngine ?? AdaptiveEngine(bank: kQuestionBank) {
@@ -92,6 +93,16 @@ class LoopController extends ChangeNotifier {
 
   /// How many questions a single batch may ask before yielding to a reco round.
   final int questionsPerBatch;
+
+  /// S16B: how many questions the FIRST batch asks before the first reco round.
+  /// Kept smaller than [questionsPerBatch] so a brand-new guest reaches a real
+  /// recommendation in the fewest steps (fast-to-value); later batches use the
+  /// full [questionsPerBatch] to keep sharpening once value is on screen.
+  final int firstBatchSize;
+
+  /// The question cap for the batch currently in flight (the first batch uses
+  /// [firstBatchSize], every later batch uses [questionsPerBatch]).
+  int _batchLimit = 0;
 
   /// How many recommendations a single round serves before the loop inserts a
   /// new (sharpening) question batch.
@@ -161,6 +172,7 @@ class LoopController extends ChangeNotifier {
 
   void _beginQuestionBatch({bool first = false}) {
     _batchAsked = 0;
+    _batchLimit = first ? firstBatchSize : questionsPerBatch;
     final q = _pickQuestion(first: first);
     if (q == null) {
       // Nothing informative left to ask — go straight to recommendations.
@@ -214,7 +226,7 @@ class LoopController extends ChangeNotifier {
     _batchAsked++;
 
     final next = questionEngine.next(profile);
-    final batchFull = _batchAsked >= questionsPerBatch;
+    final batchFull = _batchAsked >= _batchLimit;
     final converged = questionEngine.isDone(profile);
     if (next == null || batchFull || converged) {
       _beginReflection();
