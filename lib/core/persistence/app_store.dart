@@ -34,6 +34,7 @@ class AppStore {
   static const _kSeeded = 'vybia.seeded.v1'; // first-run seed guard
   static const _kGeo = 'vybia.geo.v1'; // last resolved location + status
   static const _kOverlay = 'vybia.db.overlay.v1'; // S10E enriched/upserted records
+  static const _kPalette = 'vybia.palette.v1'; // S15.0 edge palette index (persisted)
 
   /// Open the store, loading the backing prefs. Call once before first paint.
   static Future<AppStore> open() async =>
@@ -184,6 +185,14 @@ class AppStore {
         jsonEncode([for (final e in overlay) e.toJson()]),
       );
 
+  // ---- Edge palette selection (S15.0) --------------------------------------
+
+  /// The persisted edge-palette index. Null when the founder never changed it,
+  /// so the app keeps the permanent default (A) rather than a stale value.
+  int? readPaletteIndex() => _prefs.getInt(_kPalette);
+
+  Future<void> savePaletteIndex(int index) => _prefs.setInt(_kPalette, index);
+
   // ---- First-run seed guard ------------------------------------------------
 
   bool get hasSeeded => _prefs.getBool(_kSeeded) ?? false;
@@ -199,5 +208,6 @@ class AppStore {
     await _prefs.remove(_kSeeded);
     await _prefs.remove(_kGeo);
     await _prefs.remove(_kOverlay);
+    await _prefs.remove(_kPalette);
   }
 }

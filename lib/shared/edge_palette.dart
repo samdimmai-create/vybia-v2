@@ -97,9 +97,15 @@ const List<EdgePalette> kEdgePalettes = <EdgePalette>[
   ),
 ];
 
-/// The live palette selection, session-scoped (in-memory). The founder cycles it
-/// with the in-app switcher chip (see [SceneScaffold]); the whole edge system
-/// rereads it, so the change is instant and global. Defaults to palette A.
+/// The live palette selection. **Palette A (*Aurore glacée*) is the permanent
+/// app-wide default** (index 0). The founder can still cycle it with the in-app
+/// switcher chip (see [SceneScaffold]); the whole edge system rereads it, so the
+/// change is instant and global.
+///
+/// S15.0: the selection is now PERSISTED across full page reloads. `main()`
+/// hydrates this notifier from [AppStore.readPaletteIndex] before first paint
+/// (defaulting to A when nothing was ever saved) and saves every change back —
+/// so a reload no longer resets to a session default.
 ///
 /// Wrap the app (or any subtree that must restyle on a flip) in a
 /// [ValueListenableBuilder] on this notifier.

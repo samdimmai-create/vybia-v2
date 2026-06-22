@@ -9,6 +9,7 @@ import 'features/plans/model/plan.dart';
 import 'features/reco/data/osm_place_repository.dart';
 import 'features/reco/db/activity_repository.dart';
 import 'features/reco/db/preference_taxonomy.dart';
+import 'shared/edge_palette.dart';
 
 Future<void> main() async {
   // Hydrate the local store BEFORE first paint so the guest's persisted profile,
@@ -37,6 +38,15 @@ Future<void> main() async {
   // a relaunch.
   ActivityRepository.hydrateOverlay(store.readOverlay());
   ActivityRepository.persist = store.saveOverlay;
+  // S15.0: Palette A is the permanent default; hydrate the persisted selection
+  // (kept across full page reloads, not just the session) and save every flip.
+  final savedPalette = store.readPaletteIndex();
+  if (savedPalette != null) {
+    activeEdgePaletteIndex.value = savedPalette % kEdgePalettes.length;
+  }
+  activeEdgePaletteIndex.addListener(
+    () => store.savePaletteIndex(activeEdgePaletteIndex.value),
+  );
   // Debug-only persistence proof: with `--dart-define=VYBIA_SEED_DEMO=true` we
   // write an adjusted taste + a future plan + a granted location THROUGH the
   // real store, then a normal relaunch reads them back (s7_09_after_relaunch).
