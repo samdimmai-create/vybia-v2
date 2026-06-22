@@ -156,6 +156,9 @@ class _PlanifierScreenState extends State<PlanifierScreen> {
           key: const ValueKey('plan_moment'),
           image: a.image,
           badge: _isEdit ? 'On ajuste ton plan' : 'On planifie',
+          // S16C: the wayfinder follows through to the planning step, so the
+          // journey reads coherently end to end.
+          journeyStep: JourneyStep.plan.index,
           headline: 'Quand ?',
           prompt: 'Glisse vers le moment qui te va pour « ${a.titleFr} ».',
           left: 'Maintenant',
@@ -169,6 +172,7 @@ class _PlanifierScreenState extends State<PlanifierScreen> {
           key: const ValueKey('plan_companions'),
           image: a.image,
           badge: _moment!.labelFr,
+          journeyStep: JourneyStep.plan.index,
           headline: 'Avec qui ?',
           prompt: 'Glisse vers celles et ceux qui seront du voyage.',
           left: 'Solo',
@@ -191,6 +195,7 @@ class _PlanifierScreenState extends State<PlanifierScreen> {
           key: const ValueKey('plan_confirm'),
           image: a.image,
           badge: '${_moment!.labelFr} · ${_companions!.labelFr}',
+          journeyStep: JourneyStep.plan.index,
           headline: a.titleFr,
           prompt: _isEdit
               ? 'Glisse vers le bas pour enregistrer tes changements.'

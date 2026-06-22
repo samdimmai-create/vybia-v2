@@ -56,6 +56,10 @@ class WelcomeScreen extends StatelessWidget {
       headline: 'Comment veux-tu te sentir ?',
       prompt: 'Sans compte, sans détour. Choisis avec l’orbe.',
       bottomBubble: true,
+      // S16C: the journey indicator now reads from the very first scene, so the
+      // guest always sees where they are (Bienvenue → Tes goûts → Pour toi → On
+      // planifie) — no more starting "lost".
+      journeyStep: JourneyStep.welcome.index,
       debugProofFull: proofFull,
       onDirection: choose,
       left: 'Posé',
