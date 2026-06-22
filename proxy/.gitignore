@@ -1,0 +1,4 @@
+# Secrets and tooling output — never commit.
+.dev.vars
+.wrangler/
+node_modules/

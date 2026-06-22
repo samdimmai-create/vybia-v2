@@ -1,0 +1,9 @@
+# Vybia V2 — Claude proxy (Cloudflare Worker) — S15A
+#
+# The Anthropic key is NOT here. It is a Cloudflare SECRET, set with:
+#   wrangler secret put ANTHROPIC_API_KEY
+# (the founder pastes the key into the terminal — it never enters this file or git).
+
+name = "vybia-claude-proxy"
+main = "src/worker.js"
+compatibility_date = "2024-11-01"
