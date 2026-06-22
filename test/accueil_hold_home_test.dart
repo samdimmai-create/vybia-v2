@@ -14,6 +14,14 @@ void main() {
           controller: PlanController(),
           child: MaterialApp(
             initialRoute: AppRouter.welcome,
+            // Build a SINGLE welcome route (mirroring app.dart). Without this,
+            // Flutter's default splits '/welcome' into the stack ['/', '/welcome']
+            // and also builds the SplashScreen, whose timer would then navigate
+            // mid-test. We want a clean welcome-only stack for the hold gesture.
+            onGenerateInitialRoutes: (initialRoute) => [
+              AppRouter.onGenerateRoute(
+                  const RouteSettings(name: AppRouter.welcome)),
+            ],
             onGenerateRoute: AppRouter.onGenerateRoute,
           ),
         ),

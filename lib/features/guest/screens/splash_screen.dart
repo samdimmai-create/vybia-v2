@@ -6,6 +6,7 @@ import '../../../components/orb/orb_painter.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../state/guest_controller.dart';
 
 /// Brief liquid-orb moment, then auto-continues to Welcome. No interaction.
 class SplashScreen extends StatefulWidget {
@@ -29,8 +30,15 @@ class _SplashScreenState extends State<SplashScreen>
     )..repeat();
     _go = Timer(const Duration(milliseconds: 1700), () {
       if (!mounted) return;
-      // Land on the calm Accueil hub (S8) — the orb-choice-first home.
-      Navigator.of(context).pushReplacementNamed(AppRouter.accueil);
+      // S16A: a first-time guest (no saved profile) FILES straight to value —
+      // the mood capture → adaptive questions → reco reveal — skipping the
+      // abstract 4-direction hub. A returning guest lands on the calm Accueil
+      // hub (they already know what they want). Hold-to-home keeps the hub one
+      // gesture away from anywhere.
+      final returning = GuestScope.of(context).returning;
+      Navigator.of(context).pushReplacementNamed(
+        returning ? AppRouter.accueil : AppRouter.welcome,
+      );
     });
   }
 

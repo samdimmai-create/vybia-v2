@@ -22,11 +22,20 @@ enum Intention { now, plan }
 class GuestController extends ChangeNotifier {
   GuestController({AppStore? store}) : _store = store {
     final saved = store?.readProfileJson();
+    _returning = saved != null;
     if (saved != null) profile.restore(saved);
     intention = store?.readIntention();
   }
 
   final AppStore? _store;
+
+  /// True when a saved profile existed at launch (S16A). A returning guest
+  /// already knows the app, so the splash lands them on the calm Accueil hub;
+  /// a brand-new guest is sent straight down the value path (mood → questions →
+  /// reco) instead. Captured once at construction so it stays stable for the
+  /// session even after the profile is written through on the first answer.
+  bool _returning = false;
+  bool get returning => _returning;
 
   /// The persistence repository, exposed so screens that build their own
   /// controllers (e.g. the reco loop) can write through to the same store.
