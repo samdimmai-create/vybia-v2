@@ -4,6 +4,7 @@ import '../../../core/geo/geo.dart';
 import '../../../core/persistence/app_store.dart';
 import '../../guest/model/activity_axes.dart';
 import '../../guest/model/guest_profile.dart';
+import '../content/llm_content_provider.dart';
 import '../data/activity_catalog.dart';
 import '../data/osm_place_repository.dart';
 import '../db/activity_repository.dart';
@@ -61,8 +62,13 @@ class RecoController extends ChangeNotifier {
     this.store,
     this.liveService,
     this.weatherService,
-  })  : engine =
-            engine ?? RecommendationEngine(catalog: liveActivityCatalog()),
+  })  : engine = engine ??
+            RecommendationEngine(
+              catalog: liveActivityCatalog(),
+              // S15C: pick the LLM-backed content provider when a proxy is
+              // configured, else the deterministic templated one.
+              content: appContentProvider(),
+            ),
         _location = location ?? store?.readGeo() ?? GeoResult.fallback,
         context = context ??
             RecoContext.now(
@@ -195,8 +201,25 @@ class RecoController extends ChangeNotifier {
 
   List<Recommendation> _ranked = const [];
 
+  // S15C: the fresh Claude-voiced "pourquoi" for the current pick, and the
+  // activity id it belongs to. Until it arrives (or if the proxy is down) the
+  // screen shows the deterministic [Recommendation.why] via [currentWhy].
+  String? _generatedWhy;
+  String? _whyForId;
+
   /// The best pick to show right now, or null when the guest has run out.
   Recommendation? get current => _ranked.isEmpty ? null : _ranked.first;
+
+  /// The "pourquoi" to display for the current pick: the fresh Claude wording
+  /// once it has arrived for this exact activity, else the deterministic line.
+  String? get currentWhy {
+    final rec = current;
+    if (rec == null) return null;
+    if (_whyForId == rec.activity.id && _generatedWhy != null) {
+      return _generatedWhy;
+    }
+    return rec.why;
+  }
 
   /// Up to a handful of upcoming picks (best first), for any "queue" affordance.
   List<Recommendation> get ranked => List.unmodifiable(_ranked);
@@ -211,6 +234,27 @@ class RecoController extends ChangeNotifier {
       excludedIds: _decided,
       likedCategories: _likedCategories,
     );
+    _maybeGenerateWhy();
+  }
+
+  /// Kick off a fresh Claude "pourquoi" for the current pick in the background
+  /// (only when the LLM provider is active and we don't already have/await one
+  /// for this activity). Never blocks ranking; on arrival it swaps the line in.
+  void _maybeGenerateWhy() {
+    final rec = current;
+    final content = engine.content;
+    if (rec == null || content is! LlmContentProvider || !content.active) return;
+    if (_whyForId == rec.activity.id) return; // already have it / fetching it
+    _whyForId = rec.activity.id;
+    _generatedWhy = null;
+    final targetId = rec.activity.id;
+    content.generateWhy(rec, profile, context: context).then((text) {
+      if (_disposed) return;
+      if (_whyForId == targetId) {
+        _generatedWhy = text;
+        notifyListeners();
+      }
+    });
   }
 
   /// Re-rank against the current profile and notify. Used by the adaptive loop

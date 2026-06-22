@@ -152,7 +152,8 @@ class _EngineLoopScreenState extends State<EngineLoopScreen> {
     return SceneScaffold(
       key: ValueKey('q_${q.id}'),
       image: q.options.last.image,
-      headline: q.prompt,
+      // S15C: fresh Claude wording once it arrives, else the deterministic prompt.
+      headline: loop.currentQuestionPrompt ?? q.prompt,
       prompt: 'On affine ton profil au fil de tes choix.',
       bottomBubble: true,
       showPaletteSwitcher: true,
@@ -203,7 +204,8 @@ class _EngineLoopScreenState extends State<EngineLoopScreen> {
           image: rec.image, // S9F: engine's vibe-aware pick
           badge: rec.isBestPick ? '★ Meilleur choix pour toi' : null,
           headline: rec.activity.titleFr,
-          prompt: rec.why,
+          // S15C: Claude-voiced "pourquoi" once it arrives, else deterministic.
+          prompt: loop.currentRecoWhy ?? rec.why,
           bottomBubble: true,
           showPaletteSwitcher: true,
           journeyStep: JourneyStep.forYou.index,
@@ -234,14 +236,37 @@ class _EngineLoopScreenState extends State<EngineLoopScreen> {
   void _onRecoDirection(LoopController loop, OrbDirection d) {
     switch (d) {
       case OrbDirection.left:
-        loop.reactInteresting();
+        _reactWithLine(loop, liked: true);
       case OrbDirection.right:
-        loop.reactNotInteresting();
+        _reactWithLine(loop, liked: false);
       case OrbDirection.up:
         setState(() => _showDetail = true);
       case OrbDirection.down:
         loop.select(); // → LoopPhase.selected → _goToPlan
     }
+  }
+
+  /// React, then surface a short acknowledgement line (S15C). Capture the title
+  /// BEFORE reacting (reacting advances to the next pick). The line is
+  /// Claude-voiced when the proxy is configured, deterministic otherwise.
+  void _reactWithLine(LoopController loop, {required bool liked}) {
+    final title = loop.currentReco?.activity.titleFr ?? '';
+    if (liked) {
+      loop.reactInteresting();
+    } else {
+      loop.reactNotInteresting();
+    }
+    if (title.isEmpty) return;
+    loop.reactionLine(liked: liked, activityTitle: title).then((line) {
+      if (!mounted || line.isEmpty) return;
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(SnackBar(
+          content: Text(line),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(milliseconds: 1500),
+        ));
+    });
   }
 
   void _goToPlan(LoopController loop) {

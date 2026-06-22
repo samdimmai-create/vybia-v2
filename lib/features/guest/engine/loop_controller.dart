@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 
 import '../../../core/geo/geo.dart';
 import '../../../core/persistence/app_store.dart';
+import '../../reco/content/llm_client.dart';
+import '../../reco/content/llm_content_provider.dart';
 import '../../reco/engine/recommendation_engine.dart';
 import '../../reco/engine/reco_context.dart';
 import '../../reco/live/live_availability_service.dart';
@@ -114,13 +116,35 @@ class LoopController extends ChangeNotifier {
 
   Question? _question;
 
+  // S15C: the LLM content layer for fresh question wording (the reco phase gets
+  // its variety through the [RecoController] it already owns). Null / inactive →
+  // the deterministic question prompt shows with zero latency.
+  final LlmContentProvider? _content =
+      isLlmConfigured ? LlmContentProvider() : null;
+  String? _generatedQ;
+  String? _qForId;
+
   /// The current question, or null when not in the [LoopPhase.questions] phase.
   Question? get currentQuestion =>
       _phase == LoopPhase.questions ? _question : null;
 
+  /// The wording to display for the current question: the fresh Claude phrasing
+  /// once it has arrived for this question, else the deterministic prompt.
+  String? get currentQuestionPrompt {
+    final q = currentQuestion;
+    if (q == null) return null;
+    if (_qForId == q.id && _generatedQ != null) return _generatedQ;
+    return q.prompt;
+  }
+
   /// The current recommendation, or null when not in [LoopPhase.recos].
   Recommendation? get currentReco =>
       _phase == LoopPhase.recos ? _reco?.current : null;
+
+  /// The "pourquoi" to display for the current reco — the Claude-voiced line via
+  /// the owned [RecoController] once it arrives, else the deterministic one.
+  String? get currentRecoWhy =>
+      _phase == LoopPhase.recos ? _reco?.currentWhy : null;
 
   /// How many dimensions are confident right now — rises as the loop converges
   /// (used by the UI / proof to show the profile sharpening across rounds).
@@ -145,7 +169,30 @@ class LoopController extends ChangeNotifier {
     }
     _question = q;
     _phase = LoopPhase.questions;
+    _maybeGenerateQuestion();
     notifyListeners();
+  }
+
+  /// Kick off fresh Claude wording for the current question in the background
+  /// (only when configured and not already fetching for this question). Never
+  /// blocks; on arrival it swaps the phrasing in. Same sense, new words.
+  void _maybeGenerateQuestion() {
+    final q = currentQuestion;
+    final c = _content;
+    if (q == null || c == null || !c.active) return;
+    if (_qForId == q.id) return;
+    _qForId = q.id;
+    _generatedQ = null;
+    final id = q.id;
+    c
+        .generateQuestionPrompt(q.prompt, dimensionLabel: q.target.name)
+        .then((text) {
+      if (_disposed) return;
+      if (_qForId == id) {
+        _generatedQ = text;
+        notifyListeners();
+      }
+    });
   }
 
   Question? _pickQuestion({bool first = false}) {
@@ -260,9 +307,27 @@ class LoopController extends ChangeNotifier {
 
   void _persistProfile() => store?.saveProfile(profile);
 
+  /// S15C: a short, Claude-voiced acknowledgement line for a just-made reaction
+  /// (Intéressant / Pas intéressant). Falls back to a deterministic line when the
+  /// proxy is absent or down — so the surface reads templated, never broken.
+  Future<String> reactionLine({
+    required bool liked,
+    required String activityTitle,
+  }) {
+    final c = _content;
+    if (c == null) {
+      return Future.value(liked ? 'Noté — on creuse ça.' : 'Compris, on passe.');
+    }
+    return c.generateReaction(liked: liked, activityTitle: activityTitle);
+  }
+
+  bool _disposed = false;
+
   @override
   void dispose() {
+    _disposed = true;
     _reco?.dispose();
+    _content?.dispose();
     super.dispose();
   }
 }

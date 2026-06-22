@@ -211,7 +211,9 @@ class _RecoScreenState extends State<RecoScreen> {
               image: rec.image, // S9F: engine's vibe-aware pick
               badge: rec.isBestPick ? '★ Meilleur choix pour toi' : null,
               headline: rec.activity.titleFr,
-              prompt: rec.why,
+              // S15C: the Claude-voiced "pourquoi" once it arrives for this
+              // pick, else the deterministic line (instant, grounded fallback).
+              prompt: reco.currentWhy ?? rec.why,
               // S8.1D: description lives in the V1-style bottom glass bubble;
               // the distance/category/vibe become its single info line + tags.
               bottomBubble: true,
