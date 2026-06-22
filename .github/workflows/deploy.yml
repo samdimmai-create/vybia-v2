@@ -39,8 +39,18 @@ jobs:
       # secret keys (TMDB / Ticketmaster) into it. The keyless live sources
       # (Open-Meteo weather + Montreal open-data events) plus the place
       # enrichment baked at ingest time still give a rich, testable build.
+      #
+      # S15: PROXY_URL is the PUBLIC Cloudflare-Worker URL of the Claude proxy.
+      # It is NOT a secret (it never exposes the Anthropic key — that lives only
+      # inside the worker), so it is a repo *variable* (Settings → Secrets and
+      # variables → Actions → Variables → New variable: PROXY_URL). When unset,
+      # the define is empty and the app stays fully deterministic (templated copy
+      # only) — so the build is always safe to run, with or without the proxy.
       - name: Build web (release)
-        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+        run: |
+          flutter build web --release \
+            --base-href "/${{ github.event.repository.name }}/" \
+            --dart-define=PROXY_URL=${{ vars.PROXY_URL }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
