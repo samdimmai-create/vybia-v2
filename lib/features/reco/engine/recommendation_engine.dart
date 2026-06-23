@@ -97,6 +97,11 @@ class RecommendationEngine {
   /// batch stays varied (revealed-preference / don't re-surface the decided).
   static const double _wRepeat = 0.06;
 
+  /// S19B resurface bump: a liked-but-not-yet-lived activity from another day is
+  /// gently lifted so it returns as "a preference you haven't lived yet" —
+  /// noticeable, never dominating a genuinely better in-the-moment pick.
+  static const double _wResurface = 0.05;
+
   // S9E diversity / serendipity tuning.
   /// Two same-category venues closer than this read as duplicates → keep one.
   static const double _nearDuplicateKm = 0.4;
@@ -124,6 +129,7 @@ class RecommendationEngine {
     RecoContext? context,
     Set<String> excludedIds = const {},
     Set<ActivityCategory> likedCategories = const {},
+    Set<String> resurfacedIds = const {},
     int max = 6,
   }) {
     final ctx = context ?? RecoContext.now();
@@ -178,9 +184,14 @@ class RecommendationEngine {
         repeatPenalty: likedCategories.contains(a.category) ? _wRepeat : 0.0,
       );
 
+      // S19B: a gentle, additive lift for a liked-but-unlived activity returning
+      // on another day. Kept off the [breakdown] (which stays the honest in-the-
+      // moment fit) and folded only into the ranking score.
+      final resurface = resurfacedIds.contains(a.id) ? _wResurface : 0.0;
+
       return Recommendation(
         activity: a,
-        score: breakdown.total,
+        score: breakdown.total + resurface,
         isBestPick: false,
         why: content.why(a, profile,
             lms: lms, topDims: match.topDims, context: ctx),

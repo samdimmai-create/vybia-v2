@@ -4,6 +4,7 @@ import '../../../core/geo/geo.dart';
 import '../../../core/persistence/app_store.dart';
 import '../../guest/model/activity_axes.dart';
 import '../../guest/model/guest_profile.dart';
+import '../../guest/model/moment.dart';
 import '../content/llm_content_provider.dart';
 import '../data/activity_catalog.dart';
 import '../data/osm_place_repository.dart';
@@ -13,6 +14,7 @@ import '../engine/reco_context.dart';
 import '../live/live_availability_service.dart';
 import '../live/live_source.dart';
 import '../live/weather_service.dart';
+import '../memory/preference_memory.dart';
 import '../model/activity.dart';
 import '../model/recommendation.dart';
 
@@ -62,7 +64,13 @@ class RecoController extends ChangeNotifier {
     this.store,
     this.liveService,
     this.weatherService,
-  })  : engine = engine ??
+    PreferenceMemory? memory,
+    MomentContext? moment,
+  })  :
+        // ignore: prefer_initializing_formals — kept explicit alongside _moment.
+        _memory = memory,
+        _moment = moment ?? MomentContext.now(),
+        engine = engine ??
             RecommendationEngine(
               catalog: liveActivityCatalog(),
               // S15C: pick the LLM-backed content provider when a proxy is
@@ -100,6 +108,17 @@ class RecoController extends ChangeNotifier {
   /// The keyless live weather source (S12B). Null in tests / pure-offline mode →
   /// no weather signal, so the weather feasibility filter stays skipped.
   final WeatherService? weatherService;
+
+  /// S19B: the cross-session temporal preference memory. When present it drives
+  /// moment-aware suppression + resurfacing (and records each reaction with its
+  /// moment); when null the controller keeps the legacy permanent-decided
+  /// behaviour, so offline tests are unchanged.
+  final PreferenceMemory? _memory;
+
+  /// S19A: the moment (day-of-week + hour) this reco round belongs to.
+  final MomentContext _moment;
+
+  MoodBucket get _mood => MoodBucket.of(profile);
 
   bool _disposed = false;
 
@@ -171,9 +190,22 @@ class RecoController extends ChangeNotifier {
   /// Restore the revealed-preference history from storage so a relaunch doesn't
   /// re-surface already-decided picks and the learned categories carry over.
   void _hydrate() {
+    final memory = _memory;
+    if (memory != null) {
+      // S19B: cross-session suppression is now MOMENT-AWARE — a disliked pick is
+      // hidden only in the same slot+mood, a liked one only the same day, and a
+      // planned one always. So a liked-but-unlived pick can resurface on another
+      // day (see [_rank]'s resurface set), unlike the legacy blanket "decided".
+      _decided.addAll(memory.suppressedFor(
+        slot: _moment.slot,
+        mood: _mood,
+        today: _moment.todayKey,
+      ));
+    }
     final store = this.store;
     if (store == null) return;
-    _decided.addAll(store.readDecidedIds());
+    // Legacy permanent-decided suppression only when there's no moment memory.
+    if (memory == null) _decided.addAll(store.readDecidedIds());
     for (final id in store.readLikedIds()) {
       final a = _activityById(id);
       if (a != null) {
@@ -228,11 +260,18 @@ class RecoController extends ChangeNotifier {
   bool get isExhausted => _ranked.isEmpty;
 
   void _rank() {
+    final resurfaced = _memory?.resurfacedFor(
+          slot: _moment.slot,
+          mood: _mood,
+          today: _moment.todayKey,
+        ) ??
+        const <String>{};
     _ranked = engine.recommend(
       profile,
       context: context,
       excludedIds: _decided,
       likedCategories: _likedCategories,
+      resurfacedIds: resurfaced,
     );
     _maybeGenerateWhy();
   }
@@ -274,6 +313,7 @@ class RecoController extends ChangeNotifier {
     _decided.add(rec.activity.id);
     _likedCategories.add(rec.activity.category);
     _liked.add(rec.activity);
+    _remember(rec.activity, liked: true);
     _rank();
     _persist();
     notifyListeners();
@@ -286,9 +326,34 @@ class RecoController extends ChangeNotifier {
     if (rec == null) return;
     _applyAxes(rec.activity, toward: false);
     _decided.add(rec.activity.id);
+    _remember(rec.activity, liked: false);
     _rank();
     _persist();
     notifyListeners();
+  }
+
+  /// S19B: stamp a reaction into the temporal memory WITH its moment, and
+  /// persist it so the learning carries across sessions. No-op when the memory
+  /// isn't wired (offline tests).
+  void _remember(Activity a, {required bool liked}) {
+    final memory = _memory;
+    if (memory == null) return;
+    memory.recordReaction(
+      activityId: a.id,
+      liked: liked,
+      moment: _moment,
+      mood: _mood,
+    );
+    store?.saveMemory(memory);
+  }
+
+  /// S19D: the guest turned [activityId] into a plan — mark it lived in the
+  /// memory so it stops resurfacing as "a preference you haven't lived yet".
+  void markPlanned(String activityId) {
+    final memory = _memory;
+    if (memory == null) return;
+    memory.markPlanned(activityId);
+    store?.saveMemory(memory);
   }
 
   /// Nudge every axis toward the activity (like) or its mirror (dislike).

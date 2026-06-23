@@ -10,6 +10,7 @@ import '../../features/reco/data/activity_catalog.dart';
 import '../../features/reco/data/osm_place_repository.dart';
 import '../../features/reco/db/activity_repository.dart';
 import '../../features/reco/db/catalog_entry.dart';
+import '../../features/reco/memory/preference_memory.dart';
 import '../../features/reco/model/activity.dart';
 
 /// The single local persistence repository for the whole guest model.
@@ -35,6 +36,7 @@ class AppStore {
   static const _kGeo = 'vybia.geo.v1'; // last resolved location + status
   static const _kOverlay = 'vybia.db.overlay.v1'; // S10E enriched/upserted records
   static const _kPalette = 'vybia.palette.v1'; // S15.0 edge palette index (persisted)
+  static const _kMemory = 'vybia.memory.v1'; // S19B temporal preference memory
 
   /// Open the store, loading the backing prefs. Call once before first paint.
   static Future<AppStore> open() async =>
@@ -193,6 +195,22 @@ class AppStore {
 
   Future<void> savePaletteIndex(int index) => _prefs.setInt(_kPalette, index);
 
+  // ---- Temporal preference memory (S19B) -----------------------------------
+
+  /// The cross-session reaction/answer memory, stamped by moment. Empty (never
+  /// null) on first run so callers can always record into it.
+  PreferenceMemory readMemory() {
+    final raw = _prefs.getString(_kMemory);
+    if (raw == null) return PreferenceMemory();
+    final decoded = jsonDecode(raw);
+    return decoded is Map<String, dynamic>
+        ? PreferenceMemory.fromJson(decoded)
+        : PreferenceMemory();
+  }
+
+  Future<void> saveMemory(PreferenceMemory memory) =>
+      _prefs.setString(_kMemory, jsonEncode(memory.toJson()));
+
   // ---- First-run seed guard ------------------------------------------------
 
   bool get hasSeeded => _prefs.getBool(_kSeeded) ?? false;
@@ -209,5 +227,6 @@ class AppStore {
     await _prefs.remove(_kGeo);
     await _prefs.remove(_kOverlay);
     await _prefs.remove(_kPalette);
+    await _prefs.remove(_kMemory);
   }
 }

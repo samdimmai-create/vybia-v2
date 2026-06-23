@@ -8,10 +8,12 @@ import '../../reco/engine/recommendation_engine.dart';
 import '../../reco/engine/reco_context.dart';
 import '../../reco/live/live_availability_service.dart';
 import '../../reco/live/weather_service.dart';
+import '../../reco/memory/preference_memory.dart';
 import '../../reco/model/recommendation.dart';
 import '../../reco/state/reco_controller.dart';
 import '../data/question_bank.dart';
 import '../model/guest_profile.dart';
+import '../model/moment.dart';
 import '../model/question.dart';
 import 'adaptive_engine.dart';
 
@@ -64,6 +66,8 @@ class LoopController extends ChangeNotifier {
     this.store,
     this.liveService,
     this.weatherService,
+    PreferenceMemory? memory,
+    MomentContext? moment,
     this.questionsPerBatch = 3,
     this.firstBatchSize = 2,
     this.recosPerRound = 4,
@@ -72,6 +76,20 @@ class LoopController extends ChangeNotifier {
     _recoEngine = recoEngine;
     _context = context;
     _location = location;
+    _moment = moment ?? MomentContext.now();
+    // S19B: use the injected memory, else load it from the store, so the loop
+    // remembers reactions/answers across sessions. Null only in pure-offline
+    // tests that pass neither.
+    _memory = memory ?? store?.readMemory();
+    // S19B/C: don't re-ask questions already firmly answered FOR THIS MOMENT —
+    // Vybia should feel like it remembers you. Seed those ids as already-asked.
+    final mem = _memory;
+    if (mem != null) {
+      this.questionEngine.seedAnswered(mem.answeredQuestionIdsFor(
+        slot: _moment.slot,
+        mood: MoodBucket.of(profile),
+      ));
+    }
     _beginQuestionBatch(first: true);
   }
 
@@ -81,6 +99,17 @@ class LoopController extends ChangeNotifier {
   RecoContext? _context;
   GeoResult? _location;
   final AppStore? store;
+
+  /// S19A: the moment (day-of-week + hour) this whole loop session belongs to —
+  /// every answer and reaction is stamped with it for the temporal memory.
+  late final MomentContext _moment;
+
+  /// S19B: the cross-session preference memory (loaded from the store unless
+  /// injected). Null only in pure-offline tests.
+  PreferenceMemory? _memory;
+
+  /// The moment this loop is running in (exposed for the UI / proof).
+  MomentContext get moment => _moment;
 
   /// The LIVE availability layer (S10.1B), threaded into the [RecoController] so
   /// the reco round blends fresh events/films with the static pool. Null in
@@ -233,6 +262,7 @@ class LoopController extends ChangeNotifier {
     _qHistory.add((question: q, snapshot: profile.toJson()));
     questionEngine.apply(profile, q, option);
     _persistProfile();
+    _rememberAnswer(q);
     _batchAsked++;
 
     final next = questionEngine.next(profile);
@@ -292,6 +322,8 @@ class LoopController extends ChangeNotifier {
       store: store,
       liveService: liveService,
       weatherService: weatherService,
+      memory: _memory,
+      moment: _moment,
     );
     // Re-rank against the freshly sharpened profile (no-op on the first round,
     // where the constructor already ranked).
@@ -344,12 +376,29 @@ class LoopController extends ChangeNotifier {
     if (_phase != LoopPhase.recos) return null;
     final rec = _reco?.current;
     if (rec == null) return null;
+    // S19D: the guest is planning this pick → mark it lived in the memory so it
+    // stops resurfacing as "a preference you haven't lived yet".
+    _reco?.markPlanned(rec.activity.id);
     _phase = LoopPhase.selected;
     notifyListeners();
     return rec;
   }
 
   void _persistProfile() => store?.saveProfile(profile);
+
+  /// S19A/B: stamp the just-answered question into the temporal memory with this
+  /// moment, and persist it — so Vybia won't re-ask it in the same context next
+  /// session. No-op when the memory isn't wired (offline tests).
+  void _rememberAnswer(Question q) {
+    final mem = _memory;
+    if (mem == null) return;
+    mem.recordAnswer(
+      questionId: q.id,
+      moment: _moment,
+      mood: MoodBucket.of(profile),
+    );
+    store?.saveMemory(mem);
+  }
 
   /// S15C: a short, Claude-voiced acknowledgement line for a just-made reaction
   /// (Intéressant / Pas intéressant). Falls back to a deterministic line when the
