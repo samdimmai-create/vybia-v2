@@ -8,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/edge_action.dart';
 import '../../plans/screens/planifier_screen.dart';
+import '../../plans/screens/recap_screen.dart';
 import '../../reco/live/live_availability_service.dart';
 import '../../reco/live/weather_service.dart';
 import '../../reco/model/recommendation.dart';
@@ -70,9 +71,15 @@ class _EngineLoopScreenState extends State<EngineLoopScreen> {
   bool _showDetail = false;
   bool _navigated = false;
 
+  /// S19D: a plan-from-zero draft (Quand / Avec qui chosen before the loop), if
+  /// the loop was entered from the Planifier flow. Null on the Explorer path.
+  PlanDraft? _planDraft;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is PlanDraft) _planDraft = args;
     if (_loop == null) {
       final injected = widget.controller;
       if (injected != null) {
@@ -293,12 +300,27 @@ class _EngineLoopScreenState extends State<EngineLoopScreen> {
     final rec = loop.reco?.current;
     if (rec == null) return;
     _navigated = true;
+    final draft = _planDraft;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      Navigator.of(context).pushNamed(
-        AppRouter.plan,
-        arguments: PlanifierArgs(activity: rec.activity),
-      );
+      if (draft != null) {
+        // Plan-from-zero: Quand / Avec qui already chosen → straight to recap.
+        Navigator.of(context).pushNamed(
+          AppRouter.recap,
+          arguments: RecapArgs(
+            activity: rec.activity,
+            moment: draft.moment,
+            companions: draft.companions,
+            pickedDate: draft.pickedDate,
+          ),
+        );
+      } else {
+        // Explorer path: gather Quand / Avec qui, then the recap.
+        Navigator.of(context).pushNamed(
+          AppRouter.plan,
+          arguments: PlanifierArgs(activity: rec.activity),
+        );
+      }
     });
   }
 

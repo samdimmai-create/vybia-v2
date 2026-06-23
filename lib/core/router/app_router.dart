@@ -14,6 +14,7 @@ import '../../features/guest/screens/splash_screen.dart';
 import '../../features/guest/screens/welcome_screen.dart';
 import '../../features/plans/screens/mes_plans_screen.dart';
 import '../../features/plans/screens/planifier_screen.dart';
+import '../../features/plans/screens/recap_screen.dart';
 import '../../features/profile/screens/profil_screen.dart';
 import '../../features/reco/live/live_availability_service.dart';
 import '../../features/reco/live/weather_service.dart';
@@ -44,6 +45,7 @@ class AppRouter {
   static const String profileReady = '/profil-pret';
   static const String reco = '/reco';
   static const String plan = '/plan';
+  static const String recap = '/recap'; // S19D: recap/confirm before saving a plan
   static const String mesPlans = '/mes-plans';
   static const String profil = '/profil';
 
@@ -79,6 +81,8 @@ class AppRouter {
         );
       case plan:
         page = PlanifierScreen.fromRoute(settings);
+      case recap:
+        page = RecapScreen.fromRoute(settings);
       case mesPlans:
         page = const MesPlansScreen();
       case profil:
