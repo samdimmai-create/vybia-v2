@@ -27,6 +27,18 @@ class Img {
   static const market = 'assets/images/places/market.jpg';
   static const sports = 'assets/images/places/sports.jpg';
 
+  // S18C — extra REAL, free-licensed variants per generic category so two
+  // same-category recommendations no longer share one picture (see
+  // tool/fetch_varied_places.mjs + NOTICES.md for attribution).
+  static const cafe2 = 'assets/images/places/cafe2.jpg';
+  static const cafe3 = 'assets/images/places/cafe3.jpg';
+  static const bar2 = 'assets/images/places/bar2.jpg';
+  static const bar3 = 'assets/images/places/bar3.jpg';
+  static const restaurant2 = 'assets/images/places/restaurant2.jpg';
+  static const cinema2 = 'assets/images/places/cinema2.jpg';
+  static const museum2 = 'assets/images/places/museum2.jpg';
+  static const park2 = 'assets/images/places/park2.jpg';
+
   // ---- Mood / atmosphere images -----------------------------------------
   static const calm = 'assets/images/emotions/calm.jpg';
   static const curious = 'assets/images/emotions/curious.jpg';

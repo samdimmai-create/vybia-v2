@@ -72,35 +72,52 @@ class TemplatedContentProvider implements ContentProvider {
   String imageFor(Activity a, GuestProfile profile) {
     final candidates = _candidates(a.category);
     if (candidates.isEmpty) return a.image;
-    // Blend the activity's own character with the guest's current vibe so the
-    // picture matches the mood, not just the category.
-    final vibe = (0.5 * a.tag(Dimension.vibe) + 0.5 * profile.valueOf(Dimension.vibe))
-        .clamp(0.0, 1.0)
-        .toDouble();
-    final idx =
-        (vibe * candidates.length).floor().clamp(0, candidates.length - 1);
+    if (candidates.length == 1) return candidates.first;
+    // S18C (founder fix — "les images se répètent / sont génériques"): pick by
+    // BOTH the mood AND the activity's own identity, so two same-category
+    // activities seen back to back land on DIFFERENT pictures instead of the
+    // single vibe-bucketed one they used to share. The vibe biases the choice
+    // (calm → calmer image) and the activity id deterministically offsets within
+    // that bias, spreading the catalogue across the whole candidate set.
+    final vibe =
+        (0.5 * a.tag(Dimension.vibe) + 0.5 * profile.valueOf(Dimension.vibe))
+            .clamp(0.0, 1.0)
+            .toDouble();
+    final vibeBucket = (vibe * candidates.length).floor();
+    final idOffset = a.id.hashCode.abs() % candidates.length;
+    final idx = (vibeBucket + idOffset) % candidates.length;
     return candidates[idx];
   }
 
-  /// Per-category candidate images, ordered calm → lively (S9F).
+  /// Per-category candidate images, ordered calm → lively (S9F). S18C widened
+  /// the generic categories with real downloaded variants (cafe/bar/… now carry
+  /// several distinct photos) so [imageFor]'s id-spread actually has variety to
+  /// draw on and adjacent same-category cards no longer repeat one picture.
   List<String> _candidates(ActivityCategory c) {
     switch (c) {
       case ActivityCategory.cafe:
-        return const [Img.cafe];
+        return const [Img.cafe, Img.cafe2, Img.cafe3];
       case ActivityCategory.food:
-        return const [Img.restaurant, Img.market];
+        return const [Img.restaurant, Img.restaurant2, Img.market];
       case ActivityCategory.nature:
-        return const [Img.garden, Img.park, Img.viewpoint];
+        return const [Img.garden, Img.park, Img.park2, Img.viewpoint];
       case ActivityCategory.culture:
-        return const [Img.museum, Img.gallery, Img.theatre, Img.cinema];
+        return const [
+          Img.museum,
+          Img.museum2,
+          Img.gallery,
+          Img.theatre,
+          Img.cinema,
+          Img.cinema2,
+        ];
       case ActivityCategory.nightlife:
-        return const [Img.bar];
+        return const [Img.bar, Img.bar2, Img.bar3];
       case ActivityCategory.active:
-        return const [Img.park, Img.sports];
+        return const [Img.park, Img.park2, Img.sports];
       case ActivityCategory.wellness:
-        return const [Img.garden, Img.park];
+        return const [Img.garden, Img.park, Img.park2];
       case ActivityCategory.creative:
-        return const [Img.gallery, Img.theatre];
+        return const [Img.gallery, Img.theatre, Img.museum2];
     }
   }
 
