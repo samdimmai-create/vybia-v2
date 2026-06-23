@@ -34,8 +34,13 @@ class OrbPainter extends CustomPainter {
         1.0 + 0.038 * math.sin(phase) + 0.012 * math.sin(phase * 2.7 + 0.8);
     final r = baseR * breathe;
 
-    final edgeColor =
+    // S17C: the directional coloration is PROXIMITY-GATED — at reach 0 (centre /
+    // not close to an edge) the orb stays neutral accent, and the edge colour
+    // only leans in as it approaches the edge.
+    final aimedColor =
         direction == null ? AppColors.accent : AppColors.edgeFor(direction!);
+    final edgeColor =
+        Color.lerp(AppColors.accent, aimedColor, reach) ?? aimedColor;
 
     // Bias offset: glow leans toward the active edge as reach grows.
     Offset bias = Offset.zero;

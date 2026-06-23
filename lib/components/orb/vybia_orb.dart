@@ -20,6 +20,53 @@ class OrbAim {
   static const OrbAim rest = OrbAim(null, 0);
 }
 
+// ---- S17C: near-edge proximity model ------------------------------------
+// A choice COMMITS only when the orb is close enough to the SCREEN edge, and the
+// decisive filter/coloration are OFF around the centre and intensify only as the
+// orb APPROACHES an edge — proximity to the edge, deliberately NOT distance from
+// the gesture origin. Constants are tunable knobs (see the S17 report).
+
+/// Depth of the near-edge zone, as a fraction of the scene's SHORTER side. The
+/// decisive effect is 0 beyond this depth from an edge (around the centre) and
+/// ramps to 1 at the edge.
+const double kEdgeZoneFrac = 0.42;
+
+/// How far into the near-edge zone (0 at the zone's inner boundary → 1 at the
+/// edge) a directional release must reach to COMMIT. A release shy of this
+/// dissolves with no commit.
+const double kEdgeCommitReach = 0.5;
+
+/// Minimum drag (px from the gesture origin) that counts as a deliberate
+/// directional intent — so a still tap that merely lands near an edge stays a
+/// tap, never an accidental commit.
+const double kEdgeIntentMin = 32;
+
+/// How close the orb is to the screen edge it is aiming at: 0 around the centre
+/// (outside the near-edge band) → 1 right at the edge. The reach reported to the
+/// scene, so the decisive filter is off mid-scene and blooms only on approach.
+double edgeProximityReach(
+  Size bounds,
+  OrbDirection dir,
+  Offset pos, {
+  double zoneFrac = kEdgeZoneFrac,
+}) {
+  if (bounds.width <= 0 || bounds.height <= 0) return 0;
+  final double dist;
+  switch (dir) {
+    case OrbDirection.left:
+      dist = pos.dx;
+    case OrbDirection.right:
+      dist = bounds.width - pos.dx;
+    case OrbDirection.up:
+      dist = pos.dy;
+    case OrbDirection.down:
+      dist = bounds.height - pos.dy;
+  }
+  final zone = bounds.shortestSide * zoneFrac;
+  if (zone <= 0) return 0;
+  return (1 - dist / zone).clamp(0.0, 1.0).toDouble();
+}
+
 /// The Vybia brand primitive.
 ///
 /// Wraps [child] in a [Listener] (pointer events — never GestureDetector). An
@@ -270,8 +317,30 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
     return d.dy < 0 ? OrbDirection.up : OrbDirection.down;
   }
 
-  double get _reach =>
-      (_delta.distance / widget.threshold).clamp(0.0, 1.0).toDouble();
+  // S17C: the live reach is the orb's PROXIMITY to the aimed screen edge (0 at
+  // centre → 1 at the edge), NOT the old distance-from-origin. So the decisive
+  // filter + orb coloration are off mid-scene and intensify only on approach.
+  double get _reach {
+    final d = _direction;
+    if (d == null) return 0;
+    return edgeProximityReach(_bounds, d, _current);
+  }
+
+  /// The direction a release should COMMIT, or null (→ dissolve). S17C: requires
+  /// a deliberate directional intent AND the orb being close enough to that
+  /// screen edge; a drag that ends short of the edge does not commit. Falls back
+  /// to the legacy origin-distance threshold only before the scene is laid out.
+  OrbDirection? _commitDirection() {
+    final d = _direction;
+    if (d == null) return null;
+    if (_delta.distance < kEdgeIntentMin) return null;
+    if (_bounds.width <= 0 || _bounds.height <= 0) {
+      return _delta.distance >= widget.threshold ? d : null;
+    }
+    return edgeProximityReach(_bounds, d, _current) >= kEdgeCommitReach
+        ? d
+        : null;
+  }
 
   // ---- Hold-to-home ------------------------------------------------------
   void _startImmobileTimer() {
@@ -365,7 +434,7 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
       return;
     }
 
-    final dir = _delta.distance >= widget.threshold ? _direction : null;
+    final dir = _commitDirection();
 
     if (dir != null) {
       widget.onDirection(dir);
