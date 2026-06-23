@@ -127,6 +127,14 @@ class LoopController extends ChangeNotifier {
 
   Question? _question;
 
+  // S18D (founder fix — "double-tap au 2e question saute à la page de l'activité
+  // au lieu de la question précédente"): a real step-back stack. Each answered
+  // question pushes the question shown PLUS a snapshot of the profile taken right
+  // BEFORE its answer was applied, so [stepBack] can re-show that question and
+  // revert exactly the learning that one answer added — back = one step, not a
+  // route pop out of the whole loop.
+  final List<({Question question, Map<String, dynamic> snapshot})> _qHistory = [];
+
   // S15C: the LLM content layer for fresh question wording (the reco phase gets
   // its variety through the [RecoController] it already owns). Null / inactive →
   // the deterministic question prompt shows with zero latency.
@@ -221,6 +229,8 @@ class LoopController extends ChangeNotifier {
     if (_phase != LoopPhase.questions) return;
     final q = _question;
     if (q == null) return;
+    // S18D: snapshot BEFORE applying so a step-back can revert exactly this answer.
+    _qHistory.add((question: q, snapshot: profile.toJson()));
     questionEngine.apply(profile, q, option);
     _persistProfile();
     _batchAsked++;
@@ -234,6 +244,28 @@ class LoopController extends ChangeNotifier {
       _question = next;
       notifyListeners();
     }
+  }
+
+  /// S18D: is there a previous question to step back to right now?
+  bool get canStepBack => _phase == LoopPhase.questions && _qHistory.isNotEmpty;
+
+  /// S18D: go back EXACTLY one step in the question chain — restore the profile to
+  /// the state before the last answer and re-show that question. Returns false
+  /// when there is nothing to step back to, so the caller can fall back to a
+  /// normal route-back. This is the "double-tap = previous question" contract.
+  bool stepBack() {
+    if (!canStepBack) return false;
+    final prev = _qHistory.removeLast();
+    profile.restore(prev.snapshot);
+    _persistProfile();
+    _question = prev.question;
+    _phase = LoopPhase.questions;
+    if (_batchAsked > 0) _batchAsked--;
+    _generatedQ = null;
+    _qForId = null;
+    _maybeGenerateQuestion();
+    notifyListeners();
+    return true;
   }
 
   // ---- Reflection ----------------------------------------------------------

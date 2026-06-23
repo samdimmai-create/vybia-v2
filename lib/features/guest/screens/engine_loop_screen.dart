@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../components/orb/compat_orb.dart';
 import '../../../core/geo/geo.dart';
 import '../../../core/geo/location_service.dart';
 import '../../../core/router/app_router.dart';
@@ -159,6 +160,12 @@ class _EngineLoopScreenState extends State<EngineLoopScreen> {
       showPaletteSwitcher: true,
       journeyStep: JourneyStep.taste.index,
       debugProofFull: widget.proof,
+      // S18D: double-tap steps back to the PREVIOUS question (reverting that
+      // answer's learning) instead of popping the whole loop route. Falls back to
+      // route-back only when this is the very first question.
+      onDoubleTap: () {
+        if (!loop.stepBack()) Navigator.of(context).maybePop();
+      },
       left: q.optionFor(OrbDirection.left)?.label,
       right: q.optionFor(OrbDirection.right)?.label,
       up: q.optionFor(OrbDirection.up)?.label,
@@ -222,6 +229,18 @@ class _EngineLoopScreenState extends State<EngineLoopScreen> {
           downAction: EdgeAction.go,
           onDirection: (d) => _onRecoDirection(loop, d),
         ),
+        // S18D: fill-level compatibility orb (engine match score), top-right.
+        if (!_showDetail)
+          Positioned(
+            top: 0,
+            right: 0,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: IgnorePointer(child: CompatOrb(fill: rec.score)),
+              ),
+            ),
+          ),
         if (_showDetail)
           Positioned.fill(
             child: RecoDetailOverlay(

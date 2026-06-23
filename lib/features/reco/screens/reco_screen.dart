@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/geo/geo.dart';
 import '../../../core/geo/location_service.dart';
 import '../../../core/router/app_router.dart';
+import '../../../components/orb/compat_orb.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/edge_action.dart';
@@ -231,6 +232,20 @@ class _RecoScreenState extends State<RecoScreen> {
               downAction: EdgeAction.go,
               onDirection: _onDirection,
             ),
+            // S18D: fill-level compatibility orb (engine match score), floated
+            // top-right. IgnorePointer so it never steals an orb gesture; hidden
+            // while the detail page is open.
+            if (!_showDetail)
+              Positioned(
+                top: 0,
+                right: 0,
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    child: IgnorePointer(child: CompatOrb(fill: rec.score)),
+                  ),
+                ),
+              ),
             if (_showDetail)
               Positioned.fill(
                 child: RecoDetailOverlay(
