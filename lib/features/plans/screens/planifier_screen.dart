@@ -161,6 +161,14 @@ class _PlanifierScreenState extends State<PlanifierScreen> {
           journeyStep: JourneyStep.plan.index,
           headline: 'Quand ?',
           prompt: 'Glisse vers le moment qui te va pour « ${a.titleFr} ».',
+          // S18A: the planning scenes are activity cards too — the description
+          // lives in the universal bottom bubble, with the activity it concerns
+          // on the info line, so every image/activity card reads consistently.
+          bottomBubble: true,
+          infoLine: '« ${a.titleFr} » · ${a.category.labelFr}',
+          // S18D: double-tap = back ONE step. On the first plan step that means
+          // leaving the planner (pop the route).
+          onDoubleTap: () => Navigator.of(context).maybePop(),
           left: 'Maintenant',
           right: 'Ce soir',
           up: 'Ce week-end',
@@ -175,6 +183,11 @@ class _PlanifierScreenState extends State<PlanifierScreen> {
           journeyStep: JourneyStep.plan.index,
           headline: 'Avec qui ?',
           prompt: 'Glisse vers celles et ceux qui seront du voyage.',
+          bottomBubble: true,
+          infoLine: '« ${a.titleFr} » · ${a.category.labelFr}',
+          // S18D: double-tap steps back to the moment question, NOT out of the
+          // whole planner.
+          onDoubleTap: () => setState(() => _step = _Step.moment),
           left: 'Solo',
           right: 'En couple',
           up: 'Entre amis',
@@ -200,6 +213,10 @@ class _PlanifierScreenState extends State<PlanifierScreen> {
           prompt: _isEdit
               ? 'Glisse vers le bas pour enregistrer tes changements.'
               : 'Tout est prêt. Glisse vers le bas pour confirmer ton plan.',
+          bottomBubble: true,
+          infoLine: '${_moment!.labelFr} · ${_companions!.labelFr}',
+          // S18D: double-tap goes back to the companions question (one step).
+          onDoubleTap: () => setState(() => _step = _Step.companions),
           up: 'Revenir',
           down: _isEdit ? 'Enregistrer' : 'Confirmer',
           downAction: EdgeAction.go, // commit → green

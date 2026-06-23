@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/geo/geo.dart';
+import '../../../core/media/image_ref.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../model/recommendation.dart';
@@ -8,6 +9,12 @@ import '../model/recommendation.dart';
 /// "Plus d'infos" overlay (orb disabled, tap anywhere to dismiss — the
 /// info/detail contract). Shows the full activity description plus the
 /// "Pourquoi pour toi" reading the engine generated.
+///
+/// S18B layering fix: the panel is backed by the activity's OWN hero image
+/// (opaque, BoxFit.cover) under a dark legibility scrim, so the scene beneath —
+/// its bottom-bubble title + "pourquoi" — can NEVER bleed through (the old 0.82
+/// translucent flood let them read behind the text). The detail reads as its own
+/// clean, full page.
 class RecoDetailOverlay extends StatelessWidget {
   const RecoDetailOverlay({
     super.key,
@@ -24,13 +31,35 @@ class RecoDetailOverlay extends StatelessWidget {
     final a = recommendation.activity;
     final budgetLabel =
         ['Gratuit', 'Économique', 'Prix moyen', 'À s’offrir'][a.budget.clamp(0, 3)];
+    // S18B: the engine's match score (≈0..1) as a friendly compatibility %.
+    final compat =
+        (recommendation.score.clamp(0.0, 1.0) * 100).round();
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onDismiss,
-      child: Container(
-        color: AppColors.bg.withValues(alpha: 0.82),
-        child: SafeArea(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // 1 — the activity's own image, OPAQUE, fully hiding the scene beneath.
+          Image(
+            image: imageProviderFor(recommendation.image),
+            fit: BoxFit.cover,
+            errorBuilder: (_, _, _) => const DecoratedBox(
+              decoration: BoxDecoration(gradient: AppColors.bgWash),
+            ),
+          ),
+          // 2 — a strong dark scrim so the long-form text is fully legible.
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xE6090D0F), Color(0xF2090D0F)],
+              ),
+            ),
+          ),
+          SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.lg),
             child: SingleChildScrollView(
@@ -38,9 +67,17 @@ class RecoDetailOverlay extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: AppSpacing.lg),
-                  Text(a.category.labelFr.toUpperCase(),
-                      style: t.labelMedium?.copyWith(
-                          color: AppColors.accent, letterSpacing: 1.5)),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(a.category.labelFr.toUpperCase(),
+                            style: t.labelMedium?.copyWith(
+                                color: AppColors.accent, letterSpacing: 1.5)),
+                      ),
+                      // S18B: compatibility % — a quick "how well this fits you".
+                      _compatBadge(t, compat),
+                    ],
+                  ),
                   const SizedBox(height: AppSpacing.xs),
                   Text(a.titleFr,
                       style: t.displaySmall?.copyWith(color: AppColors.pearl)),
@@ -110,7 +147,24 @@ class RecoDetailOverlay extends StatelessWidget {
             ),
           ),
         ),
+        ],
       ),
+    );
+  }
+
+  /// S18B: a small, prominent compatibility-% badge for the detail header.
+  Widget _compatBadge(TextTheme t, int compat) {
+    return Container(
+      padding:
+          const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.accent.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+        border: Border.all(color: AppColors.accent.withValues(alpha: 0.55)),
+      ),
+      child: Text('$compat % compatible',
+          style: t.labelMedium
+              ?.copyWith(color: AppColors.pearl, fontWeight: FontWeight.w700)),
     );
   }
 
