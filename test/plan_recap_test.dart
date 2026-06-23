@@ -20,11 +20,15 @@ Widget _host(Widget child, PlanController plans) => MaterialApp(
       home: child,
     );
 
-/// A full orb commit toward [by] from the scene centre.
+/// A full orb commit toward [by] from the scene centre. S23: a choice commits
+/// only when the orb reaches that edge's DECISION ZONE, so drag generously in the
+/// [by] direction (well past the zone boundary), not just past the old travel
+/// threshold.
 Future<void> swipe(WidgetTester tester, Offset by) async {
+  final dir = by / by.distance; // direction only
   final g = await tester.startGesture(const Offset(200, 400));
   await tester.pump();
-  await g.moveBy(by);
+  await g.moveBy(dir * 520); // carry the orb deep into the edge's zone
   await tester.pump();
   await g.up();
   await tester.pump(const Duration(milliseconds: 250));
