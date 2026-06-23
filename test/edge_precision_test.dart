@@ -4,9 +4,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vybia_v2/components/orb/vybia_orb.dart';
 import 'package:vybia_v2/core/theme/app_colors.dart';
 
-/// S17C — the near-edge proximity model: a release COMMITS only when the orb is
-/// close enough to the screen edge; the live reach is proximity to that edge
-/// (off at centre, intensifying on approach), not distance from the origin.
+/// S17C/S20A — the proximity reach drives the decisive VISUAL (off at centre,
+/// intensifying on approach), but the COMMIT is decoupled from it (S20A): a
+/// deliberate directional drag past the travel threshold registers reliably,
+/// wherever the orb is released — it need not hug the edge.
 void main() {
   group('edgeProximityReach (pure)', () {
     const bounds = Size(400, 800); // shortestSide 400 → zone = 168px (0.42)
@@ -85,20 +86,37 @@ void main() {
     expect(dir, OrbDirection.left);
   });
 
-  testWidgets('a deliberate drag that ENDS mid-scene does NOT commit (dissolves)',
+  testWidgets('S20A: a normal directional release COMMITS even mid-scene '
+      '(not hugging the edge)', (tester) async {
+    OrbDirection? dir;
+    await tester.pumpWidget(host(onDirection: (d) => dir = d));
+
+    // A normal ~90px thumb swipe that releases well short of the edge (x=310,
+    // centre band) must still register a choice — commit is travel-based now.
+    final g = await tester.startGesture(const Offset(400, 300));
+    await tester.pump();
+    await g.moveBy(const Offset(-90, 0));
+    await tester.pump();
+    await g.up();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(dir, OrbDirection.left,
+        reason: 'a deliberate swipe registers wherever it is released');
+  });
+
+  testWidgets('a tiny sub-threshold nudge does NOT commit (still a tap)',
       (tester) async {
     var commits = 0;
     await tester.pumpWidget(host(onDirection: (_) => commits++));
 
     final g = await tester.startGesture(const Offset(400, 300));
     await tester.pump();
-    await g.moveBy(const Offset(-150, 0)); // big drag, but ends at x=250 (centre)
+    await g.moveBy(const Offset(-20, 0)); // below the travel threshold
     await tester.pump();
     await g.up();
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(commits, 0,
-        reason: 'far from the edge must not commit even on a long drag');
+    expect(commits, 0);
   });
 
   testWidgets('the live reach is ~0 at the centre and high near the edge',

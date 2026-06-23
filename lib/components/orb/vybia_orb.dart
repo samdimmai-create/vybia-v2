@@ -29,26 +29,17 @@ class OrbAim {
   static const OrbAim rest = OrbAim(null, 0);
 }
 
-// ---- S17C: near-edge proximity model ------------------------------------
-// A choice COMMITS only when the orb is close enough to the SCREEN edge, and the
-// decisive filter/coloration are OFF around the centre and intensify only as the
-// orb APPROACHES an edge — proximity to the edge, deliberately NOT distance from
-// the gesture origin. Constants are tunable knobs (see the S17 report).
+// ---- Near-edge proximity model (VISUAL ONLY) ----------------------------
+// S17C introduced proximity-to-the-edge as the decisive feel; S20A DECOUPLES it
+// from whether a choice commits. This reach now drives ONLY the visual bloom
+// (the filter/coloration are off around the centre and intensify as the orb
+// approaches an edge); the COMMIT is travel-based (see `_commitDirection`), so a
+// normal directional swipe registers reliably wherever the orb is released.
 
 /// Depth of the near-edge zone, as a fraction of the scene's SHORTER side. The
-/// decisive effect is 0 beyond this depth from an edge (around the centre) and
+/// decisive VISUAL is 0 beyond this depth from an edge (around the centre) and
 /// ramps to 1 at the edge.
 const double kEdgeZoneFrac = 0.42;
-
-/// How far into the near-edge zone (0 at the zone's inner boundary → 1 at the
-/// edge) a directional release must reach to COMMIT. A release shy of this
-/// dissolves with no commit.
-const double kEdgeCommitReach = 0.5;
-
-/// Minimum drag (px from the gesture origin) that counts as a deliberate
-/// directional intent — so a still tap that merely lands near an edge stays a
-/// tap, never an accidental commit.
-const double kEdgeIntentMin = 32;
 
 /// How close the orb is to the screen edge it is aiming at: 0 around the centre
 /// (outside the near-edge band) → 1 right at the edge. The reach reported to the
@@ -398,20 +389,17 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
     return edgeProximityReach(_bounds, d, _current);
   }
 
-  /// The direction a release should COMMIT, or null (→ dissolve). S17C: requires
-  /// a deliberate directional intent AND the orb being close enough to that
-  /// screen edge; a drag that ends short of the edge does not commit. Falls back
-  /// to the legacy origin-distance threshold only before the scene is laid out.
+  /// The direction a release should COMMIT, or null (→ dissolve).
+  ///
+  /// S20A: commit is DECOUPLED from the proximity visual. A deliberate
+  /// directional drag past the travel [threshold] commits RELIABLY, wherever the
+  /// orb is released — it need not hug the edge. (This reverts S17C's strict
+  /// near-edge commit gate, which made normal thumb swipes silently fail to
+  /// register.) The proximity reach now only drives the visual bloom.
   OrbDirection? _commitDirection() {
     final d = _direction;
     if (d == null) return null;
-    if (_delta.distance < kEdgeIntentMin) return null;
-    if (_bounds.width <= 0 || _bounds.height <= 0) {
-      return _delta.distance >= widget.threshold ? d : null;
-    }
-    return edgeProximityReach(_bounds, d, _current) >= kEdgeCommitReach
-        ? d
-        : null;
+    return _delta.distance >= widget.threshold ? d : null;
   }
 
   // ---- Hold-to-home ------------------------------------------------------
