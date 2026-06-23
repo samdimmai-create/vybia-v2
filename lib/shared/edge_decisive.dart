@@ -39,11 +39,21 @@ class EdgeDecisiveOverlay extends StatelessWidget {
     required this.direction,
     required this.reach,
     required this.orbCenter,
+    this.secondaryAction,
+    this.blend = 0,
     this.lensRadius = 44,
   });
 
   /// The action mapped to the currently-aimed edge, or null when idle.
   final EdgeAction? action;
+
+  /// S17D: the action of the perpendicular edge near a corner (or null). Its
+  /// colour mixes into the wave by [blend]; the dominant [action] still wins the
+  /// commit and remains the wave's origin edge.
+  final EdgeAction? secondaryAction;
+
+  /// S17D: 0 = pure cardinal → 0.5 = an even corner blend.
+  final double blend;
 
   /// The edge being aimed at, or null in the deadzone.
   final OrbDirection? direction;
@@ -72,6 +82,8 @@ class EdgeDecisiveOverlay extends StatelessWidget {
           direction: d,
           reach: reach,
           orbCenter: orbCenter,
+          secondaryAction: secondaryAction,
+          blend: blend,
           lensRadius: lensRadius,
           // The action→colour mapping comes from the active palette; include its
           // index so a live palette flip repaints the wave even when the orb is
@@ -163,6 +175,8 @@ class _EdgeDecisivePainter extends CustomPainter {
     required this.direction,
     required this.reach,
     required this.orbCenter,
+    required this.secondaryAction,
+    required this.blend,
     required this.lensRadius,
     required this.paletteRev,
   });
@@ -171,6 +185,8 @@ class _EdgeDecisivePainter extends CustomPainter {
   final OrbDirection direction;
   final double reach;
   final Offset? orbCenter;
+  final EdgeAction? secondaryAction;
+  final double blend;
   final double lensRadius;
   final int paletteRev;
 
@@ -180,7 +196,14 @@ class _EdgeDecisivePainter extends CustomPainter {
     final reject = action.desaturates;
     // Reject radiates a near-black slate (the grayscale drain itself rides on the
     // hero image's ColorFiltered wrapper); the others radiate their action hue.
-    final color = reject ? const Color(0xFF0E1417) : action.color;
+    var color = reject ? const Color(0xFF0E1417) : action.color;
+    // S17D: near a corner, gradient the wave colour toward the secondary edge's
+    // (skipped for reject, and for a reject secondary — we never drain toward a
+    // non-committed edge). The dominant action still owns the wave origin/commit.
+    final sa = secondaryAction;
+    if (!reject && sa != null && !sa.desaturates && blend > 0) {
+      color = Color.lerp(color, sa.color, blend.clamp(0.0, 1.0)) ?? color;
+    }
 
     // ---- 1. Decisive colour wave from the contact edge -------------------
     // Floods inward from the aimed screen edge as a radial wave. STRONG peak so
@@ -257,6 +280,8 @@ class _EdgeDecisivePainter extends CustomPainter {
       old.direction != direction ||
       old.reach != reach ||
       old.orbCenter != orbCenter ||
+      old.secondaryAction != secondaryAction ||
+      old.blend != blend ||
       old.lensRadius != lensRadius ||
       old.paletteRev != paletteRev;
 }

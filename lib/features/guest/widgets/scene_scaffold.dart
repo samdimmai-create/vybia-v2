@@ -166,7 +166,9 @@ class _SceneScaffoldState extends State<SceneScaffold>
   Offset? _orb; // live finger position; null when resting
   double _presence = 0; // orb life force 0..1
   OrbDirection? _aimDir; // edge the orb is leaning toward
-  double _aimReach = 0; // 0 centre → 1 at commit threshold
+  double _aimReach = 0; // 0 centre → 1 at the edge (proximity)
+  OrbDirection? _aimSecondary; // S17D: perpendicular corner edge, or null
+  double _aimBlend = 0; // S17D: 0 cardinal → 0.5 even corner blend
   double _hold = 0; // hold-to-home warning progress 0..1
 
   // S6.3: the illustrative image is the hero. At rest there is NO lens — the
@@ -344,6 +346,24 @@ class _SceneScaffoldState extends State<SceneScaffold>
     }
   }
 
+  /// S17D: the action for the perpendicular corner edge — again only when that
+  /// edge is a real labelled choice, so the gradient never leans toward a dead
+  /// edge. Null on a cardinal aim or an unlabelled secondary.
+  EdgeAction? get _secondaryAction {
+    switch (_aimSecondary) {
+      case OrbDirection.left:
+        return _has(widget.left) ? widget.leftAction : null;
+      case OrbDirection.right:
+        return _has(widget.right) ? widget.rightAction : null;
+      case OrbDirection.up:
+        return _has(widget.up) ? widget.upAction : null;
+      case OrbDirection.down:
+        return _has(widget.down) ? widget.downAction : null;
+      case null:
+        return null;
+    }
+  }
+
   bool _has(String? s) => s != null && s.isNotEmpty;
 
   /// Gentle Lissajous path used when no finger is down.
@@ -373,6 +393,8 @@ class _SceneScaffoldState extends State<SceneScaffold>
             onAim: (aim) => setState(() {
               _aimDir = aim.direction;
               _aimReach = aim.reach;
+              _aimSecondary = aim.secondary;
+              _aimBlend = aim.blend;
             }),
             onHoldProgress: (v) => setState(() => _hold = v),
             onDirection: widget.onDirection,
@@ -448,6 +470,8 @@ class _SceneScaffoldState extends State<SceneScaffold>
                       action: _activeAction,
                       direction: _aimDir,
                       reach: _aimReach,
+                      secondaryAction: _secondaryAction,
+                      blend: _aimBlend,
                       orbCenter: _orb,
                       lensRadius: widget.lensRadius,
                     ),

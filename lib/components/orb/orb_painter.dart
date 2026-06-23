@@ -14,12 +14,20 @@ class OrbPainter extends CustomPainter {
     required this.opacity,
     required this.reach,
     required this.direction,
+    this.secondary,
+    this.blend = 0,
   });
 
   final double pulse;
   final double opacity;
   final double reach;
   final OrbDirection? direction;
+
+  /// S17D: the perpendicular edge to gradient toward near a corner, or null.
+  final OrbDirection? secondary;
+
+  /// S17D: how much [secondary]'s colour mixes into the dominant edge's (0..0.5).
+  final double blend;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -37,8 +45,18 @@ class OrbPainter extends CustomPainter {
     // S17C: the directional coloration is PROXIMITY-GATED — at reach 0 (centre /
     // not close to an edge) the orb stays neutral accent, and the edge colour
     // only leans in as it approaches the edge.
-    final aimedColor =
+    var aimedColor =
         direction == null ? AppColors.accent : AppColors.edgeFor(direction!);
+    // S17D: near a corner, gradient the dominant edge colour toward the
+    // secondary edge's (the dominant still wins the commit).
+    if (direction != null && secondary != null && blend > 0) {
+      aimedColor = Color.lerp(
+            aimedColor,
+            AppColors.edgeFor(secondary!),
+            blend.clamp(0.0, 1.0),
+          ) ??
+          aimedColor;
+    }
     final edgeColor =
         Color.lerp(AppColors.accent, aimedColor, reach) ?? aimedColor;
 
@@ -163,5 +181,7 @@ class OrbPainter extends CustomPainter {
       old.pulse != pulse ||
       old.opacity != opacity ||
       old.reach != reach ||
-      old.direction != direction;
+      old.direction != direction ||
+      old.secondary != secondary ||
+      old.blend != blend;
 }

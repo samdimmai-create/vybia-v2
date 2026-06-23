@@ -11,10 +11,19 @@ import 'orb_throw.dart';
 /// ([direction], null in the deadzone) and how close it is to committing
 /// ([reach], 0 at centre → 1 at the threshold).
 class OrbAim {
-  const OrbAim(this.direction, this.reach);
+  const OrbAim(this.direction, this.reach, {this.secondary, this.blend = 0});
 
   final OrbDirection? direction;
   final double reach;
+
+  /// S17D: when heading into a CORNER, the perpendicular edge the orb is also
+  /// leaning toward — null on a cardinal aim. The committed choice is still the
+  /// dominant [direction]; this only colours the effect (a two-edge gradient).
+  final OrbDirection? secondary;
+
+  /// How much the [secondary] edge's colour mixes into the dominant edge's:
+  /// 0 = pure cardinal → 0.5 = a perfect 45° corner (an even blend).
+  final double blend;
 
   /// Idle aim — no direction, no reach.
   static const OrbAim rest = OrbAim(null, 0);
@@ -65,6 +74,39 @@ double edgeProximityReach(
   final zone = bounds.shortestSide * zoneFrac;
   if (zone <= 0) return 0;
   return (1 - dist / zone).clamp(0.0, 1.0).toDouble();
+}
+
+/// S17D: the perpendicular edge the orb is also leaning toward (for a corner
+/// gradient), or null when the aim is essentially cardinal. [primary] is the
+/// dominant-axis edge; [delta] is the drag vector. The minor axis must be at
+/// least [minorFrac] of the major to count as "heading into a corner".
+OrbDirection? perpendicularEdge(
+  OrbDirection primary,
+  Offset delta, {
+  double minorFrac = 0.18,
+}) {
+  final horiz =
+      primary == OrbDirection.left || primary == OrbDirection.right;
+  final major = horiz ? delta.dx.abs() : delta.dy.abs();
+  final minor = horiz ? delta.dy.abs() : delta.dx.abs();
+  if (major <= 0 || minor < major * minorFrac) return null;
+  if (horiz) return delta.dy < 0 ? OrbDirection.up : OrbDirection.down;
+  return delta.dx < 0 ? OrbDirection.left : OrbDirection.right;
+}
+
+/// S17D: how much the secondary edge's colour mixes into the dominant edge's:
+/// 0 = pure cardinal → 0.5 = a perfect 45° corner. Weighted by both the
+/// diagonal-ness of the aim ([diagRatio] = minor/major, 0..1) AND the orb's
+/// proximity to each edge, so a blend only blooms when the orb is genuinely near
+/// a corner, and the closer edge dominates the mix.
+double cornerBlend(
+  double primaryReach,
+  double secondaryReach,
+  double diagRatio,
+) {
+  if (secondaryReach <= 0 || primaryReach <= 0) return 0;
+  final share = secondaryReach / (primaryReach + secondaryReach); // 0..1
+  return (share * diagRatio.clamp(0.0, 1.0)).clamp(0.0, 0.5).toDouble();
 }
 
 /// The Vybia brand primitive.
@@ -302,8 +344,38 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
 
   void _emitHold() => widget.onHoldProgress?.call(_warning ? _hold.value : 0.0);
 
-  void _emitAim() =>
-      widget.onAim?.call(_active ? OrbAim(_direction, _reach) : OrbAim.rest);
+  void _emitAim() => widget.onAim?.call(
+        _active
+            ? OrbAim(
+                _direction,
+                _reach,
+                secondary: _secondary,
+                blend: _cornerBlend,
+              )
+            : OrbAim.rest,
+      );
+
+  // ---- S17D: corner gradient --------------------------------------------
+  OrbDirection? get _secondary {
+    final d = _direction;
+    if (d == null) return null;
+    return perpendicularEdge(d, _delta);
+  }
+
+  double get _cornerBlend {
+    final d = _direction;
+    final s = _secondary;
+    if (d == null || s == null) return 0;
+    final horiz = d == OrbDirection.left || d == OrbDirection.right;
+    final major = horiz ? _delta.dx.abs() : _delta.dy.abs();
+    final minor = horiz ? _delta.dy.abs() : _delta.dx.abs();
+    final diagRatio = major <= 0 ? 0.0 : minor / major;
+    return cornerBlend(
+      edgeProximityReach(_bounds, d, _current),
+      edgeProximityReach(_bounds, s, _current),
+      diagRatio,
+    );
+  }
 
   // ---- Geometry helpers -------------------------------------------------
   Offset get _delta => _current - _origin;
@@ -587,6 +659,10 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
                     final pos = _flying ? _flightPos : _current;
                     final dir = _flying ? _sim?.headingEdge : _direction;
                     final reach = _flying ? (_sim?.reach ?? 0.0) : _reach;
+                    // S17D: a held aim near a corner gradients toward the
+                    // secondary edge; a thrown orb just commits its heading edge.
+                    final secondary = _flying ? null : _secondary;
+                    final blend = _flying ? 0.0 : _cornerBlend;
                     // S9.1C: while settling from a stopped throw, recede deeper
                     // (toward a small point) as it fades — a graceful exit.
                     final settle = _settling ? (0.30 + 0.70 * presence) : 1.0;
@@ -607,6 +683,8 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
                               opacity: presence,
                               reach: reach,
                               direction: dir,
+                              secondary: secondary,
+                              blend: blend,
                             ),
                           ),
                         ),

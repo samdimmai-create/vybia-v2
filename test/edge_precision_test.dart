@@ -134,4 +134,60 @@ void main() {
     await g.up();
     await tester.pump(const Duration(milliseconds: 300));
   });
+
+  // ---- S17D: corner gradient (dominant wins) ----------------------------
+
+  group('perpendicularEdge (pure)', () {
+    test('a cardinal aim has no secondary edge', () {
+      expect(perpendicularEdge(OrbDirection.left, const Offset(-120, 0)), null);
+      expect(perpendicularEdge(OrbDirection.down, const Offset(2, 120)), null);
+    });
+
+    test('a diagonal aim names the perpendicular edge', () {
+      // Dominant left, leaning up → secondary up.
+      expect(
+        perpendicularEdge(OrbDirection.left, const Offset(-120, -90)),
+        OrbDirection.up,
+      );
+      // Dominant down, leaning right → secondary right.
+      expect(
+        perpendicularEdge(OrbDirection.down, const Offset(90, 120)),
+        OrbDirection.right,
+      );
+    });
+  });
+
+  group('cornerBlend (pure)', () {
+    test('is 0 when the secondary edge is not in reach (pure cardinal)', () {
+      expect(cornerBlend(0.8, 0.0, 0.0), 0);
+    });
+
+    test('approaches an even blend at a perfect 45° corner', () {
+      // Equal proximity to both edges + a perfect diagonal → ~0.5 (even).
+      expect(cornerBlend(0.7, 0.7, 1.0), closeTo(0.5, 1e-9));
+      // The closer edge dominates the mix.
+      expect(cornerBlend(0.9, 0.3, 1.0), lessThan(0.5));
+    });
+
+    test('never exceeds 0.5 (the dominant edge always keeps the majority)', () {
+      expect(cornerBlend(0.1, 0.9, 1.0), lessThanOrEqualTo(0.5));
+    });
+  });
+
+  testWidgets('a diagonal drag into a corner commits the DOMINANT edge',
+      (tester) async {
+    OrbDirection? dir;
+    await tester.pumpWidget(host(onDirection: (d) => dir = d));
+
+    // From centre toward the top-left corner, with the horizontal pull dominant
+    // (|dx| > |dy|). Ends at (60, 40): near the left edge, x dominates → LEFT.
+    final g = await tester.startGesture(const Offset(400, 300));
+    await tester.pump();
+    await g.moveBy(const Offset(-340, -260));
+    await tester.pump();
+    await g.up();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(dir, OrbDirection.left, reason: 'dominant axis wins the commit');
+  });
 }
