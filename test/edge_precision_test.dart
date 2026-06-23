@@ -10,7 +10,7 @@ import 'package:vybia_v2/core/theme/app_colors.dart';
 /// wherever the orb is released — it need not hug the edge.
 void main() {
   group('edgeProximityReach (pure)', () {
-    const bounds = Size(400, 800); // shortestSide 400 → zone = 168px (0.42)
+    const bounds = Size(400, 800); // shortestSide 400 → zone = 72px (S22A: 0.18)
 
     test('is 0 at the centre (outside the near-edge band)', () {
       expect(
@@ -68,8 +68,10 @@ void main() {
         ),
       );
 
-  // Default test surface is 800×600 ⇒ shortestSide 600 ⇒ zone 252px, so a
-  // left-edge commit needs the orb within ~126px of the left edge.
+  // Default test surface is 800×600 ⇒ shortestSide 600 ⇒ near-edge VISUAL zone
+  // 108px (S22A: 0.18). The COMMIT itself is travel-based (S20A), not zone-based,
+  // so a deliberate swipe commits wherever it is released; the zone only gates
+  // how close to the edge the decisive bloom/coloration intensifies.
 
   testWidgets('a drag that ENDS near the edge commits that direction',
       (tester) async {
@@ -197,8 +199,9 @@ void main() {
     await tester.pump();
     final midReach = reaches.last;
 
-    // Carry it to near the left edge: reach climbs high.
-    await g.moveBy(const Offset(-300, 0)); // → x=70
+    // Carry it into the tight near-edge band (S22A): reach climbs high only when
+    // the orb is genuinely close to the edge, not from mid-scene.
+    await g.moveBy(const Offset(-340, 0)); // → x=30, well inside the 108px band
     await tester.pump();
     final nearReach = reaches.last;
 
@@ -234,31 +237,40 @@ void main() {
     });
   });
 
-  group('cornerBlend (pure)', () {
-    test('is 0 when the secondary edge is not in reach (pure cardinal)', () {
-      expect(cornerBlend(0.8, 0.0, 0.0), 0);
+  group('cornerBlend (pure) — S22D reliable two-edge gradient', () {
+    test('is 0 for a pure cardinal aim (no diagonal-ness)', () {
+      expect(cornerBlend(0.8, 0.0), 0);
+    });
+
+    test('is 0 when the dominant edge is outside its near-edge band (reach 0)',
+        () {
+      // The decisive effect is off mid-scene, so there is no corner blend either.
+      expect(cornerBlend(0.0, 1.0), 0);
     });
 
     test('approaches an even blend at a perfect 45° corner', () {
-      // Equal proximity to both edges + a perfect diagonal → ~0.5 (even).
-      expect(cornerBlend(0.7, 0.7, 1.0), closeTo(0.5, 1e-9));
-      // The closer edge dominates the mix.
-      expect(cornerBlend(0.9, 0.3, 1.0), lessThan(0.5));
+      // A perfect diagonal (diagRatio 1) inside the active band → the even 0.5.
+      expect(cornerBlend(0.7, 1.0), closeTo(0.5, 1e-9));
     });
 
     test('never exceeds 0.5 (the dominant edge always keeps the majority)', () {
-      expect(cornerBlend(0.1, 0.9, 1.0), lessThanOrEqualTo(0.5));
+      expect(cornerBlend(0.9, 1.0), lessThanOrEqualTo(0.5));
+      expect(cornerBlend(0.2, 1.0), lessThanOrEqualTo(0.5));
     });
 
-    test('S21C: a MODERATE diagonal near a corner now gives a CLEARLY visible '
-        'blend (the old weighting left it nearly invisible)', () {
-      // Both edges in reach, a moderate 0.4 diagonal-ness. Old weighting
-      // (share·diagRatio) ⇒ 0.4·0.4 = 0.16 (barely there); the S21C floor curve
-      // lifts it well past a perceptible threshold.
-      final b = cornerBlend(0.6, 0.4, 0.4);
+    test('S22D: a MODERATE diagonal gives a CLEARLY visible blend regardless of '
+        'how near the perpendicular edge is (the old proximity gate left it '
+        'nearly always invisible with the tighter S22A zone)', () {
+      // A moderate 0.4 diagonal-ness, dominant edge active. The √ floor curve
+      // lifts it well past a perceptible threshold (0.5·√0.4 ≈ 0.316).
+      final b = cornerBlend(0.6, 0.4);
       expect(b, greaterThan(0.22),
           reason: 'the two-edge gradient must actually read on the phone');
       expect(b, lessThan(0.5));
+    });
+
+    test('grows monotonically with the diagonal-ness of the aim', () {
+      expect(cornerBlend(0.5, 0.6), greaterThan(cornerBlend(0.5, 0.2)));
     });
   });
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart' show Ticker;
@@ -39,7 +40,13 @@ class OrbAim {
 /// Depth of the near-edge zone, as a fraction of the scene's SHORTER side. The
 /// decisive VISUAL is 0 beyond this depth from an edge (around the centre) and
 /// ramps to 1 at the edge.
-const double kEdgeZoneFrac = 0.42;
+///
+/// S22A — TIGHTENED 0.42 → 0.18. At 0.42 the filter/coloration ramped on from
+/// ~42% of the way in, so the effect was painting across most of the scene (the
+/// founder saw colour far from any edge). Now the whole middle of the image is
+/// CLEAN and the decisive bloom only begins in a short near-edge band (~18% of
+/// the shorter side), blooming to full right at the edge.
+const double kEdgeZoneFrac = 0.18;
 
 /// How close the orb is to the screen edge it is aiming at: 0 around the centre
 /// (outside the near-edge band) → 1 right at the edge. The reach reported to the
@@ -88,28 +95,29 @@ OrbDirection? perpendicularEdge(
   return delta.dx < 0 ? OrbDirection.left : OrbDirection.right;
 }
 
-/// S17D: how much the secondary edge's colour mixes into the dominant edge's:
-/// 0 = pure cardinal → 0.5 = a perfect 45° corner. Weighted by both the
-/// diagonal-ness of the aim ([diagRatio] = minor/major, 0..1) AND the orb's
-/// proximity to each edge, so a blend only blooms when the orb is genuinely near
-/// a corner, and the closer edge dominates the mix.
+/// How much the secondary edge's colour blends into the dominant edge's near a
+/// corner: 0 = pure cardinal → 0.5 = a perfect 45° corner (an even blend). The
+/// committed choice still goes to the dominant edge — this only colours the
+/// effect.
 ///
-/// S21C: the founder reported the corner gradient "didn't work" on the phone —
-/// the old `share * diagRatio` weighting made the blend nearly invisible for any
-/// aim that wasn't a near-perfect 45°. The diagonal-ness now lifts the mix on a
-/// floor curve (`0.45 + 0.55·diagRatio`) so even a moderate diagonal near a
-/// corner shows a CLEARLY visible two-edge blend, while a pure cardinal aim still
-/// produces no secondary edge at all (see [perpendicularEdge]) and so no blend.
-/// A perfect 45° (diagRatio 1, equal reach) still lands on the even 0.5 cap.
-double cornerBlend(
-  double primaryReach,
-  double secondaryReach,
-  double diagRatio,
-) {
-  if (secondaryReach <= 0 || primaryReach <= 0) return 0;
-  final share = secondaryReach / (primaryReach + secondaryReach); // 0..1
-  final weight = 0.45 + 0.55 * diagRatio.clamp(0.0, 1.0);
-  return (share * weight).clamp(0.0, 0.5).toDouble();
+/// S22D — made RELIABLE. The blend is now driven by the AIM's diagonal-ness
+/// ([diagRatio] = minor/major, 0..1), gated only by the dominant edge being in
+/// its active near-edge band ([primaryReach] > 0). It NO LONGER requires the
+/// perpendicular edge to have its own proximity reach: with the tighter S22A
+/// zone the orb is almost never near BOTH edges at once, so the old
+/// `secondaryReach`-weighted formula returned ~0 nearly always — which is exactly
+/// why the founder saw the corner gradient "only sometimes". Now any genuine
+/// diagonal aim (see [perpendicularEdge]) blends the two edge colours every time.
+///
+/// A floor curve (`0.5·√diagRatio`) lifts even a moderate diagonal to a clearly
+/// visible blend, while a perfect 45° (diagRatio 1) still caps at the even 0.5 so
+/// the dominant edge always keeps the majority. A pure cardinal aim produces no
+/// secondary edge at all and so no blend.
+double cornerBlend(double primaryReach, double diagRatio) {
+  if (primaryReach <= 0) return 0;
+  final d = diagRatio.clamp(0.0, 1.0).toDouble();
+  if (d <= 0) return 0;
+  return (0.5 * math.sqrt(d)).clamp(0.0, 0.5).toDouble();
 }
 
 /// S21A — how decisively one axis must beat the other for a release to read as a
@@ -261,6 +269,7 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
   late final AnimationController _appear; // 0→1 birth
   late final AnimationController _dissolve; // 1→0 death
   late final AnimationController _hold; // 0→1 hold-to-home grow
+  late final AnimationController _glide; // 0→1 commit-flight to the target edge
 
   bool _active = false;
   bool _warning = false; // hold-to-home warning/grow in progress
@@ -278,6 +287,17 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
   double? _lastFlightSec;
   Size _bounds = Size.zero; // scene size, captured in build
   VelocityTracker? _tracker; // measures the release velocity of the gesture
+
+  // ---- Commit flight / glide (S22C) -------------------------------------
+  // A deliberate FLICK that names a clear cardinal direction GLIDES the orb
+  // visibly to that edge, then commits — so the founder SEES the orb fly to the
+  // target before the choice registers (the old path instant-committed without
+  // ever showing the travel). A directed lerp (not the ballistic [ThrowSimulation])
+  // so it ALWAYS reaches the edge and the choice can never stall mid-scene.
+  bool _gliding = false;
+  OrbDirection? _glideDir;
+  Offset _glideFrom = Offset.zero;
+  Offset _glideTo = Offset.zero;
 
   // Double-tap tracking.
   DateTime? _lastTapUp;
@@ -331,6 +351,13 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
     )
       ..addListener(_emitHold)
       ..addStatusListener(_onHoldStatus);
+    _glide = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 220),
+      value: 0.0,
+    )
+      ..addListener(_onGlideTick)
+      ..addStatusListener(_onGlideStatus);
     _flightTicker = createTicker(_onFlightTick);
 
     if (_kThrowFadeProof) {
@@ -362,6 +389,7 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
     _appear.dispose();
     _dissolve.dispose();
     _hold.dispose();
+    _glide.dispose();
     super.dispose();
   }
 
@@ -402,11 +430,7 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
     final major = horiz ? _delta.dx.abs() : _delta.dy.abs();
     final minor = horiz ? _delta.dy.abs() : _delta.dx.abs();
     final diagRatio = major <= 0 ? 0.0 : minor / major;
-    return cornerBlend(
-      edgeProximityReach(_bounds, d, _current),
-      edgeProximityReach(_bounds, s, _current),
-      diagRatio,
-    );
+    return cornerBlend(edgeProximityReach(_bounds, d, _current), diagRatio);
   }
 
   // ---- Geometry helpers -------------------------------------------------
@@ -482,6 +506,7 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
   void _onDown(PointerDownEvent e) {
     _dissolveTimer?.cancel();
     _stopFlight(); // a fresh touch interrupts any in-flight throw cleanly
+    _stopGlide(); // …and any in-progress commit glide
     _dissolve.duration = _quickDissolve; // a fresh gesture dissolves quickly
     _dissolve.value = 1.0;
     setState(() {
@@ -541,8 +566,19 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
     }
 
     final dir = _commitDirection();
+    final vel = _tracker?.getVelocity().pixelsPerSecond ?? Offset.zero;
+    final flick = vel.distance >= widget.throwVelocity && _bounds != Size.zero;
 
     if (dir != null) {
+      // S22C: a deliberate cardinal choice. If the release was a FLICK, GLIDE the
+      // orb to the target edge first so the founder SEES it fly there and reach
+      // its target before the choice commits (the old path instant-committed and
+      // the flight was never shown). A slow drag-past-threshold commits at once —
+      // the orb is already where the finger left it, so there is nothing to fly.
+      if (flick) {
+        _startCommitGlide(dir);
+        return;
+      }
       // S20B: cancel EVERYTHING before the commit fires, so nothing lingers,
       // re-fires, or animates after a navigation. The callback may navigate and
       // dispose this widget — guard before touching any controller (calling
@@ -559,10 +595,10 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
       return;
     }
 
-    // Sub-threshold release: a quick FLICK becomes a throw (momentum). A
-    // near-stationary release falls through to the tap / double-tap path.
-    final vel = _tracker?.getVelocity().pixelsPerSecond ?? Offset.zero;
-    if (vel.distance >= widget.throwVelocity && _bounds != Size.zero) {
+    // Sub-threshold release that named no clear cardinal: a quick FLICK becomes a
+    // ballistic throw (momentum) — it commits if it reaches an edge, else
+    // dissolves. A near-stationary release falls through to the tap path.
+    if (flick) {
       _startThrow(_current, vel);
       return;
     }
@@ -657,10 +693,81 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
         Timer(_settleDissolve + const Duration(milliseconds: 20), _reset);
   }
 
+  // ---- Commit flight / glide (S22C) -------------------------------------
+  /// The point on the aimed screen edge the orb glides to before committing —
+  /// anchored to the orb's cross-axis position, a hair inside the edge so the
+  /// decisive bloom reaches near-full and the orb visibly arrives AT the edge.
+  Offset _edgeAnchor(OrbDirection d, Offset from) {
+    const inset = 8.0;
+    switch (d) {
+      case OrbDirection.left:
+        return Offset(inset, from.dy);
+      case OrbDirection.right:
+        return Offset(_bounds.width - inset, from.dy);
+      case OrbDirection.up:
+        return Offset(from.dx, inset);
+      case OrbDirection.down:
+        return Offset(from.dx, _bounds.height - inset);
+    }
+  }
+
+  /// Start a directed flight: the orb glides from the release point straight to
+  /// [d]'s edge, then commits. Duration scales gently with the distance so a far
+  /// throw reads as real travel and a near one snaps crisply.
+  void _startCommitGlide(OrbDirection d) {
+    _immobileTimer?.cancel();
+    _stopFlight();
+    _dissolveTimer?.cancel();
+    _warning = false;
+    _lastTapUp = null; // a committed edge is not half of a double-tap
+    _glideDir = d;
+    _glideFrom = _current;
+    _glideTo = _edgeAnchor(d, _current);
+    _gliding = true;
+    // Keep the orb fully present for the whole flight (born, not dissolving).
+    _appear.value = 1.0;
+    _dissolve.value = 1.0;
+    final dist = (_glideTo - _glideFrom).distance;
+    _glide.duration = Duration(
+      milliseconds: (140 + dist * 0.55).clamp(160, 340).round(),
+    );
+    _glide.forward(from: 0.0);
+  }
+
+  void _onGlideTick() {
+    if (!_gliding) return;
+    final t = Curves.easeOutCubic.transform(_glide.value);
+    // Move the live position toward the edge. `_origin` stays put, so `_direction`
+    // and `_reach` keep reporting the committed edge with a rising proximity —
+    // the decisive wave + orb coloration intensify as it arrives (S22A/S22B).
+    setState(() => _current = Offset.lerp(_glideFrom, _glideTo, t)!);
+    widget.onPositionChanged?.call(_current);
+    _emitAim();
+  }
+
+  void _onGlideStatus(AnimationStatus status) {
+    if (status != AnimationStatus.completed || !_gliding) return;
+    final d = _glideDir;
+    _gliding = false;
+    _glideDir = null;
+    widget.onDirection(d!);
+    if (!mounted) return;
+    _dissolve.reverse(from: 1.0);
+    _dissolveTimer = Timer(const Duration(milliseconds: 160), _reset);
+  }
+
+  /// Abort an in-progress commit glide without committing (a fresh touch / reset).
+  void _stopGlide() {
+    if (_glide.isAnimating) _glide.stop();
+    _gliding = false;
+    _glideDir = null;
+  }
+
   void _reset() {
     _dissolveTimer?.cancel();
     _immobileTimer?.cancel();
     _stopFlight();
+    _stopGlide();
     if (!mounted) return;
     setState(() {
       _active = false;
