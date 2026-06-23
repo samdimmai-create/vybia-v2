@@ -35,11 +35,10 @@ class OrbPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final baseR = size.shortestSide / 2;
     final phase = pulse * 2 * math.pi;
-    // S17B: a calm TWO-FREQUENCY breath — a slow primary swell plus a small,
-    // faster micro-shimmer — so the orb reads alive and natural rather than
-    // metronomic, while staying gentle (never a harsh pulse).
-    final breathe =
-        1.0 + 0.038 * math.sin(phase) + 0.012 * math.sin(phase * 2.7 + 0.8);
+    // S20C: ONE calm, slow breath. The S17B two-frequency shimmer + drifting
+    // caustic read as jitter on the phone, so they are removed — a steady,
+    // reliable orb beats a fancy one.
+    final breathe = 1.0 + 0.035 * math.sin(phase);
     final r = baseR * breathe;
 
     // S17C: the directional coloration is PROXIMITY-GATED — at reach 0 (centre /
@@ -96,17 +95,16 @@ class OrbPainter extends CustomPainter {
     canvas.drawCircle(glowCenter, r * 1.55, glowPaint);
 
     // ---- Orbiting rings -------------------------------------------------
-    // S17B: softened — slightly lower peak opacity and a gentle blur so the
-    // rings read as calm ripples on water/glass rather than hard wire rings.
+    // S20C: calm ripples — softened opacity, NO per-frame maskFilter blur (the
+    // blur passes were extra GPU cost on a tiny orb every frame → stutter).
     for (var i = 0; i < 3; i++) {
       final t = (pulse + i / 3) % 1.0;
       // Tighter ring spread (0.26 vs 0.32) keeps the footprint compact.
       final ringR = r * (1.05 + 0.26 * t);
-      final ringOpacity = (1.0 - t) * 0.42 * opacity;
+      final ringOpacity = (1.0 - t) * 0.45 * opacity;
       final ringPaint = Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.2 + 1.1 * (1 - t)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 0.6)
+        ..strokeWidth = 1.3 + 1.1 * (1 - t)
         ..color = AppColors.accent.withValues(alpha: ringOpacity);
       canvas.drawCircle(center, ringR, ringPaint);
     }
@@ -136,36 +134,16 @@ class OrbPainter extends CustomPainter {
       ).createShader(Rect.fromCircle(center: coreCenter, radius: r * 0.5));
     canvas.drawCircle(coreCenter, r * 0.5, corePaint);
 
-    // ---- Drifting caustic specular (S17B: "alive" water-glass) ----------
-    // A small second highlight that gently orbits on a tiny Lissajous path, so
-    // light seems to play across the glass — the orb feels like a living droplet
-    // rather than a static gradient. Soft and low-contrast (never glittery).
-    final causticCenter = center +
-        Offset(
-          r * 0.30 * math.cos(phase * 0.8),
-          r * 0.18 * math.sin(phase * 1.1 + 1.3) - r * 0.10,
-        );
-    final causticPaint = Paint()
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.2)
-      ..shader = RadialGradient(
-        colors: [
-          AppColors.pearl.withValues(alpha: 0.40 * opacity),
-          AppColors.accent.withValues(alpha: 0.0),
-        ],
-      ).createShader(Rect.fromCircle(center: causticCenter, radius: r * 0.26));
-    canvas.drawCircle(causticCenter, r * 0.26, causticPaint);
-
-    // ---- Refractive water rim (S17B) ------------------------------------
-    // A faint cyan→champagne chromatic split on the rim sells the liquid-glass
-    // refraction — the same sea-glass family as the scene bubble.
+    // ---- Refractive water rim (static) ----------------------------------
+    // A faint cyan rim keeps the liquid-glass sea-glass feel — STATIC (no blur,
+    // no drift) so it never shimmers (S20C).
     canvas.drawCircle(
       center,
       r * 0.985,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.4
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 0.8)
-        ..color = AppColors.accent.withValues(alpha: 0.22 * opacity),
+        ..strokeWidth = 1.2
+        ..color = AppColors.accent.withValues(alpha: 0.20 * opacity),
     );
 
     // ---- Rim light ------------------------------------------------------
