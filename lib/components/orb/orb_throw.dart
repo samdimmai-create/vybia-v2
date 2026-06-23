@@ -38,10 +38,15 @@ class ThrowSimulation {
     required this.bounds,
     required Offset position,
     required Offset velocity,
-    this.edgeMargin = 44,
-    this.friction = 1.7,
+    // S18 (founder fix — throws must actually LAND): a flick now carries the orb
+    // far enough to reach an edge and commit. Less friction (1.7→1.0) + a lower
+    // stop speed (150→80) so it glides across the scene instead of fizzling out
+    // mid-image, and a slightly wider edge margin so the commit registers cleanly
+    // as it arrives.
+    this.edgeMargin = 52,
+    this.friction = 1.0,
     this.curveRate = 0.8,
-    this.stopSpeed = 150,
+    this.stopSpeed = 80,
   })  : _pos = position,
         _vel = velocity,
         _curveSign = velocity.dx >= 0 ? 1.0 : -1.0;

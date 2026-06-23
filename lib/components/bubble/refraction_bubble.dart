@@ -323,6 +323,9 @@ class _LensPainter extends CustomPainter {
     canvas.clipPath(Path()..addOval(Rect.fromCircle(center: center, radius: r)));
 
     // Curvature darkening toward the rim (the dome reads as a lens).
+    // S18 (founder fix — "pas assez transparent"): the rim darken was 0.34, which
+    // visibly greyed the photo under the bubble. Softened to 0.20 so the image
+    // reads clearly THROUGH the glass while the dome still curves at the edge.
     canvas.drawCircle(
       center,
       r,
@@ -331,9 +334,9 @@ class _LensPainter extends CustomPainter {
           colors: [
             Colors.transparent,
             Colors.transparent,
-            AppColors.bg.withValues(alpha: 0.34 * active),
+            AppColors.bg.withValues(alpha: 0.20 * active),
           ],
-          stops: const [0.0, 0.68, 1.0],
+          stops: const [0.0, 0.72, 1.0],
         ).createShader(Rect.fromCircle(center: center, radius: r)),
     );
 
@@ -349,6 +352,8 @@ class _LensPainter extends CustomPainter {
     );
 
     // Cool sea-glass inner tint, concentrated lower-right (refracted depth).
+    // S18: softened 0.18→0.11 so the tint hints at glass depth without colouring
+    // over the photo.
     final depth = center + Offset(r * 0.34, r * 0.36);
     canvas.drawCircle(
       depth,
@@ -356,13 +361,14 @@ class _LensPainter extends CustomPainter {
       Paint()
         ..shader = RadialGradient(
           colors: [
-            AppColors.accent.withValues(alpha: 0.18 * active),
+            AppColors.accent.withValues(alpha: 0.11 * active),
             AppColors.accent.withValues(alpha: 0.0),
           ],
         ).createShader(Rect.fromCircle(center: depth, radius: r * 0.8)),
     );
 
-    // Primary soft glass shine, upper-left.
+    // Primary soft glass shine, upper-left. S18: eased 0.5→0.38 so the shine
+    // still catches the light but no longer washes the image white.
     final hl = center + Offset(-r * 0.34, -r * 0.36);
     canvas.drawCircle(
       hl,
@@ -370,21 +376,22 @@ class _LensPainter extends CustomPainter {
       Paint()
         ..shader = RadialGradient(
           colors: [
-            AppColors.pearl.withValues(alpha: 0.5 * active),
-            AppColors.pearl.withValues(alpha: 0.12 * active),
+            AppColors.pearl.withValues(alpha: 0.38 * active),
+            AppColors.pearl.withValues(alpha: 0.09 * active),
             AppColors.pearl.withValues(alpha: 0.0),
           ],
           stops: const [0.0, 0.4, 1.0],
         ).createShader(Rect.fromCircle(center: hl, radius: r * 0.72)),
     );
 
-    // Sharp specular hotspot — the wet glass kick.
+    // Sharp specular hotspot — the wet glass kick. S18: 0.85→0.6, still a crisp
+    // glint but lighter on the photo.
     final hot = center + Offset(-r * 0.4, -r * 0.44);
     canvas.drawCircle(
       hot,
       r * 0.14,
       Paint()
-        ..color = AppColors.pearl.withValues(alpha: 0.85 * active)
+        ..color = AppColors.pearl.withValues(alpha: 0.6 * active)
         ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.05),
     );
 

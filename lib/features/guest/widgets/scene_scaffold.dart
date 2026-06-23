@@ -174,12 +174,13 @@ class _SceneScaffoldState extends State<SceneScaffold> {
   final ValueNotifier<OrbAim> _aim = ValueNotifier<OrbAim>(OrbAim.rest);
   final ValueNotifier<double> _hold = ValueNotifier<double>(0);
 
-  // S6.3: the illustrative image is the hero. At rest there is NO lens — the
-  // bubble is a small jewel that is born under the finger on contact and melts
-  // away on release, so the only thing that ever touches the image is (a) the
-  // local refraction wherever the orb is and (b) the growing decisive-edge
-  // filter. An ambient always-on lens would veil the resting image, so it's 0.
-  static const double _ambient = 0.0;
+  // S18 (founder fix — "l'orbe disparaît quand on lâche le contact"): the orb
+  // must NEVER fully vanish. At rest a GENTLE always-on liquid-glass jewel sits
+  // at the rest centre so the bubble is permanently present (born/strong under
+  // the finger on contact, receding back to this soft floor — not to nothing —
+  // on release). Kept low + transparent so the resting image still reads clearly
+  // through it (founder also asked for MORE transparency), so it veils nothing.
+  static const double _ambient = 0.16;
 
   // ---- Debug auto-drive --------------------------------------------------
   // When built with `--dart-define=VYBIA_AUTODRIVE=true`, the orb is driven

@@ -121,9 +121,15 @@ double cornerBlend(double primaryReach, double diagRatio) {
 }
 
 /// S21A — how decisively one axis must beat the other for a release to read as a
-/// clear, deliberate cardinal choice (major ≥ this × minor ≈ within ~38° of the
-/// axis). Below this the drag is an ambiguous diagonal and does NOT commit.
-const double kAxisDominance = 1.25;
+/// clear, deliberate cardinal choice (major ≥ this × minor). Below this the drag
+/// is an ambiguous diagonal and does NOT commit.
+///
+/// S18 (founder fix — "direction imprécise"): lowered 1.25→1.12 (≈ within ~42° of
+/// the axis). At 1.25 a perfectly normal slightly-angled swipe fell in the
+/// ambiguous band and silently dissolved, so an intended choice often "didn't
+/// register" — which reads as imprecise. 1.12 still rejects a true ~45° drift but
+/// honours the everyday angled swipe toward its dominant edge.
+const double kAxisDominance = 1.12;
 
 /// S21A — the DELIBERATE-commit rule. A release commits a direction only when the
 /// drag is an unmistakable swipe: it travelled at least [travel] px from the
@@ -190,15 +196,20 @@ class VybiaOrb extends StatefulWidget {
     this.onHoldProgress,
     this.enableHoldHome = true,
     this.showOrb = true,
-    this.threshold = 72,
+    // S18 (founder fix — "direction imprécise"): the commit travel was 72px, so a
+    // short, decisive swipe didn't move the orb far enough to register and just
+    // dissolved. 56px still ignores a tap/jitter but honours a brisk small swipe.
+    this.threshold = 56,
     // S8.1A: the painted orb (Accueil) is shrunk to match the smaller scene
     // bubble — a tighter ~ø72 body instead of the old ~ø88.
     this.orbSize = 72,
     this.holdStill = const Duration(milliseconds: 1800),
     this.holdGrow = const Duration(milliseconds: 1300),
-    // S21A: a throw must be a deliberate FLICK, not a casual release — raised
-    // 720→900 px/s so a relaxed lift no longer flings the orb into a commit.
-    this.throwVelocity = 900,
+    // S18 (founder fix — "le lancé de l'orbe ne fonctionne pas"): 900 px/s was
+    // too high — a real phone flick rarely clears it, so throws silently never
+    // fired. Lowered to 520 so a natural flick is recognised as a throw, while
+    // still well above a relaxed lift (≈0) so a slow release never flings.
+    this.throwVelocity = 520,
   });
 
   final Widget child;

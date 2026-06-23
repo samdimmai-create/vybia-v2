@@ -148,8 +148,10 @@ class _TranslucentWaterPainter extends CustomPainter {
 
     // Aqua glass body — translucent so the photo reads through it. Clearer in
     // the middle, a little deeper toward the surface (the "wall" of water).
-    final inner = AppColors.primary.withValues(alpha: 0.06 + 0.14 * depth);
-    final outer = AppColors.primary.withValues(alpha: 0.16 + 0.20 * depth);
+    // S18 (founder fix — "transition eau/glace") — kept even more see-through so
+    // the scene visibly submerges through clear water rather than tinting over.
+    final inner = AppColors.primary.withValues(alpha: 0.04 + 0.10 * depth);
+    final outer = AppColors.primary.withValues(alpha: 0.12 + 0.16 * depth);
     canvas.drawCircle(
       center,
       radius,

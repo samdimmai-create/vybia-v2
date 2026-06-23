@@ -224,10 +224,12 @@ class _EdgeDecisivePainter extends CustomPainter {
     }
 
     // ---- 1. Decisive colour wave from the dominant contact edge ----------
-    // Floods inward from the aimed screen edge as a radial wave. STRONG peak so
-    // it visibly filters the hero image as the orb nears the edge (the founder
-    // reported the old, gentler wave didn't read on web).
-    final edgePeak = reject ? 0.66 : 0.82;
+    // Floods inward from the aimed screen edge as a radial wave.
+    // S18 (founder fix — "pas assez transparent" + "effet de bord"): the peak was
+    // 0.82, which nearly opaque-flooded the photo with the edge colour at full
+    // reach. Eased to 0.62 so the colour clearly reads as flowing in from the edge
+    // while the hero image stays visible THROUGH it — a tinted glass, not a paint.
+    final edgePeak = reject ? 0.58 : 0.62;
     canvas.drawRect(
       rect,
       Paint()
@@ -266,7 +268,8 @@ class _EdgeDecisivePainter extends CustomPainter {
     final c = orbCenter;
     if (c == null) return;
     final hotR = lensRadius * 3.0 + size.shortestSide * 0.30 * reach;
-    final hotPeak = reject ? 0.55 : 0.58;
+    // S18: eased 0.58→0.46 for the same see-through reason as the edge wave.
+    final hotPeak = reject ? 0.48 : 0.46;
     canvas.drawCircle(
       c,
       hotR,
