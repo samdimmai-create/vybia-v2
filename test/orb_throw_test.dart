@@ -18,11 +18,26 @@ void main() {
   const bounds = Size(400, 800);
   const centre = Offset(200, 400);
 
-  test('a strong throw reaches the edge and commits its direction', () {
+  test('a strong throw reaches the decision zone and commits its direction', () {
     final sim = ThrowSimulation(
       bounds: bounds,
       position: centre,
       velocity: const Offset(2600, 0), // hard flick to the right
+    );
+    final r = _run(sim);
+    expect(r, ThrowResult.commit);
+    expect(sim.committedDirection, OrbDirection.right);
+  });
+
+  test('S23: a moderate flick that REACHES the zone commits — even though it '
+      'would have stopped short of the very edge', () {
+    // v=210 ⇒ it carries ~130px from the centre to x≈330: past the right zone
+    // boundary (x≥312) but short of the old edge — proof the commit is the ZONE,
+    // not the edge.
+    final sim = ThrowSimulation(
+      bounds: bounds,
+      position: centre,
+      velocity: const Offset(210, 0),
     );
     final r = _run(sim);
     expect(r, ThrowResult.commit);
@@ -40,11 +55,14 @@ void main() {
     expect(sim.committedDirection, OrbDirection.up);
   });
 
-  test('a weak throw runs out of momentum and dissolves — no commit', () {
+  test('S23: a weak flick stops SHORT of the zone and dissolves — no commit',
+      () {
+    // v=150 ⇒ ~70px of travel from the centre to x≈270: it never reaches the
+    // right zone (x≥312), so it glides to rest with no choice.
     final sim = ThrowSimulation(
       bounds: bounds,
       position: centre,
-      velocity: const Offset(240, 0), // gentle nudge, dies mid-scene
+      velocity: const Offset(150, 0),
     );
     final r = _run(sim);
     expect(r, ThrowResult.dissolve);
@@ -64,8 +82,9 @@ void main() {
       reaches.add(sim.reach);
     }
     expect(sim.headingEdge, OrbDirection.right);
-    // The last sampled reach (just before commit) is well past the mid-point.
-    expect(reaches.last, greaterThan(0.6));
+    // The last sampled reach (at the moment it enters the decision zone, x≥312)
+    // is well past the mid-point.
+    expect(reaches.last, greaterThan(0.5));
   });
 
   // S9.1C — the WIDGET behaviour: a thrown orb that runs out of momentum before
