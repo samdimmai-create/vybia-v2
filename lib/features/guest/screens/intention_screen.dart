@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_colors.dart' show OrbDirection;
+import '../../../shared/edge_action.dart';
 import '../data/assets.dart';
 import '../state/guest_controller.dart';
 import '../widgets/scene_scaffold.dart';
@@ -42,6 +43,13 @@ class IntentionScreen extends StatelessWidget {
       right: 'Planifier',
       up: 'Mon profil',
       down: 'Mes plans',
+      // S22B: distinct decisive hues per hub direction (it's the same four-way
+      // hub as the Accueil), so the edge effect reads clearly per-edge here too
+      // rather than a uniform neutral tint.
+      leftAction: EdgeAction.curious,
+      rightAction: EdgeAction.go,
+      upAction: EdgeAction.joy,
+      downAction: EdgeAction.neutral,
       onDirection: choose,
     );
   }
