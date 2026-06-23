@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../components/bubble/calm_home_field.dart';
 import '../../../components/orb/vybia_orb.dart';
+import '../../../core/media/image_ref.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -9,6 +10,9 @@ import '../../../shared/edge_action.dart';
 import '../../../shared/edge_decisive.dart';
 import '../../../shared/edge_labels.dart';
 import '../../../shared/edge_palette.dart';
+import '../data/accueil_backdrop.dart';
+import '../model/moment.dart';
+import '../state/guest_controller.dart';
 
 /// The calm, neutral **Accueil** — the app's hub and the destination of the
 /// hold-to-home gesture (S8).
@@ -41,6 +45,29 @@ class _AccueilScreenState extends State<AccueilScreen> {
   // the finger — the same latency-safe pattern SceneScaffold uses (S21A).
   final ValueNotifier<Offset?> _orb = ValueNotifier<Offset?>(null);
   final ValueNotifier<OrbAim> _aim = ValueNotifier<OrbAim>(OrbAim.rest);
+
+  // S19E: a real, time-/mood-fitting backdrop chosen once per visit. Computed in
+  // [didChangeDependencies] (it reads the persisted history) so it's stable for
+  // the rebuilds the orb notifiers drive, never re-rolled on a finger move.
+  AccueilBackdrop? _backdrop;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_backdrop != null) return;
+    final moment = MomentContext.now();
+    final memory = GuestScope.of(context).store?.readMemory();
+    _backdrop = accueilBackdropFor(
+      moment: moment,
+      usualMood: memory?.usualMoodFor(moment.slot),
+      winter: _isWinter(moment),
+    );
+  }
+
+  static bool _isWinter(MomentContext m) {
+    final month = DateTime.now().month;
+    return month == 12 || month == 1 || month == 2;
+  }
 
   /// One decisive action per hub direction, so each edge filters the calm field
   /// toward its own hue (and the orb leans into it). No `reject` on the hub —
@@ -95,7 +122,12 @@ class _AccueilScreenState extends State<AccueilScreen> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            const CalmHomeField(),
+            // S19E: a REAL image that fits the hour / day / usual mood sits at
+            // the base, with the validated sea-glass [CalmHomeField] veiled over
+            // it (the orb feel + water theme are UNTOUCHED — the field is simply
+            // semi-transparent now so a fitting photo gives Accueil time-of-day
+            // depth and invites the guest to be guided to an activity).
+            _AccueilBackground(image: _backdrop?.image),
 
             // S22B: the decisive edge filter — the calm field tints toward the
             // aimed direction's hue as the orb nears that edge, then clears on
@@ -162,7 +194,9 @@ class _AccueilScreenState extends State<AccueilScreen> {
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        'Ton instant, dans quelle direction ?',
+                        // S19E: a calm, time-aware invitation to be guided.
+                        _backdrop?.invite ??
+                            'Ton instant, dans quelle direction ?',
                         style: t.bodyLarge?.copyWith(
                           color: AppColors.textSecondary,
                           shadows: const [
@@ -193,6 +227,37 @@ class _AccueilScreenState extends State<AccueilScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// S19E — the Accueil base layer: a real, time-fitting photo (when one is known)
+/// under the validated sea-glass [CalmHomeField], which is veiled semi-opaque so
+/// the water/glass theme still dominates while the photo gives the hour its own
+/// depth. With no image (e.g. very first launch before any history) it degrades
+/// to exactly the old full-bleed calm field, so nothing regresses.
+class _AccueilBackground extends StatelessWidget {
+  const _AccueilBackground({this.image});
+
+  final String? image;
+
+  @override
+  Widget build(BuildContext context) {
+    final img = image;
+    if (img == null) return const CalmHomeField();
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // The fitting photo, gently darkened so the pearl welcome copy reads.
+        Image(
+          image: imageProviderFor(img),
+          fit: BoxFit.cover,
+          errorBuilder: (_, _, _) => const SizedBox.shrink(),
+        ),
+        // The sea-glass field as a translucent veil — theme intact, photo reads
+        // through ~a third. (Orb/edge effects layer above, untouched.)
+        const Opacity(opacity: 0.66, child: CalmHomeField()),
+      ],
     );
   }
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:vybia_v2/core/router/app_router.dart';
-import 'package:vybia_v2/core/theme/app_colors.dart' show OrbDirection;
 import 'package:vybia_v2/features/guest/state/guest_controller.dart';
 import 'package:vybia_v2/features/plans/model/plan.dart';
 import 'package:vybia_v2/features/plans/screens/planifier_screen.dart';
