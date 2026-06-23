@@ -78,13 +78,14 @@ class WaterReveal extends StatelessWidget {
                 clipper: _CircleReveal(center, r),
                 child: child ?? const CalmHomeField(),
               ),
-              // 2. A faint aqua submersion veil INSIDE the disc that deepens with
-              //    progress — the "going underwater" tint.
+              // 2. An aqua submersion veil INSIDE the disc that deepens with
+              //    progress — the "going underwater" tint. S21D: lifted
+              //    0.10→0.16 so the submersion actually reads on the phone.
               ClipPath(
                 clipper: _CircleReveal(center, r),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.10 * eased),
+                    color: AppColors.primary.withValues(alpha: 0.16 * eased),
                   ),
                   child: const SizedBox.expand(),
                 ),
@@ -127,19 +128,46 @@ class _WavefrontPainter extends CustomPainter {
     if (fade <= 0.01 || radius <= 0) return;
     final a = fade;
 
-    // Soft pearl crest.
+    // S21D — the signature was barely visible: a single faint crest over a calm
+    // field reads as nothing. Build a clear-but-calm rising surface:
+
+    // A deep aqua band just inside the advancing surface — the water reads as
+    // having DEPTH right behind the crest (the "going underwater" wall), without
+    // flooding the whole disc.
     canvas.drawCircle(
       center,
-      radius,
+      radius - 10,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 3.0
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7)
-        ..color = AppColors.pearl.withValues(alpha: 0.42 * a),
+        ..strokeWidth = 24
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 16)
+        ..color = AppColors.primary.withValues(alpha: 0.30 * a),
     );
 
-    // Faint chromatic split — cyan just inside, champagne just outside — for the
-    // refractive "underwater surface" feel.
+    // A small train of soft pearl ripple crests trailing the leading surface, so
+    // the rise reads as WAVES — wide, blurred, low-contrast, fading inward
+    // (calm, never aggressive).
+    const crests = <(double, double, double)>[
+      (0.0, 3.6, 0.62), // leading crest — brightest
+      (-13.0, 2.6, 0.36),
+      (-28.0, 1.9, 0.20),
+    ];
+    for (final (dr, w, op) in crests) {
+      final rr = radius + dr;
+      if (rr <= 0) continue;
+      canvas.drawCircle(
+        center,
+        rr,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = w
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7)
+          ..color = AppColors.pearl.withValues(alpha: op * a),
+      );
+    }
+
+    // Faint chromatic split on the leading crest — cyan just inside, champagne
+    // just outside — for the refractive "underwater surface" sheen.
     canvas.drawCircle(
       center,
       radius - 4,
@@ -147,16 +175,16 @@ class _WavefrontPainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.0
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6)
-        ..color = AppColors.accent.withValues(alpha: 0.30 * a),
+        ..color = AppColors.accent.withValues(alpha: 0.42 * a),
     );
     canvas.drawCircle(
       center,
-      radius + 4,
+      radius + 5,
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.0
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6)
-        ..color = AppColors.champagne.withValues(alpha: 0.22 * a),
+        ..color = AppColors.champagne.withValues(alpha: 0.30 * a),
     );
   }
 
