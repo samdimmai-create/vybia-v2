@@ -3,7 +3,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../../../components/bubble/calm_home_field.dart';
 import '../../../components/bubble/refraction_bubble.dart';
 import '../../../components/orb/vybia_orb.dart';
 import '../../../core/media/image_ref.dart';
@@ -15,6 +14,7 @@ import '../../../shared/edge_decisive.dart';
 import '../../../shared/edge_labels.dart';
 import '../../../shared/edge_palette.dart';
 import '../../../shared/glass.dart';
+import '../../../shared/water_transition.dart';
 
 /// One-time, app-launch-scoped coach mark guard: a brand-new guest sees a single
 /// subtle "touche pour explorer" hint at rest on the first scene, then never
@@ -409,13 +409,12 @@ class _SceneScaffoldState extends State<SceneScaffold>
                     : (1 - ui).clamp(0.0, 1.0).toDouble();
                 // S8: the hold-to-home grow no longer swirls the ACTIVITY image
                 // into a vortex. The refraction bubble keeps its calm contact
-                // size; instead a CalmHomeField *portal* (the neutral home
-                // water/ice/glass) expands from the orb and cross-fades in, so
-                // the orb reads as a calm portal opening to the Accueil — never
-                // a scary magnification of the activity photo.
+                // size; instead the SIGNATURE water transition ([WaterReveal])
+                // grows the neutral home water/ice/glass out of the orb and
+                // submerges the activity photo — the SAME effect the startup
+                // splash plays (S17A) — so the orb reads as a calm portal
+                // opening to the Accueil, never a scary magnification.
                 final radius = widget.lensRadius;
-                final portalRadius = widget.lensRadius * (1 + _hold * 16);
-                final portalFill = (_hold * 1.4).clamp(0.0, 1.0).toDouble();
                 // Web-safe reject drain: when the orb aims at a "Pas intéressant"
                 // edge, actually desaturate + darken the hero image proportionally
                 // to the reach (the radial slate wave on top adds the from-edge
@@ -452,20 +451,15 @@ class _SceneScaffoldState extends State<SceneScaffold>
                       orbCenter: _orb,
                       lensRadius: widget.lensRadius,
                     ),
-                    // The calm home portal: a growing circle of neutral
-                    // water/ice/glass, centred on the orb, filling in as the
-                    // hold completes. At _hold→1 it covers the screen → accueil.
+                    // The signature water transition: the calm home field rises
+                    // out of the orb and submerges the scene as the hold
+                    // completes. At _hold→1 it covers the screen → accueil. This
+                    // is the EXACT same [WaterReveal] the splash plays.
                     if (_hold > 0.001)
-                      Positioned.fill(
-                        child: IgnorePointer(
-                          child: Opacity(
-                            opacity: portalFill,
-                            child: ClipPath(
-                              clipper: _CircleReveal(center, portalRadius),
-                              child: const CalmHomeField(),
-                            ),
-                          ),
-                        ),
+                      WaterReveal(
+                        progress: _hold,
+                        center: center,
+                        seedRadius: widget.lensRadius,
                       ),
                     // Description. S8.1D: the image/activity scenes wear the
                     // V1-style bottom glass bubble that recedes on contact;
@@ -675,23 +669,6 @@ class _SceneScaffoldState extends State<SceneScaffold>
       ),
     );
   }
-}
-
-/// Clips its child to a growing circle centred at [center] — the expanding
-/// hold-to-home portal (S8).
-class _CircleReveal extends CustomClipper<Path> {
-  const _CircleReveal(this.center, this.radius);
-
-  final Offset center;
-  final double radius;
-
-  @override
-  Path getClip(Size size) =>
-      Path()..addOval(Rect.fromCircle(center: center, radius: radius));
-
-  @override
-  bool shouldReclip(covariant _CircleReveal old) =>
-      old.center != center || old.radius != radius;
 }
 
 /// S9.2 + S9.3: the V1-style description — badge, title, the "pourquoi" line, an
