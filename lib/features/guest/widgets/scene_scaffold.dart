@@ -426,6 +426,7 @@ class _SceneScaffoldState extends State<SceneScaffold> {
                   direction: aim.direction,
                   reach: aim.reach,
                   secondaryAction: _actionFor(aim.secondary),
+                  secondaryDirection: aim.secondary,
                   blend: aim.blend,
                   orbCenter: _orb.value,
                   lensRadius: widget.lensRadius,

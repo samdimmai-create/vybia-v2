@@ -249,6 +249,17 @@ void main() {
     test('never exceeds 0.5 (the dominant edge always keeps the majority)', () {
       expect(cornerBlend(0.1, 0.9, 1.0), lessThanOrEqualTo(0.5));
     });
+
+    test('S21C: a MODERATE diagonal near a corner now gives a CLEARLY visible '
+        'blend (the old weighting left it nearly invisible)', () {
+      // Both edges in reach, a moderate 0.4 diagonal-ness. Old weighting
+      // (share·diagRatio) ⇒ 0.4·0.4 = 0.16 (barely there); the S21C floor curve
+      // lifts it well past a perceptible threshold.
+      final b = cornerBlend(0.6, 0.4, 0.4);
+      expect(b, greaterThan(0.22),
+          reason: 'the two-edge gradient must actually read on the phone');
+      expect(b, lessThan(0.5));
+    });
   });
 
   testWidgets('a diagonal drag into a corner commits the DOMINANT edge',

@@ -40,6 +40,7 @@ class EdgeDecisiveOverlay extends StatelessWidget {
     required this.reach,
     required this.orbCenter,
     this.secondaryAction,
+    this.secondaryDirection,
     this.blend = 0,
     this.lensRadius = 44,
   });
@@ -51,6 +52,12 @@ class EdgeDecisiveOverlay extends StatelessWidget {
   /// colour mixes into the wave by [blend]; the dominant [action] still wins the
   /// commit and remains the wave's origin edge.
   final EdgeAction? secondaryAction;
+
+  /// S21C: the perpendicular edge itself (or null on a cardinal aim), so the
+  /// overlay can flow the secondary colour in from ITS screen edge — making the
+  /// corner a visible GRADIENT of the two edges' colours, not a single muddied
+  /// average. The dominant [direction] still owns the commit + main wave.
+  final OrbDirection? secondaryDirection;
 
   /// S17D: 0 = pure cardinal → 0.5 = an even corner blend.
   final double blend;
@@ -83,6 +90,7 @@ class EdgeDecisiveOverlay extends StatelessWidget {
           reach: reach,
           orbCenter: orbCenter,
           secondaryAction: secondaryAction,
+          secondaryDirection: secondaryDirection,
           blend: blend,
           lensRadius: lensRadius,
           // The action→colour mapping comes from the active palette; include its
@@ -176,6 +184,7 @@ class _EdgeDecisivePainter extends CustomPainter {
     required this.reach,
     required this.orbCenter,
     required this.secondaryAction,
+    required this.secondaryDirection,
     required this.blend,
     required this.lensRadius,
     required this.paletteRev,
@@ -186,6 +195,7 @@ class _EdgeDecisivePainter extends CustomPainter {
   final double reach;
   final Offset? orbCenter;
   final EdgeAction? secondaryAction;
+  final OrbDirection? secondaryDirection;
   final double blend;
   final double lensRadius;
   final int paletteRev;
@@ -196,16 +206,24 @@ class _EdgeDecisivePainter extends CustomPainter {
     final reject = action.desaturates;
     // Reject radiates a near-black slate (the grayscale drain itself rides on the
     // hero image's ColorFiltered wrapper); the others radiate their action hue.
-    var color = reject ? const Color(0xFF0E1417) : action.color;
-    // S17D: near a corner, gradient the wave colour toward the secondary edge's
-    // (skipped for reject, and for a reject secondary — we never drain toward a
-    // non-committed edge). The dominant action still owns the wave origin/commit.
+    final baseColor = reject ? const Color(0xFF0E1417) : action.color;
+
+    // S21C: the orb's own aura/hotspot leans toward the BLEND of the two edges
+    // near a corner; the two WAVES, though, each keep their own pure edge colour
+    // (drawn below) so the corner reads as a visible gradient of two hues, not a
+    // single muddied average (the old single lerped wave the founder couldn't
+    // see). The dominant action still owns the commit.
     final sa = secondaryAction;
-    if (!reject && sa != null && !sa.desaturates && blend > 0) {
-      color = Color.lerp(color, sa.color, blend.clamp(0.0, 1.0)) ?? color;
+    final sd = secondaryDirection;
+    final cornering =
+        !reject && sa != null && sd != null && !sa.desaturates && blend > 0;
+    var orbColor = baseColor;
+    if (cornering) {
+      orbColor = Color.lerp(baseColor, sa.color, blend.clamp(0.0, 1.0)) ??
+          baseColor;
     }
 
-    // ---- 1. Decisive colour wave from the contact edge -------------------
+    // ---- 1. Decisive colour wave from the dominant contact edge ----------
     // Floods inward from the aimed screen edge as a radial wave. STRONG peak so
     // it visibly filters the hero image as the orb nears the edge (the founder
     // reported the old, gentler wave didn't read on web).
@@ -214,10 +232,32 @@ class _EdgeDecisivePainter extends CustomPainter {
       rect,
       Paint()
         ..shader = _waveShader(size, direction, orbCenter, reach, [
-          color.withValues(alpha: (edgePeak * reach).clamp(0, 1)),
-          color.withValues(alpha: 0.0),
+          baseColor.withValues(alpha: (edgePeak * reach).clamp(0, 1)),
+          baseColor.withValues(alpha: 0.0),
         ]),
     );
+
+    // ---- 1b. S21C: the SECOND edge's wave near a corner ------------------
+    // The perpendicular edge's colour ALSO flows in, from ITS screen edge, so
+    // the two edge hues meet and blend near the corner — the visible two-edge
+    // gradient. Scaled by `blend` (0..0.5, → up to the full peak at a perfect
+    // 45° corner) so it only blooms on a genuine diagonal and never on a clean
+    // cardinal swipe.
+    if (cornering) {
+      final sColor = sa.color;
+      final sPeak = edgePeak * (blend / 0.5).clamp(0.0, 1.0);
+      canvas.drawRect(
+        rect,
+        Paint()
+          ..shader = _waveShader(size, sd, orbCenter, reach, [
+            sColor.withValues(alpha: (sPeak * reach).clamp(0, 1)),
+            sColor.withValues(alpha: 0.0),
+          ]),
+      );
+    }
+
+    // From here the orb hotspot + aura use the blended [orbColor].
+    final color = orbColor;
 
     // ---- 2. Orb hotspot --------------------------------------------------
     // A tighter, brighter pool of the action colour centred RIGHT where the user
@@ -281,6 +321,7 @@ class _EdgeDecisivePainter extends CustomPainter {
       old.reach != reach ||
       old.orbCenter != orbCenter ||
       old.secondaryAction != secondaryAction ||
+      old.secondaryDirection != secondaryDirection ||
       old.blend != blend ||
       old.lensRadius != lensRadius ||
       old.paletteRev != paletteRev;
