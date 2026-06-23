@@ -16,6 +16,7 @@ class OrbPainter extends CustomPainter {
     required this.direction,
     this.secondary,
     this.blend = 0,
+    this.inZone = false,
   });
 
   final double pulse;
@@ -28,6 +29,13 @@ class OrbPainter extends CustomPainter {
 
   /// S17D: how much [secondary]'s colour mixes into the dominant edge's (0..0.5).
   final double blend;
+
+  /// S23: true once the orb's position has entered the chosen edge's DECISION
+  /// ZONE — a release now WOULD commit. Adds a single crisp pearl "decision ring"
+  /// as the clear threshold cue. Purely ADDITIVE: when false (everywhere outside
+  /// the zone) the orb paints exactly as the validated S22 orb did, so the
+  /// approach look never regresses; the cue only appears in the near-edge zone.
+  final bool inZone;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -152,6 +160,19 @@ class OrbPainter extends CustomPainter {
       ..strokeWidth = 1.6
       ..color = AppColors.pearl.withValues(alpha: 0.30 * opacity);
     canvas.drawCircle(center, r * 0.98, rimPaint);
+
+    // ---- S23: decision ring (threshold cue) -----------------------------
+    // The unmistakable "you've ENTERED the decision zone" cue: one crisp pearl
+    // ring just outside the body, breathing with the orb. Only drawn inside the
+    // zone, so it cleanly signals that a release now commits — and its absence
+    // confirms you can still stop short and release safely.
+    if (inZone) {
+      final ringPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.4
+        ..color = AppColors.pearl.withValues(alpha: 0.85 * opacity);
+      canvas.drawCircle(center, r * 1.16, ringPaint);
+    }
   }
 
   @override
@@ -161,5 +182,6 @@ class OrbPainter extends CustomPainter {
       old.reach != reach ||
       old.direction != direction ||
       old.secondary != secondary ||
-      old.blend != blend;
+      old.blend != blend ||
+      old.inZone != inZone;
 }

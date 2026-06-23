@@ -12,10 +12,22 @@ import 'orb_throw.dart';
 /// ([direction], null in the deadzone) and how close it is to committing
 /// ([reach], 0 at centre → 1 at the threshold).
 class OrbAim {
-  const OrbAim(this.direction, this.reach, {this.secondary, this.blend = 0});
+  const OrbAim(
+    this.direction,
+    this.reach, {
+    this.secondary,
+    this.blend = 0,
+    this.inZone = false,
+  });
 
   final OrbDirection? direction;
   final double reach;
+
+  /// S23: true once the orb's POSITION has entered the chosen edge's decision
+  /// zone — i.e. a release right now WOULD commit. Drives the clear threshold
+  /// cue (the decision ring) so the user knows a choice is about to / just
+  /// happened, and can stop short and release safely while it is false.
+  final bool inZone;
 
   /// S17D: when heading into a CORNER, the perpendicular edge the orb is also
   /// leaning toward — null on a cardinal aim. The committed choice is still the
@@ -131,18 +143,21 @@ double cornerBlend(double primaryReach, double diagRatio) {
 /// honours the everyday angled swipe toward its dominant edge.
 const double kAxisDominance = 1.12;
 
-/// S21A — the DELIBERATE-commit rule. A release commits a direction only when the
-/// drag is an unmistakable swipe: it travelled at least [travel] px from the
-/// birth point AND one axis clearly dominates ([dominance]), so an ambiguous
-/// ~45° drift or a small jitter never commits — it dissolves. The tuned middle
-/// ground between S17's strict edge-gate (intentional swipes silently failed) and
-/// S20's hair-trigger (casual drifts committed choices by accident).
-OrbDirection? deliberateCommit(
+/// The clear cardinal edge a drag/flick NAMES, or null for a tap/jitter or an
+/// ambiguous ~45° diagonal. One axis must beat the other by [dominance], past a
+/// small birth [deadzone].
+///
+/// S23: this is ONLY the direction. Whether a release COMMITS is decided
+/// separately by POSITION — the decision zone ([zoneCommit] / [inDecisionZone]) —
+/// NOT by how far the drag travelled. The S18/S21A travel-from-origin commit
+/// (which fired a choice from a short swipe anywhere, even at the centre) is
+/// removed; a clear direction is necessary but no longer sufficient to commit.
+OrbDirection? dominantEdge(
   Offset delta, {
-  required double travel,
   double dominance = kAxisDominance,
+  double deadzone = 14,
 }) {
-  if (delta.distance < travel) return null;
+  if (delta.distance < deadzone) return null;
   final ax = delta.dx.abs();
   final ay = delta.dy.abs();
   if (ax >= ay) {
@@ -153,14 +168,32 @@ OrbDirection? deliberateCommit(
   return delta.dy < 0 ? OrbDirection.up : OrbDirection.down;
 }
 
+/// S23 — the DRAG commit rule. A release commits an edge ONLY when (a) the drag
+/// names a clear dominant cardinal direction ([dominantEdge]) AND (b) the orb's
+/// CURRENT POSITION is inside that edge's decision zone ([inDecisionZone]).
+/// Releasing at the centre or anywhere SHORT of the zone returns null — the orb
+/// glides back to rest, no commit. Precise & controllable: the user guides the
+/// orb into the zone and only then does the choice fire.
+OrbDirection? zoneCommit(
+  Size bounds,
+  Offset pos,
+  Offset delta, {
+  double zoneFrac = kDecisionZoneFrac,
+  double dominance = kAxisDominance,
+}) {
+  final edge = dominantEdge(delta, dominance: dominance);
+  if (edge == null) return null;
+  return inDecisionZone(bounds, edge, pos, zoneFrac: zoneFrac) ? edge : null;
+}
+
 /// The Vybia brand primitive.
 ///
 /// Wraps [child] in a [Listener] (pointer events — never GestureDetector). An
 /// orb is *born* at the touch point on pointer-down (a ~150ms fade + scale-in,
 /// never an instant pop), *follows* the finger, and either:
-///   * commits a direction (left/right/up/down) when dragged past [threshold],
-///     firing [onDirection]; or
-///   * progressively dissolves in ~150ms on release when below threshold.
+///   * commits a direction (left/right/up/down) when the orb is guided into that
+///     edge's DECISION ZONE (S23 — see [zoneCommit]), firing [onDirection]; or
+///   * progressively dissolves / glides back to rest on release before the zone.
 ///
 /// S7 interaction model (founder spec):
 ///   * A quick DOUBLE-TAP (two still taps within [doubleTapWindow]) fires
@@ -196,9 +229,10 @@ class VybiaOrb extends StatefulWidget {
     this.onHoldProgress,
     this.enableHoldHome = true,
     this.showOrb = true,
-    // S18 (founder fix — "direction imprécise"): the commit travel was 72px, so a
-    // short, decisive swipe didn't move the orb far enough to register and just
-    // dissolved. 56px still ignores a tap/jitter but honours a brisk small swipe.
+    // S23: VESTIGIAL. The commit is no longer travel-based (the S18 travel commit
+    // fired early / at the centre and is removed) — a release commits only when
+    // the orb's POSITION reaches the decision zone (see [zoneCommit]). Kept so the
+    // public constructor signature is unchanged; it no longer gates any choice.
     this.threshold = 56,
     // S8.1A: the painted orb (Accueil) is shrunk to match the smaller scene
     // bubble — a tighter ~ø72 body instead of the old ~ø88.
@@ -254,6 +288,8 @@ class VybiaOrb extends StatefulWidget {
   /// hidden, so a custom visual (the refraction bubble) can stand in for it.
   final bool showOrb;
 
+  /// S23: vestigial — the commit is decided by POSITION (the decision zone), not
+  /// by drag travel. Retained only to keep the constructor signature stable.
   final double threshold;
   final double orbSize;
 
@@ -280,7 +316,6 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
   late final AnimationController _appear; // 0→1 birth
   late final AnimationController _dissolve; // 1→0 death
   late final AnimationController _hold; // 0→1 hold-to-home grow
-  late final AnimationController _glide; // 0→1 commit-flight to the target edge
 
   bool _active = false;
   bool _warning = false; // hold-to-home warning/grow in progress
@@ -299,16 +334,11 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
   Size _bounds = Size.zero; // scene size, captured in build
   VelocityTracker? _tracker; // measures the release velocity of the gesture
 
-  // ---- Commit flight / glide (S22C) -------------------------------------
-  // A deliberate FLICK that names a clear cardinal direction GLIDES the orb
-  // visibly to that edge, then commits — so the founder SEES the orb fly to the
-  // target before the choice registers (the old path instant-committed without
-  // ever showing the travel). A directed lerp (not the ballistic [ThrowSimulation])
-  // so it ALWAYS reaches the edge and the choice can never stall mid-scene.
-  bool _gliding = false;
-  OrbDirection? _glideDir;
-  Offset _glideFrom = Offset.zero;
-  Offset _glideTo = Offset.zero;
+  // S23: a FLICK released before the decision zone no longer plays a directed
+  // commit-glide that ALWAYS reached the edge (the retired S22C lerp). Instead it
+  // rides the visible ballistic [ThrowSimulation], which commits only when it
+  // reaches the zone and dissolves if it stops short — the same precise rule as a
+  // drag, so a weak flick can never force a choice.
 
   // Double-tap tracking.
   DateTime? _lastTapUp;
@@ -362,13 +392,6 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
     )
       ..addListener(_emitHold)
       ..addStatusListener(_onHoldStatus);
-    _glide = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 220),
-      value: 0.0,
-    )
-      ..addListener(_onGlideTick)
-      ..addStatusListener(_onGlideStatus);
     _flightTicker = createTicker(_onFlightTick);
 
     if (_kThrowFadeProof) {
@@ -400,7 +423,6 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
     _appear.dispose();
     _dissolve.dispose();
     _hold.dispose();
-    _glide.dispose();
     super.dispose();
   }
 
@@ -422,6 +444,7 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
                 _reach,
                 secondary: _secondary,
                 blend: _cornerBlend,
+                inZone: _inCommitZone,
               )
             : OrbAim.rest,
       );
@@ -465,15 +488,19 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
     return edgeProximityReach(_bounds, d, _current);
   }
 
-  /// The direction a release should COMMIT, or null (→ dissolve).
+  /// The direction a release should COMMIT, or null (→ glide back to rest).
   ///
-  /// S20A: commit is DECOUPLED from the proximity visual — a deliberate drag past
-  /// the travel [threshold] commits wherever the orb is released, no edge-hug.
-  /// S21A: it must ALSO be a clear cardinal swipe (one axis dominating, via
-  /// [deliberateCommit]) so an ambiguous diagonal or a slow drift dissolves
-  /// rather than committing a choice the founder never intended.
-  OrbDirection? _commitDirection() =>
-      deliberateCommit(_delta, travel: widget.threshold);
+  /// S23: POSITION-based. A release commits only when the drag names a clear
+  /// cardinal direction AND the orb is inside that edge's decision zone
+  /// ([zoneCommit]). A release at the centre or short of the zone does NOT
+  /// commit — this is the precise, controllable rule that replaces the S18
+  /// travel/velocity commit (which fired early, even at the centre).
+  OrbDirection? _commitDirection() => zoneCommit(_bounds, _current, _delta);
+
+  /// True while a release RIGHT NOW would commit — the orb names a clear edge
+  /// and its position is inside that edge's decision zone. Drives the threshold
+  /// cue (the decision ring) and is reported on [OrbAim.inZone].
+  bool get _inCommitZone => _commitDirection() != null;
 
   // ---- Hold-to-home ------------------------------------------------------
   void _startImmobileTimer() {
@@ -517,7 +544,6 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
   void _onDown(PointerDownEvent e) {
     _dissolveTimer?.cancel();
     _stopFlight(); // a fresh touch interrupts any in-flight throw cleanly
-    _stopGlide(); // …and any in-progress commit glide
     _dissolve.duration = _quickDissolve; // a fresh gesture dissolves quickly
     _dissolve.value = 1.0;
     setState(() {
@@ -581,15 +607,8 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
     final flick = vel.distance >= widget.throwVelocity && _bounds != Size.zero;
 
     if (dir != null) {
-      // S22C: a deliberate cardinal choice. If the release was a FLICK, GLIDE the
-      // orb to the target edge first so the founder SEES it fly there and reach
-      // its target before the choice commits (the old path instant-committed and
-      // the flight was never shown). A slow drag-past-threshold commits at once —
-      // the orb is already where the finger left it, so there is nothing to fly.
-      if (flick) {
-        _startCommitGlide(dir);
-        return;
-      }
+      // S23: the orb is ALREADY inside the decision zone — the user guided it in
+      // (drag or flick), so commit at once; there is nothing left to fly.
       // S20B: cancel EVERYTHING before the commit fires, so nothing lingers,
       // re-fires, or animates after a navigation. The callback may navigate and
       // dispose this widget — guard before touching any controller (calling
@@ -606,9 +625,11 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
       return;
     }
 
-    // Sub-threshold release that named no clear cardinal: a quick FLICK becomes a
-    // ballistic throw (momentum) — it commits if it reaches an edge, else
-    // dissolves. A near-stationary release falls through to the tap path.
+    // Released BEFORE the zone. A quick FLICK carries the orb on its visible
+    // ballistic glide toward the aimed edge: it commits ONLY if it REACHES the
+    // decision zone, and dissolves (glides to rest, no commit) if it stops short
+    // — the SAME rule as a drag. A near-stationary release falls through to the
+    // tap path and just glides back to rest.
     if (flick) {
       _startThrow(_current, vel);
       return;
@@ -704,81 +725,10 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
         Timer(_settleDissolve + const Duration(milliseconds: 20), _reset);
   }
 
-  // ---- Commit flight / glide (S22C) -------------------------------------
-  /// The point on the aimed screen edge the orb glides to before committing —
-  /// anchored to the orb's cross-axis position, a hair inside the edge so the
-  /// decisive bloom reaches near-full and the orb visibly arrives AT the edge.
-  Offset _edgeAnchor(OrbDirection d, Offset from) {
-    const inset = 8.0;
-    switch (d) {
-      case OrbDirection.left:
-        return Offset(inset, from.dy);
-      case OrbDirection.right:
-        return Offset(_bounds.width - inset, from.dy);
-      case OrbDirection.up:
-        return Offset(from.dx, inset);
-      case OrbDirection.down:
-        return Offset(from.dx, _bounds.height - inset);
-    }
-  }
-
-  /// Start a directed flight: the orb glides from the release point straight to
-  /// [d]'s edge, then commits. Duration scales gently with the distance so a far
-  /// throw reads as real travel and a near one snaps crisply.
-  void _startCommitGlide(OrbDirection d) {
-    _immobileTimer?.cancel();
-    _stopFlight();
-    _dissolveTimer?.cancel();
-    _warning = false;
-    _lastTapUp = null; // a committed edge is not half of a double-tap
-    _glideDir = d;
-    _glideFrom = _current;
-    _glideTo = _edgeAnchor(d, _current);
-    _gliding = true;
-    // Keep the orb fully present for the whole flight (born, not dissolving).
-    _appear.value = 1.0;
-    _dissolve.value = 1.0;
-    final dist = (_glideTo - _glideFrom).distance;
-    _glide.duration = Duration(
-      milliseconds: (140 + dist * 0.55).clamp(160, 340).round(),
-    );
-    _glide.forward(from: 0.0);
-  }
-
-  void _onGlideTick() {
-    if (!_gliding) return;
-    final t = Curves.easeOutCubic.transform(_glide.value);
-    // Move the live position toward the edge. `_origin` stays put, so `_direction`
-    // and `_reach` keep reporting the committed edge with a rising proximity —
-    // the decisive wave + orb coloration intensify as it arrives (S22A/S22B).
-    setState(() => _current = Offset.lerp(_glideFrom, _glideTo, t)!);
-    widget.onPositionChanged?.call(_current);
-    _emitAim();
-  }
-
-  void _onGlideStatus(AnimationStatus status) {
-    if (status != AnimationStatus.completed || !_gliding) return;
-    final d = _glideDir;
-    _gliding = false;
-    _glideDir = null;
-    widget.onDirection(d!);
-    if (!mounted) return;
-    _dissolve.reverse(from: 1.0);
-    _dissolveTimer = Timer(const Duration(milliseconds: 160), _reset);
-  }
-
-  /// Abort an in-progress commit glide without committing (a fresh touch / reset).
-  void _stopGlide() {
-    if (_glide.isAnimating) _glide.stop();
-    _gliding = false;
-    _glideDir = null;
-  }
-
   void _reset() {
     _dissolveTimer?.cancel();
     _immobileTimer?.cancel();
     _stopFlight();
-    _stopGlide();
     if (!mounted) return;
     setState(() {
       _active = false;
@@ -827,6 +777,14 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
                     // secondary edge; a thrown orb just commits its heading edge.
                     final secondary = _flying ? null : _secondary;
                     final blend = _flying ? 0.0 : _cornerBlend;
+                    // S23: the decision-ring cue — on the moment the orb's
+                    // position enters the chosen edge's decision zone (drag or a
+                    // flight that has reached it), so entering the zone is
+                    // unmistakable.
+                    final inZone = _flying
+                        ? (dir != null &&
+                            inDecisionZone(_bounds, dir, _flightPos))
+                        : _inCommitZone;
                     // S9.1C: while settling from a stopped throw, recede deeper
                     // (toward a small point) as it fades — a graceful exit.
                     final settle = _settling ? (0.30 + 0.70 * presence) : 1.0;
@@ -849,6 +807,7 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
                               direction: dir,
                               secondary: secondary,
                               blend: blend,
+                              inZone: inZone,
                             ),
                           ),
                         ),
