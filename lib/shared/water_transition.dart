@@ -70,26 +70,42 @@ class WaterReveal extends StatelessWidget {
           // the cover radius a touch so the very corners are reached cleanly.
           final eased = Curves.easeInOutCubic.transform(p);
           final r = lerpDouble(seedRadius, maxR * 1.04, eased)!;
+          // S22E — the water is TRANSLUCENT: the image/scene beneath stays
+          // VISIBLE THROUGH the rising water (refraction/tint), never an opaque
+          // colour flood. The solid calm field is only faded IN over the last
+          // stretch, so the photo shows through for most of the dissolve and the
+          // screen still fully opens onto the calm Accueil at progress 1.
+          final fieldOpacity = ((eased - 0.45) / 0.55).clamp(0.0, 1.0).toDouble();
           return Stack(
             fit: StackFit.expand,
             children: [
-              // 1. The growing disc of calm water/ice/glass.
+              // 1. The translucent body of the rising water inside the disc: an
+              //    aqua/glass refraction over whatever is beneath (the hero image
+              //    on a return, the calm field on the splash). It deepens a touch
+              //    with depth but stays SEE-THROUGH — you watch the scene submerge
+              //    rather than get painted over.
               ClipPath(
                 clipper: _CircleReveal(center, r),
-                child: child ?? const CalmHomeField(),
-              ),
-              // 2. An aqua submersion veil INSIDE the disc that deepens with
-              //    progress — the "going underwater" tint. S21D: lifted
-              //    0.10→0.16 so the submersion actually reads on the phone.
-              ClipPath(
-                clipper: _CircleReveal(center, r),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.16 * eased),
+                child: CustomPaint(
+                  size: Size.infinite,
+                  painter: _TranslucentWaterPainter(
+                    center: center,
+                    radius: r,
+                    depth: eased,
                   ),
-                  child: const SizedBox.expand(),
                 ),
               ),
+              // 2. The solid calm sea-glass field, faded in ONLY near the end so
+              //    "arriving" still lands cleanly on the Accueil while the rest of
+              //    the rise stays see-through.
+              if (fieldOpacity > 0.001)
+                ClipPath(
+                  clipper: _CircleReveal(center, r),
+                  child: Opacity(
+                    opacity: fieldOpacity,
+                    child: child ?? const CalmHomeField(),
+                  ),
+                ),
               // 3. The advancing wavefront: a soft, blurred glowing ring on the
               //    water's surface with a faint chromatic rim. Fades out as the
               //    water fills the screen (nothing left to advance into).
@@ -107,6 +123,60 @@ class WaterReveal extends StatelessWidget {
       ),
     );
   }
+}
+
+/// S22E — the SEE-THROUGH body of the rising water. A radial aqua/glass tint
+/// inside the growing disc: clearest at the centre (you read the submerging
+/// scene best where you're sinking) and deepening toward the advancing surface,
+/// so it refracts the image beneath rather than flooding it with an opaque
+/// colour. The alpha stays low (translucent) at every depth — the scene is only
+/// fully hidden once the solid calm field fades in over the top near the end.
+class _TranslucentWaterPainter extends CustomPainter {
+  _TranslucentWaterPainter({
+    required this.center,
+    required this.radius,
+    required this.depth,
+  });
+
+  final Offset center;
+  final double radius;
+  final double depth; // 0..1 eased progress
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (radius <= 0) return;
+
+    // Aqua glass body — translucent so the photo reads through it. Clearer in
+    // the middle, a little deeper toward the surface (the "wall" of water).
+    final inner = AppColors.primary.withValues(alpha: 0.06 + 0.14 * depth);
+    final outer = AppColors.primary.withValues(alpha: 0.16 + 0.20 * depth);
+    canvas.drawCircle(
+      center,
+      radius,
+      Paint()
+        ..shader = RadialGradient(
+          colors: [inner, outer],
+          stops: const [0.0, 1.0],
+        ).createShader(Rect.fromCircle(center: center, radius: radius)),
+    );
+
+    // A soft glassy sheen band just inside the surface — refractive light on the
+    // water, a highlight rather than a fill, so the translucency still reads as
+    // a liquid surface and not a flat veil.
+    canvas.drawCircle(
+      center,
+      radius * 0.9,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = radius * 0.12
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 26)
+        ..color = AppColors.accent.withValues(alpha: 0.12 * depth),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _TranslucentWaterPainter old) =>
+      old.center != center || old.radius != radius || old.depth != depth;
 }
 
 /// Paints the calm advancing surface of the rising water: a blurred pearl ring
