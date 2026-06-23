@@ -7,12 +7,12 @@ import 'package:vybia_v2/features/guest/model/dimension.dart';
 import 'package:vybia_v2/features/guest/model/guest_profile.dart';
 
 void main() {
-  // S16A: the splash routes by first-visit vs return.
-  //   * brand-new guest (no saved profile) → FILES straight to value: the mood
-  //     capture (Welcome), skipping the abstract 4-direction hub;
-  //   * returning guest (saved profile) → lands on the calm Accueil hub.
+  // S21B: the splash ALWAYS lands on the Accueil hub — reverting S16's
+  // "first-visit skips the hub". Whether the guest is brand-new or returning,
+  // after the splash they arrive on the calm 4-direction hub; Explorer is then
+  // one swipe away, but the hub is never bypassed.
 
-  testWidgets('first-visit boots to the value path (mood), not the hub',
+  testWidgets('first-visit boots to the Accueil hub (never bypassed)',
       (tester) async {
     SharedPreferences.setMockInitialValues({});
     final store = await AppStore.open(); // empty → no saved profile
@@ -28,9 +28,11 @@ void main() {
     await tester.pump(const Duration(milliseconds: 1800));
     await tester.pump();
 
-    // We land on the mood capture (Welcome) — value first, no hub detour.
-    expect(find.textContaining('te sentir'), findsOneWidget);
-    expect(find.text('Mes plans'), findsNothing, reason: 'hub is skipped');
+    // We land on the Accueil hub — the four cahier directions on the orb.
+    expect(find.text('Explorer'), findsOneWidget);
+    expect(find.text('Planifier'), findsOneWidget);
+    expect(find.text('Mon profil'), findsOneWidget);
+    expect(find.text('Mes plans'), findsOneWidget);
   });
 
   testWidgets('returning guest boots to the calm Accueil hub', (tester) async {

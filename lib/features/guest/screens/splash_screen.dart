@@ -7,7 +7,6 @@ import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/water_transition.dart';
-import '../state/guest_controller.dart';
 
 /// Brief liquid-orb moment, then auto-continues. No interaction.
 ///
@@ -43,15 +42,12 @@ class _SplashScreenState extends State<SplashScreen>
     )..forward();
     _go = Timer(const Duration(milliseconds: 1700), () {
       if (!mounted) return;
-      // S16A: a first-time guest (no saved profile) FILES straight to value —
-      // the mood capture → adaptive questions → reco reveal — skipping the
-      // abstract 4-direction hub. A returning guest lands on the calm Accueil
-      // hub (they already know what they want). Hold-to-home keeps the hub one
-      // gesture away from anywhere.
-      final returning = GuestScope.of(context).returning;
-      Navigator.of(context).pushReplacementNamed(
-        returning ? AppRouter.accueil : AppRouter.welcome,
-      );
+      // S21B: the ACCUEIL hub is ALWAYS the landing — reverting S16's
+      // "first-visit skips the hub". EVERY visit (first or returning) arrives on
+      // the calm Accueil, from which the orb offers ← Explorer · → Planifier ·
+      // ↑ Mon profil · ↓ Mes plans. Value stays one swipe away (Explorer), but
+      // we never bypass the hub.
+      Navigator.of(context).pushReplacementNamed(AppRouter.accueil);
     });
   }
 
