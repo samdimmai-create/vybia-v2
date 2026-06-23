@@ -497,8 +497,17 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
     final dir = _commitDirection();
 
     if (dir != null) {
-      widget.onDirection(dir);
+      // S20B: cancel EVERYTHING before the commit fires, so nothing lingers,
+      // re-fires, or animates after a navigation. The callback may navigate and
+      // dispose this widget — guard before touching any controller (calling
+      // .reverse() on a disposed controller would throw mid-pointer-handling and
+      // could wedge the gesture, reading as a "frozen" orb).
+      _immobileTimer?.cancel();
+      _stopFlight();
+      _warning = false;
       _lastTapUp = null; // a committed edge is not half of a double-tap
+      widget.onDirection(dir);
+      if (!mounted) return;
       _dissolve.reverse(from: 1.0);
       _dissolveTimer = Timer(const Duration(milliseconds: 160), _reset);
       return;
@@ -521,6 +530,9 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
           (_current - _lastTapPos).distance <= _doubleTapSlop) {
         _lastTapUp = null;
         widget.onDoubleTap?.call();
+        // The double-tap callback (e.g. back-nav / maybePop) may dispose this
+        // widget — bail before touching any controller (S20B).
+        if (!mounted) return;
       } else {
         _lastTapUp = now;
         _lastTapPos = _current;

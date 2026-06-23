@@ -104,6 +104,65 @@ void main() {
         reason: 'a deliberate swipe registers wherever it is released');
   });
 
+  testWidgets('S20B: after a commit the orb dissolves to nothing (never frozen)',
+      (tester) async {
+    OrbDirection? dir;
+    final presence = <double>[];
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: VybiaOrb(
+            onDirection: (d) => dir = d,
+            onPresence: presence.add,
+            throwVelocity: 100000,
+            holdStill: const Duration(seconds: 30),
+            child: const SizedBox.expand(),
+          ),
+        ),
+      ),
+    );
+
+    final g = await tester.startGesture(const Offset(400, 300));
+    await tester.pump();
+    await g.moveBy(const Offset(-120, 0));
+    await tester.pump();
+    await g.up();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(dir, OrbDirection.left);
+    expect(presence.last, lessThan(0.05),
+        reason: 'the orb fully dissolves after a commit — never frozen on screen');
+  });
+
+  testWidgets('S20B: pointer-cancel resets cleanly (no commit, orb gone)',
+      (tester) async {
+    var commits = 0;
+    final presence = <double>[];
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: VybiaOrb(
+            onDirection: (_) => commits++,
+            onPresence: presence.add,
+            holdStill: const Duration(seconds: 30),
+            child: const SizedBox.expand(),
+          ),
+        ),
+      ),
+    );
+
+    final g = await tester.startGesture(const Offset(400, 300));
+    await tester.pump();
+    await g.moveBy(const Offset(-60, 0));
+    await tester.pump();
+    await g.cancel(); // OS steals the pointer mid-gesture
+    await tester.pump(const Duration(milliseconds: 200));
+
+    expect(commits, 0);
+    expect(presence.last, lessThan(0.05),
+        reason: 'pointer-cancel must reset — no stuck orb');
+  });
+
   testWidgets('a tiny sub-threshold nudge does NOT commit (still a tap)',
       (tester) async {
     var commits = 0;
