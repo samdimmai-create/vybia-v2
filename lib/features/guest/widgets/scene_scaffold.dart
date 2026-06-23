@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
@@ -160,16 +159,20 @@ class SceneScaffold extends StatefulWidget {
   State<SceneScaffold> createState() => _SceneScaffoldState();
 }
 
-class _SceneScaffoldState extends State<SceneScaffold>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _drift;
-  Offset? _orb; // live finger position; null when resting
-  double _presence = 0; // orb life force 0..1
-  OrbDirection? _aimDir; // edge the orb is leaning toward
-  double _aimReach = 0; // 0 centre → 1 at the edge (proximity)
-  OrbDirection? _aimSecondary; // S17D: perpendicular corner edge, or null
-  double _aimBlend = 0; // S17D: 0 cardinal → 0.5 even corner blend
-  double _hold = 0; // hold-to-home warning progress 0..1
+class _SceneScaffoldState extends State<SceneScaffold> {
+  // S21A (LATENCY FIX): the live orb/aim/presence/hold state flows through
+  // ValueNotifiers, NOT setState. A pointer-move updates only these; the heavy
+  // refraction lens and the decisive-edge overlay are each wrapped in a
+  // RepaintBoundary and rebuild in ISOLATION off the minimal notifier they
+  // depend on. So a move no longer rebuilds the whole scene tree (labels,
+  // bubble, journey, palette) — which, together with the per-move setState in
+  // VybiaOrb, was exactly what made the orb feel heavy and trail the finger on
+  // Flutter web. The labels/bubble/journey rebuild only when [_presence] ticks
+  // (birth/dissolve), never on a plain move. See [build].
+  final ValueNotifier<Offset?> _orb = ValueNotifier<Offset?>(null);
+  final ValueNotifier<double> _presence = ValueNotifier<double>(0);
+  final ValueNotifier<OrbAim> _aim = ValueNotifier<OrbAim>(OrbAim.rest);
+  final ValueNotifier<double> _hold = ValueNotifier<double>(0);
 
   // S6.3: the illustrative image is the hero. At rest there is NO lens — the
   // bubble is a small jewel that is born under the finger on contact and melts
@@ -218,28 +221,24 @@ class _SceneScaffoldState extends State<SceneScaffold>
   void _autoTick() {
     if (!mounted || _lastSize == Size.zero) return;
     final s = _driveScript[_driveStep % _driveScript.length];
-    setState(() {
-      // Same framing for every state: the lens sits at the scripted point. The
-      // 'rest' frame forces the lens OFF so the compare is identical-framing,
-      // lens-off vs lens-on (proves geometry, not a brightness change).
-      _orb = Offset(
-        _lastSize.width / 2 + s.$1 * _lastSize.width,
-        _lastSize.height / 2 + s.$2 * _lastSize.height,
-      );
-      if (s.$6 == 'rest') {
-        _forceActive = 0.0;
-        _presence = 0;
-        _aimDir = null;
-        _aimReach = 0;
-        _hold = 0;
-      } else {
-        _forceActive = null;
-        _presence = s.$5;
-        _aimDir = s.$3;
-        _aimReach = s.$4;
-        _hold = s.$7;
-      }
-    });
+    // Same framing for every state: the lens sits at the scripted point. The
+    // 'rest' frame forces the lens OFF so the compare is identical-framing,
+    // lens-off vs lens-on (proves geometry, not a brightness change).
+    _orb.value = Offset(
+      _lastSize.width / 2 + s.$1 * _lastSize.width,
+      _lastSize.height / 2 + s.$2 * _lastSize.height,
+    );
+    if (s.$6 == 'rest') {
+      _forceActive = 0.0;
+      _aim.value = OrbAim.rest;
+      _hold.value = 0;
+      _presence.value = 0;
+    } else {
+      _forceActive = null;
+      _aim.value = OrbAim(s.$3, s.$4);
+      _hold.value = s.$7;
+      _presence.value = s.$5;
+    }
     debugPrint('VYBIA_DRIVE ${s.$6}');
     _driveStep++;
   }
@@ -254,10 +253,6 @@ class _SceneScaffoldState extends State<SceneScaffold>
   @override
   void initState() {
     super.initState();
-    _drift = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 8),
-    )..repeat();
     if (_kAutoDrive) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _autoTick();
@@ -279,29 +274,25 @@ class _SceneScaffoldState extends State<SceneScaffold>
         warnProof) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted || _lastSize == Size.zero) return;
-        setState(() {
-          _forceActive = null;
-          _presence = 1.0;
-          _orb = Offset(_lastSize.width / 2, _lastSize.height / 2);
-          if (warnProof) {
-            _hold = 0.18; // early warning: portal still tiny, hint prominent
-          } else if (holdProof) {
-            _hold = 0.62; // portal half-open, filled with calm
-          } else if (contactProof) {
-            // Clean contact: orb + edges visible, bubble receded, no aim wave.
-          } else if (aimProof != null) {
-            // On-contact aim toward [aimProof]: orb sits ~70% toward that edge
-            // with a high reach so the decisive radial wave is in full bloom.
-            _orb = _aimPoint(_lastSize, aimProof);
-            _aimDir = aimProof;
-            _aimReach = 0.85;
-          } else {
-            // Thrown orb in flight, nearing the right edge and committing.
-            _orb = Offset(_lastSize.width * 0.9, _lastSize.height / 2);
-            _aimDir = OrbDirection.right;
-            _aimReach = 0.92;
-          }
-        });
+        _forceActive = null;
+        _orb.value = Offset(_lastSize.width / 2, _lastSize.height / 2);
+        if (warnProof) {
+          _hold.value = 0.18; // early warning: portal still tiny, hint prominent
+        } else if (holdProof) {
+          _hold.value = 0.62; // portal half-open, filled with calm
+        } else if (contactProof) {
+          // Clean contact: orb + edges visible, bubble receded, no aim wave.
+        } else if (aimProof != null) {
+          // On-contact aim toward [aimProof]: orb sits ~70% toward that edge with
+          // a high reach so the decisive radial wave is in full bloom.
+          _orb.value = _aimPoint(_lastSize, aimProof);
+          _aim.value = OrbAim(aimProof, 0.85);
+        } else {
+          // Thrown orb in flight, nearing the right edge and committing.
+          _orb.value = Offset(_lastSize.width * 0.9, _lastSize.height / 2);
+          _aim.value = const OrbAim(OrbDirection.right, 0.92);
+        }
+        _presence.value = 1.0;
       });
     }
   }
@@ -325,32 +316,19 @@ class _SceneScaffoldState extends State<SceneScaffold>
   @override
   void dispose() {
     _driveTimer?.cancel();
-    _drift.dispose();
+    _orb.dispose();
+    _presence.dispose();
+    _aim.dispose();
+    _hold.dispose();
     super.dispose();
   }
 
-  /// The action for the currently-aimed edge — but only when that edge is an
-  /// actual choice (has a label), so the orb never filters toward a dead edge.
-  EdgeAction? get _activeAction {
-    switch (_aimDir) {
-      case OrbDirection.left:
-        return _has(widget.left) ? widget.leftAction : null;
-      case OrbDirection.right:
-        return _has(widget.right) ? widget.rightAction : null;
-      case OrbDirection.up:
-        return _has(widget.up) ? widget.upAction : null;
-      case OrbDirection.down:
-        return _has(widget.down) ? widget.downAction : null;
-      case null:
-        return null;
-    }
-  }
-
-  /// S17D: the action for the perpendicular corner edge — again only when that
-  /// edge is a real labelled choice, so the gradient never leans toward a dead
-  /// edge. Null on a cardinal aim or an unlabelled secondary.
-  EdgeAction? get _secondaryAction {
-    switch (_aimSecondary) {
+  /// The action mapped to [dir] — but only when that edge is an actual choice
+  /// (has a label), so the orb/wave never filters toward a dead edge. Used for
+  /// both the aimed edge and the perpendicular corner edge (S17D), so the
+  /// gradient never leans toward an unlabelled secondary either.
+  EdgeAction? _actionFor(OrbDirection? dir) {
+    switch (dir) {
       case OrbDirection.left:
         return _has(widget.left) ? widget.leftAction : null;
       case OrbDirection.right:
@@ -366,13 +344,12 @@ class _SceneScaffoldState extends State<SceneScaffold>
 
   bool _has(String? s) => s != null && s.isNotEmpty;
 
-  /// Gentle Lissajous path used when no finger is down.
-  Offset _idle(Size size) {
-    final t = _drift.value * 2 * math.pi;
-    final cx = size.width / 2 + math.cos(t) * size.width * 0.20;
-    final cy = size.height * 0.46 + math.sin(t * 1.3) * size.height * 0.14;
-    return Offset(cx, cy);
-  }
+  /// The resting lens centre when no finger is down. S21A: a static point (the
+  /// old gently-drifting Lissajous needed an 8s repeating ticker that rebuilt the
+  /// whole scene at 60fps even at rest — wasted work, since the ambient lens
+  /// strength is 0 and so nothing was ever visible there anyway).
+  static Offset _restCenter(Size size) =>
+      Offset(size.width / 2, size.height * 0.46);
 
   @override
   Widget build(BuildContext context) {
@@ -382,185 +359,222 @@ class _SceneScaffoldState extends State<SceneScaffold>
         builder: (context, constraints) {
           final size = Size(constraints.maxWidth, constraints.maxHeight);
           _lastSize = size;
-          final orb = VybiaOrb(
-            showOrb: false, // the refraction bubble IS the orb here
-            enableHoldHome: widget.enableHoldHome,
-            onPositionChanged: (p) => setState(() => _orb = p),
-            onPresence: (v) => setState(() {
-              _presence = v;
-              if (v > 0.01) _Coach.shown = true; // guest has touched once
-            }),
-            onAim: (aim) => setState(() {
-              _aimDir = aim.direction;
-              _aimReach = aim.reach;
-              _aimSecondary = aim.secondary;
-              _aimBlend = aim.blend;
-            }),
-            onHoldProgress: (v) => setState(() => _hold = v),
-            onDirection: widget.onDirection,
-            onDoubleTap:
-                widget.onDoubleTap ?? () => Navigator.of(context).maybePop(),
-            onHoldHome:
-                widget.onHoldHome ??
-                () => Navigator.of(
-                  context,
-                ).pushNamedAndRemoveUntil(AppRouter.accueil, (_) => false),
+          final radius = widget.lensRadius;
+
+          // S21A — the scene is composed of REPAINT-ISOLATED layers, each driven
+          // by the minimal ValueNotifier(s) it needs. A pointer-move ticks only
+          // [_orb]/[_aim], so only the lens + decisive overlay repaint; the
+          // labels/bubble/journey (which depend on [_presence]) stay put. This is
+          // what kills the per-move full-tree rebuild that made the orb lag.
+
+          // Layer 1: the heavy refraction lens — the orb's body on these scenes.
+          final hero = RepaintBoundary(
             child: AnimatedBuilder(
-              animation: _drift,
+              animation: Listenable.merge([_orb, _presence, _hold, _aim]),
               builder: (context, _) {
-                final pressing = _orb != null;
-                final center = _orb ?? _idle(size);
+                final orbPos = _orb.value;
+                final pressing = orbPos != null;
+                final center = orbPos ?? _restCenter(size);
                 // Continuous floor (every image stays a bubble) lifted to full
                 // strength on contact — no flicker on release.
-                final active =
-                    _forceActive ??
+                final active = _forceActive ??
                     (pressing
-                        ? (_ambient + (1 - _ambient) * _presence)
-                              .clamp(0.0, 1.0)
-                              .toDouble()
+                        ? (_ambient + (1 - _ambient) * _presence.value)
+                            .clamp(0.0, 1.0)
+                            .toDouble()
                         : _ambient);
-                // S7-A: the orb-driven UI (edge labels + guidance chip) is hidden
-                // at rest and fades IN together with the orb on contact. Use the
-                // presence (or the autodrive hold) as the single fade signal.
-                final ui = _presence.clamp(0.0, 1.0).toDouble();
-                // Proof override: keep BOTH the edges and the bottom bubble fully
-                // visible in one frame (normal UX cross-fades between them).
-                final edgesUi = widget.debugProofFull ? 1.0 : ui;
-                final bubbleOpacity = widget.debugProofFull
-                    ? 1.0
-                    : (1 - ui).clamp(0.0, 1.0).toDouble();
-                // S8: the hold-to-home grow no longer swirls the ACTIVITY image
-                // into a vortex. The refraction bubble keeps its calm contact
-                // size; instead the SIGNATURE water transition ([WaterReveal])
-                // grows the neutral home water/ice/glass out of the orb and
-                // submerges the activity photo — the SAME effect the startup
-                // splash plays (S17A) — so the orb reads as a calm portal
-                // opening to the Accueil, never a scary magnification.
-                final radius = widget.lensRadius;
-                // Web-safe reject drain: when the orb aims at a "Pas intéressant"
-                // edge, actually desaturate + darken the hero image proportionally
-                // to the reach (the radial slate wave on top adds the from-edge
-                // feel). ColorFiltered renders identically on Flutter web —
-                // unlike the old BackdropFilter, which is why the drain had
-                // stopped showing.
+                // Web-safe reject drain: aiming at "Pas intéressant" desaturates
+                // + darkens the hero proportionally to the reach (the radial
+                // slate wave on top adds the from-edge feel). ColorFiltered
+                // renders identically on Flutter web (unlike BackdropFilter).
+                final aim = _aim.value;
                 final rejectAmount =
-                    _activeAction == EdgeAction.reject ? _aimReach : 0.0;
-                Widget hero = RefractionBubble(
+                    _actionFor(aim.direction) == EdgeAction.reject
+                        ? aim.reach
+                        : 0.0;
+                Widget bubble = RefractionBubble(
                   image: imageProviderFor(widget.image),
                   orbCenter: center,
                   radius: radius,
                   magnification: 0.8,
-                  // As the portal opens, let the activity refraction recede.
-                  active: active * (1 - 0.7 * _hold),
+                  // As the hold-to-home portal opens, let the refraction recede.
+                  active: active * (1 - 0.7 * _hold.value),
                 );
                 if (rejectAmount > 0.001) {
-                  hero = ColorFiltered(
+                  bubble = ColorFiltered(
                     colorFilter:
                         ColorFilter.matrix(rejectColorMatrix(rejectAmount)),
-                    child: hero,
+                    child: bubble,
                   );
                 }
-                return Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    hero,
-                    // Decisive-edge colour feedback: filters the image toward the
-                    // aimed edge's action colour and recolours the orb.
-                    EdgeDecisiveOverlay(
-                      action: _activeAction,
-                      direction: _aimDir,
-                      reach: _aimReach,
-                      secondaryAction: _secondaryAction,
-                      blend: _aimBlend,
-                      orbCenter: _orb,
-                      lensRadius: widget.lensRadius,
-                    ),
-                    // The signature water transition: the calm home field rises
-                    // out of the orb and submerges the scene as the hold
-                    // completes. At _hold→1 it covers the screen → accueil. This
-                    // is the EXACT same [WaterReveal] the splash plays.
-                    if (_hold > 0.001)
-                      WaterReveal(
-                        progress: _hold,
-                        center: center,
-                        seedRadius: widget.lensRadius,
-                      ),
-                    // Description. S8.1D: the image/activity scenes wear the
-                    // V1-style bottom glass bubble that recedes on contact;
-                    // structural scenes keep the always-on top scrim.
-                    if (widget.bottomBubble)
-                      // Fades out as the orb is born (ui → 1) and back on
-                      // release. The image itself stays clear behind it.
-                      _BottomBubble(
-                        opacity: bubbleOpacity,
-                        badge: widget.badge,
-                        title: widget.headline,
-                        subtitle: widget.prompt,
-                        infoLine: widget.infoLine,
-                        tags: widget.tags,
-                      )
-                    else
-                      _TopScrim(
-                        headline: widget.headline,
-                        prompt: widget.prompt,
-                        badge: widget.badge,
-                      ),
-                    // Edge labels + guidance chip: born/gone with the orb.
-                    if (edgesUi > 0.001)
-                      Opacity(
-                        opacity: edgesUi,
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            EdgeLabels(
-                              left: widget.left,
-                              right: widget.right,
-                              up: widget.up,
-                              down: widget.down,
-                              // Tint each label with the active palette's colour
-                              // for that edge's action, so the label previews the
-                              // decisive filter it triggers.
-                              leftColor:
-                                  activeEdgePalette.colorFor(widget.leftAction),
-                              rightColor:
-                                  activeEdgePalette.colorFor(widget.rightAction),
-                              upColor:
-                                  activeEdgePalette.colorFor(widget.upAction),
-                              downColor:
-                                  activeEdgePalette.colorFor(widget.downAction),
-                            ),
-                            // The bottom bubble carries its own "touche et
-                            // décide" hint, so the redundant guidance chip is
-                            // only shown on the plain (structural) scenes.
-                            if (!widget.bottomBubble && widget.prompt != null)
-                              _hintChip(
-                                t,
-                                'Touche, glisse, et choisis ta direction',
-                              ),
-                          ],
-                        ),
-                      ),
-                    // S14C wayfinding: a calm "where am I" indicator (step dots
-                    // + scene label) pinned at the very top. It rides the rest
-                    // state (bubbleOpacity) so it cross-fades OUT on contact —
-                    // never colliding with the top edge label.
-                    if (widget.journeyStep != null && bubbleOpacity > 0.001)
-                      _JourneyIndicator(
-                        step: widget.journeyStep!,
-                        label: widget.journeyLabel,
-                        opacity: bubbleOpacity,
-                      ),
-                    // First-run-only coach mark. Shown once per launch on the
-                    // very first resting scene (now on bubble scenes too), and it
-                    // spells out the orb's whole grammar so the guest is never
-                    // lost: explore, then back, then home.
-                    if (!_Coach.shown && ui <= 0.001 && _hold <= 0.001)
-                      _firstRunCoach(t),
-                    // Hold-to-home warning hint.
-                    if (_hold > 0.001) _holdWarning(t),
-                  ],
+                return bubble;
+              },
+            ),
+          );
+
+          // Layer 2: decisive-edge colour feedback (filters the image toward the
+          // aimed edge's colour + recolours the orb). Also watches the palette so
+          // a live A/B flip recolours a held wave.
+          final decisive = RepaintBoundary(
+            child: AnimatedBuilder(
+              animation:
+                  Listenable.merge([_aim, _orb, activeEdgePaletteIndex]),
+              builder: (context, _) {
+                final aim = _aim.value;
+                return EdgeDecisiveOverlay(
+                  action: _actionFor(aim.direction),
+                  direction: aim.direction,
+                  reach: aim.reach,
+                  secondaryAction: _actionFor(aim.secondary),
+                  blend: aim.blend,
+                  orbCenter: _orb.value,
+                  lensRadius: widget.lensRadius,
                 );
               },
+            ),
+          );
+
+          // Layer 3: the signature water transition — the calm home field rises
+          // out of the orb and submerges the scene as the hold completes (the
+          // EXACT same [WaterReveal] the splash plays).
+          final water = AnimatedBuilder(
+            animation: Listenable.merge([_hold, _orb]),
+            builder: (context, _) {
+              final hold = _hold.value;
+              if (hold <= 0.001) return const SizedBox.shrink();
+              return WaterReveal(
+                progress: hold,
+                center: _orb.value ?? _restCenter(size),
+                seedRadius: widget.lensRadius,
+              );
+            },
+          );
+
+          // Layer 4: description — bottom glass bubble (recedes on contact) or
+          // the always-on top scrim for structural scenes. Presence-driven only.
+          final Widget description = widget.bottomBubble
+              ? ValueListenableBuilder<double>(
+                  valueListenable: _presence,
+                  builder: (context, presence, _) {
+                    final ui = presence.clamp(0.0, 1.0).toDouble();
+                    final bubbleOpacity = widget.debugProofFull
+                        ? 1.0
+                        : (1 - ui).clamp(0.0, 1.0).toDouble();
+                    return _BottomBubble(
+                      opacity: bubbleOpacity,
+                      badge: widget.badge,
+                      title: widget.headline,
+                      subtitle: widget.prompt,
+                      infoLine: widget.infoLine,
+                      tags: widget.tags,
+                    );
+                  },
+                )
+              : _TopScrim(
+                  headline: widget.headline,
+                  prompt: widget.prompt,
+                  badge: widget.badge,
+                );
+
+          // Layer 5: edge labels + guidance chip — born/gone with the orb
+          // (presence-driven), recoloured live by the palette.
+          final labels = AnimatedBuilder(
+            animation: Listenable.merge([_presence, activeEdgePaletteIndex]),
+            builder: (context, _) {
+              final ui = _presence.value.clamp(0.0, 1.0).toDouble();
+              final edgesUi = widget.debugProofFull ? 1.0 : ui;
+              if (edgesUi <= 0.001) return const SizedBox.shrink();
+              return Opacity(
+                opacity: edgesUi,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    EdgeLabels(
+                      left: widget.left,
+                      right: widget.right,
+                      up: widget.up,
+                      down: widget.down,
+                      leftColor: activeEdgePalette.colorFor(widget.leftAction),
+                      rightColor:
+                          activeEdgePalette.colorFor(widget.rightAction),
+                      upColor: activeEdgePalette.colorFor(widget.upAction),
+                      downColor: activeEdgePalette.colorFor(widget.downAction),
+                    ),
+                    // The bottom bubble carries its own "touche et décide" hint,
+                    // so the redundant guidance chip is only on plain scenes.
+                    if (!widget.bottomBubble && widget.prompt != null)
+                      _hintChip(t, 'Touche, glisse, et choisis ta direction'),
+                  ],
+                ),
+              );
+            },
+          );
+
+          // Layer 6: calm "where am I" wayfinder — rides the rest state so it
+          // cross-fades OUT on contact (presence-driven).
+          final Widget journey = widget.journeyStep == null
+              ? const SizedBox.shrink()
+              : ValueListenableBuilder<double>(
+                  valueListenable: _presence,
+                  builder: (context, presence, _) {
+                    final ui = presence.clamp(0.0, 1.0).toDouble();
+                    final bubbleOpacity =
+                        widget.debugProofFull ? 1.0 : (1 - ui);
+                    if (bubbleOpacity <= 0.001) return const SizedBox.shrink();
+                    return _JourneyIndicator(
+                      step: widget.journeyStep!,
+                      label: widget.journeyLabel,
+                      opacity: bubbleOpacity,
+                    );
+                  },
+                );
+
+          // Layer 7: first-run coach mark + hold-to-home warning hint.
+          final coachAndWarning = AnimatedBuilder(
+            animation: Listenable.merge([_presence, _hold]),
+            builder: (context, _) {
+              final ui = _presence.value.clamp(0.0, 1.0).toDouble();
+              final hold = _hold.value;
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (!_Coach.shown && ui <= 0.001 && hold <= 0.001)
+                    _firstRunCoach(t),
+                  if (hold > 0.001) _holdWarning(t),
+                ],
+              );
+            },
+          );
+
+          final orb = VybiaOrb(
+            showOrb: false, // the refraction bubble IS the orb here
+            enableHoldHome: widget.enableHoldHome,
+            // S21A: callbacks push to ValueNotifiers — NO setState, so a move
+            // never rebuilds the scene tree (only the isolated layers repaint).
+            onPositionChanged: (p) => _orb.value = p,
+            onPresence: (v) {
+              _presence.value = v;
+              if (v > 0.01) _Coach.shown = true; // guest has touched once
+            },
+            onAim: (aim) => _aim.value = aim,
+            onHoldProgress: (v) => _hold.value = v,
+            onDirection: widget.onDirection,
+            onDoubleTap:
+                widget.onDoubleTap ?? () => Navigator.of(context).maybePop(),
+            onHoldHome: widget.onHoldHome ??
+                () => Navigator.of(context)
+                    .pushNamedAndRemoveUntil(AppRouter.accueil, (_) => false),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                hero,
+                decisive,
+                water,
+                description,
+                labels,
+                journey,
+                coachAndWarning,
+              ],
             ),
           );
           // The palette switcher (S14B) sits ABOVE the orb's pointer Listener so
@@ -671,7 +685,7 @@ class _SceneScaffoldState extends State<SceneScaffold>
     return IgnorePointer(
       child: Center(
         child: Opacity(
-          opacity: (0.4 + 0.6 * _hold).clamp(0.0, 1.0).toDouble(),
+          opacity: (0.4 + 0.6 * _hold.value).clamp(0.0, 1.0).toDouble(),
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
             padding: const EdgeInsets.symmetric(

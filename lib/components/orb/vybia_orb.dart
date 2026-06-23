@@ -74,7 +74,10 @@ double edgeProximityReach(
 OrbDirection? perpendicularEdge(
   OrbDirection primary,
   Offset delta, {
-  double minorFrac = 0.18,
+  // S21C: lowered 0.18→0.12 so a moderate diagonal near a corner registers its
+  // perpendicular edge earlier, letting the two-edge gradient actually show on
+  // the phone (the commit still goes to the dominant axis — see deliberateCommit).
+  double minorFrac = 0.12,
 }) {
   final horiz =
       primary == OrbDirection.left || primary == OrbDirection.right;
@@ -90,6 +93,14 @@ OrbDirection? perpendicularEdge(
 /// diagonal-ness of the aim ([diagRatio] = minor/major, 0..1) AND the orb's
 /// proximity to each edge, so a blend only blooms when the orb is genuinely near
 /// a corner, and the closer edge dominates the mix.
+///
+/// S21C: the founder reported the corner gradient "didn't work" on the phone —
+/// the old `share * diagRatio` weighting made the blend nearly invisible for any
+/// aim that wasn't a near-perfect 45°. The diagonal-ness now lifts the mix on a
+/// floor curve (`0.45 + 0.55·diagRatio`) so even a moderate diagonal near a
+/// corner shows a CLEARLY visible two-edge blend, while a pure cardinal aim still
+/// produces no secondary edge at all (see [perpendicularEdge]) and so no blend.
+/// A perfect 45° (diagRatio 1, equal reach) still lands on the even 0.5 cap.
 double cornerBlend(
   double primaryReach,
   double secondaryReach,
@@ -97,7 +108,35 @@ double cornerBlend(
 ) {
   if (secondaryReach <= 0 || primaryReach <= 0) return 0;
   final share = secondaryReach / (primaryReach + secondaryReach); // 0..1
-  return (share * diagRatio.clamp(0.0, 1.0)).clamp(0.0, 0.5).toDouble();
+  final weight = 0.45 + 0.55 * diagRatio.clamp(0.0, 1.0);
+  return (share * weight).clamp(0.0, 0.5).toDouble();
+}
+
+/// S21A — how decisively one axis must beat the other for a release to read as a
+/// clear, deliberate cardinal choice (major ≥ this × minor ≈ within ~38° of the
+/// axis). Below this the drag is an ambiguous diagonal and does NOT commit.
+const double kAxisDominance = 1.25;
+
+/// S21A — the DELIBERATE-commit rule. A release commits a direction only when the
+/// drag is an unmistakable swipe: it travelled at least [travel] px from the
+/// birth point AND one axis clearly dominates ([dominance]), so an ambiguous
+/// ~45° drift or a small jitter never commits — it dissolves. The tuned middle
+/// ground between S17's strict edge-gate (intentional swipes silently failed) and
+/// S20's hair-trigger (casual drifts committed choices by accident).
+OrbDirection? deliberateCommit(
+  Offset delta, {
+  required double travel,
+  double dominance = kAxisDominance,
+}) {
+  if (delta.distance < travel) return null;
+  final ax = delta.dx.abs();
+  final ay = delta.dy.abs();
+  if (ax >= ay) {
+    if (ax < ay * dominance) return null; // too diagonal → ambiguous
+    return delta.dx < 0 ? OrbDirection.left : OrbDirection.right;
+  }
+  if (ay < ax * dominance) return null; // too diagonal → ambiguous
+  return delta.dy < 0 ? OrbDirection.up : OrbDirection.down;
 }
 
 /// The Vybia brand primitive.
@@ -149,7 +188,9 @@ class VybiaOrb extends StatefulWidget {
     this.orbSize = 72,
     this.holdStill = const Duration(milliseconds: 1800),
     this.holdGrow = const Duration(milliseconds: 1300),
-    this.throwVelocity = 720,
+    // S21A: a throw must be a deliberate FLICK, not a casual release — raised
+    // 720→900 px/s so a relaxed lift no longer flings the orb into a commit.
+    this.throwVelocity = 900,
   });
 
   final Widget child;
@@ -391,16 +432,13 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
 
   /// The direction a release should COMMIT, or null (→ dissolve).
   ///
-  /// S20A: commit is DECOUPLED from the proximity visual. A deliberate
-  /// directional drag past the travel [threshold] commits RELIABLY, wherever the
-  /// orb is released — it need not hug the edge. (This reverts S17C's strict
-  /// near-edge commit gate, which made normal thumb swipes silently fail to
-  /// register.) The proximity reach now only drives the visual bloom.
-  OrbDirection? _commitDirection() {
-    final d = _direction;
-    if (d == null) return null;
-    return _delta.distance >= widget.threshold ? d : null;
-  }
+  /// S20A: commit is DECOUPLED from the proximity visual — a deliberate drag past
+  /// the travel [threshold] commits wherever the orb is released, no edge-hug.
+  /// S21A: it must ALSO be a clear cardinal swipe (one axis dominating, via
+  /// [deliberateCommit]) so an ambiguous diagonal or a slow drift dissolves
+  /// rather than committing a choice the founder never intended.
+  OrbDirection? _commitDirection() =>
+      deliberateCommit(_delta, travel: widget.threshold);
 
   // ---- Hold-to-home ------------------------------------------------------
   void _startImmobileTimer() {
@@ -466,11 +504,19 @@ class _VybiaOrbState extends State<VybiaOrb> with TickerProviderStateMixin {
     if (!_active) return;
     _tracker?.addPosition(e.timeStamp, e.localPosition);
     // S9.0: 1:1 INSTANT tracking — the orb is placed at the *exact* contact
-    // point, never an eased/lerped point trailing behind it. The only animation
-    // on the orb is presence (birth/dissolve opacity+scale); position is hard
-    // assigned every frame so it feels reactive and precise. Do NOT introduce
+    // point, never an eased/lerped point trailing behind it. Do NOT introduce
     // positional smoothing here.
-    setState(() => _current = e.localPosition);
+    //
+    // S21A (LATENCY FIX): the position is hard-assigned WITHOUT setState. The
+    // painted orb body is repainted every frame by the always-running [_pulse]
+    // ticker (its AnimatedBuilder re-reads `_current`), so a setState per
+    // pointer-move only forced a redundant full widget rebuild — on Flutter web
+    // that rebuild (plus the scene's own per-move rebuild via onPositionChanged)
+    // is exactly what made the orb feel HEAVY and TRAIL behind the finger. The
+    // raw pointer value now flows straight to the cheap repaint path + the
+    // scene's ValueNotifiers, so the orb sits under the finger with no rebuild
+    // churn between pointer and paint.
+    _current = e.localPosition;
     // Real movement = aiming → cancel any hold-to-home and stop the still timer.
     if (_delta.distance > _holdJitter) {
       _immobileTimer?.cancel();

@@ -267,4 +267,56 @@ void main() {
 
     expect(dir, OrbDirection.left, reason: 'dominant axis wins the commit');
   });
+
+  // ---- S21A: the DELIBERATE-commit rule ---------------------------------
+
+  group('deliberateCommit (pure)', () {
+    test('a clear horizontal swipe past the travel commits that direction', () {
+      expect(
+        deliberateCommit(const Offset(-120, 8), travel: 72),
+        OrbDirection.left,
+      );
+      expect(
+        deliberateCommit(const Offset(0, 130), travel: 72),
+        OrbDirection.down,
+      );
+    });
+
+    test('a small sub-travel nudge does NOT commit (it dissolves)', () {
+      expect(deliberateCommit(const Offset(-30, 4), travel: 72), isNull);
+    });
+
+    test('an ambiguous ~45° drag does NOT commit, however far it travels', () {
+      // |dx| ≈ |dy| → neither axis clearly dominates → no choice, no accident.
+      expect(deliberateCommit(const Offset(-160, -150), travel: 72), isNull);
+      expect(deliberateCommit(const Offset(140, 150), travel: 72), isNull);
+    });
+
+    test('a strong diagonal still commits its clearly dominant axis', () {
+      // 340 vs 260 ⇒ horizontal beats vertical by ≥ kAxisDominance → LEFT.
+      expect(
+        deliberateCommit(const Offset(-340, -260), travel: 72),
+        OrbDirection.left,
+      );
+    });
+  });
+
+  testWidgets('an ambiguous ~45° release does NOT commit a choice',
+      (tester) async {
+    var commits = 0;
+    await tester.pumpWidget(host(onDirection: (_) => commits++));
+
+    // A long but diagonal drift (|dx| ≈ |dy|): travels well past threshold yet
+    // names no clear direction — the founder's "involuntary choice" must NOT
+    // fire; the orb just dissolves.
+    final g = await tester.startGesture(const Offset(400, 300));
+    await tester.pump();
+    await g.moveBy(const Offset(-150, -150));
+    await tester.pump();
+    await g.up();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(commits, 0,
+        reason: 'an ambiguous diagonal dissolves — only a clear swipe commits');
+  });
 }
